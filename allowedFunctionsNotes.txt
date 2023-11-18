@@ -1,0 +1,117 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    allowedFunctionsNotes.txt                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/11/18 17:20:21 by amenses-          #+#    #+#              #
+#    Updated: 2023/11/18 20:23:06 by amenses-         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+man tcp(7)
+A  newly created TCP socket has no remote or local address and is not fully specified.  To create an outgoing TCP connection use connect(2) to establish a connection to another TCP  socket.
+To  receive new incoming connections, first bind(2) the socket to a local address and port and then call listen(2) to put the socket into the listening state.  After that a  new  socket  for each  incoming connection can be accepted using accept(2).  A socket which has had accept(2) or connect(2) successfully called on it is fully specified and may transmit data.  Data cannot  be transmitted on listening or not yet connected sockets
+
+<netdb.h>
+
+SOCKET [2, 3]
+int socket(int *domain, int type, int protocol);
+
+creates  an  endpoint  for communication and returns a file descriptor that refers to that endpoint
+-domain: communication domain; this selects the protocol family which will be used for communication
+    AF_INET (IPv4 Internet protocols, man ip(7));
+    AF_INET6 (IPv6 Internet protocols, man ipv6(7));
+    AF_UNIX (Local communication, =AF_LOCAL, man unix(7))
+-type: specifies the communication semantics
+    SOCK_STREAM (TCP)
+    SOCK_DGRAM (UCP)
+    SOCKET_RAW
+-protocol: The protocol specifies a particular protocol to be used with the socket.  Normally only a  single  protocol  exists  to  support  a particular socket type within a given protocol family, in which case protocol can be specified as 0; man tcp(7)
+-tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
+-Return: fd on success; -1 on failure
+
+CLOSE [2]
+int close(int socket);
+
+shuts down the socket associated with the socket descriptor socket, and frees resources allocated to the socket.
+If socket refers to an open TCP connection, the connection is closed.
+If a stream socket is closed when there is input data queued, the TCP connection is reset rather than being cleanly closed
+-Return: 0 on success; -1 on failure
+
+SETSOCKOPT [2, 3]
+int setsockopt(int socket, int level, int option_name,
+    const void *option_value, socklen_t option_length);
+
+manipulate  options for the socket referred to by the file descriptor sockfd
+-level: level at which the option resides and the name of the option
+    SOL_SOCKET (at the sockets API level)
+    IPPROTO_IP (at eh IPv4 ot IPv6 level)
+    getprotobyname(): return the protocol the number, for example for TCP
+-option_value and option_length [2]: used to pass data used by the particular set command; NULL if no need
+    All of the socket-level options except SO_LINGER, SO_RCVTIMEO and SO_SNDTIMEO, expect option_value to point to an integer and option_length to be set to the size of an integer. When the integer is nonzero, the option is enabled. When it is zero, the option is disabled
+-option_name: name of a specified socket option
+-Return: 0 on success; -1 on failure
+
+GETSOCKNAME
+int getsockname(int socket, struct sockaddr *name, int *namelen);
+
+stores the current name for the socket specified by the socket parameter into the structure pointed to by the name parameter
+is often used to discover the port assigned to a socket after the socket has been implicitly bound to a port
+To use this function with C++, you must use the _XOPEN_SOURCE_EXTENDED 1 feature test macro
+-name: address of the buffer into which getsockname() copies the name of socket.
+-namelen: must initially point to an integer that contains the size in bytes of the storage pointed to by name
+    On return, that integer contains the size required to represent the address of the connecting socket.
+    If this value is larger than the size supplied on input, then the information contained in sockaddr is truncated to the length supplied on input.
+    If name is NULL, namelen is ignored
+-Return: the address to the socket that has been bound; If the socket is not bound to an address, the call returns with the family set, and the rest of the structure set to zero
+
+GETPROTOBYNAME
+struct protoent *getprotobyname(const char *name);
+
+searches the /etc/protocol or tcpip.ETC.PROTO data set for the specified protocol name
+-Return: a pointer to a protoent structure for the network protocol specified on the call; NULL on failure or EOF
+
+GETHOSTBYNAME
+struct hostent *gethostbyname(const char *name);
+
+tries to resolve the host name through a name server, if one is present. If a name server is not present, gethostbyname() searches the local host tables until a matching host name is found or an EOF marker is reached
+-name: is  either  a hostname or an IPv4 address in standard dot notationq
+Return: returns a pointer to a hostent structure for the host name specified on the call
+
+GETADDRINFO
+int getaddrinfo(const char *nodename, const char *servname,
+                const struct addrinfo *hints, struct addrinfo **res);
+
+translates the name of a service location (for example, a host name) and/or service name and returns a set of socket addresses and associated information to be used in creating a socket with which to address the specified service
+-nodename and servname: either pointers to null-terminated strings or null pointers. One or both of these two arguments must be specified as a non-null pointer
+-Notes:     If the caller handles only TCP and not UDP, for example, then the ai_protocol member of the hints structure should be set to IPPROTO_TCP when getaddrinfo() is called.
+    If the caller handles only IPV4 and not IPv6, then the ai_family member of the hints structure should be set to AF_INET when getaddrinfo() is called.
+    Scope information is only pertinent to IPv6 link-local addresses. It is ignored for resolved IPv4 addresses and IPv6 addresses that are not link-local addresses.
+-Returns: returns 0 and a pointer to a linked list of one or more addrinfo structures through the res argument o success; non-zero error code on failure
+
+freeaddrinfo
+bind
+connect
+listen
+accept
+htons
+htonl
+ntohs
+ntohl
+inet_addr
+inet_ntoa
+send
+recv
+signal
+sigaction
+lseek
+fstat
+fcntl
+poll (or equivalent)
+
+REFERENCES:
+[1] https://www.geeksforgeeks.org/socket-programming-cc/
+[2] https://www.ibm.com/docs/en/zos/2.1.0?topic=functions-socket-create-socket
+[3] man
