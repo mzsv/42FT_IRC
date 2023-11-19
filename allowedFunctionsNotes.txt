@@ -6,7 +6,7 @@
 #    By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/18 17:20:21 by amenses-          #+#    #+#              #
-#    Updated: 2023/11/18 20:23:06 by amenses-         ###   ########.fr        #
+#    Updated: 2023/11/19 16:56:04 by amenses-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -91,25 +91,285 @@ translates the name of a service location (for example, a host name) and/or serv
     Scope information is only pertinent to IPv6 link-local addresses. It is ignored for resolved IPv4 addresses and IPv6 addresses that are not link-local addresses.
 -Returns: returns 0 and a pointer to a linked list of one or more addrinfo structures through the res argument o success; non-zero error code on failure
 
-freeaddrinfo
-bind
-connect
-listen
-accept
-htons
-htonl
-ntohs
-ntohl
-inet_addr
-inet_ntoa
-send
-recv
-signal
-sigaction
-lseek
-fstat
-fcntl
-poll (or equivalent)
+FREEADDRINFO [2]
+void *freeaddrinfo(struct addrinfo *ai);
+
+frees one or more addrinfo structures returned by getaddrinfo(), along with any additional storage associated with those structures. If the ai_next field of the structure is not null, the entire list of structures is freed
+
+struct addrinfo {
+    int              ai_flags;
+    int              ai_family;
+    int              ai_socktype;
+    int              ai_protocol;
+    socklen_t        ai_addrlen;
+    struct sockaddr *ai_addr;
+    char            *ai_canonname;
+    struct addrinfo *ai_next;
+};
+
+BIND [2, 3]
+int bind(int socket, const struct sockaddr *address, socklen_t address_len);
+
+binds a unique local name to the socket with descriptor socket. After calling socket(), a descriptor does not have a name associated with it. However, it does belong to a particular address family (name space) as specified when socket() is called. The exact format of a name depends on the address family
+It is normally necessary to assign a local address using bind() before a SOCK_STREAM socket may receive connections (see accept(2))
+The  rules  used  in name binding vary between address families
+-address: The pointer to a sockaddr structure containing the name that is to be bound to socket
+-address_len: size of address in bytes
+-Return: 0 on success; -1 on failure
+
+CONNECT
+int connect(int socket, const struct sockaddr *address, socklen_t address_len);
+
+For stream sockets, the connect() call attempts to establish a connection between two sockets. For datagram sockets, the connect() call specifies the peer for a socket
+The connect() call performs two tasks when called for a stream socket.
+First, it completes the binding necessary for a stream socket (in case it has not been previously bound using the bind() call).
+Second, it attempts to make a connection to another socket
+The connect() call on a stream socket is used by the client application to establish a connection to a server. The server must have a passive open pending
+If socket is in blocking mode, the connect() call blocks the caller until the connection is set up, or until an error is received.
+If socket is in non-blocking mode, the connect returns immediately with a return code of -1 and an errno of EINPROGRESS.
+The caller can test the completion of the connection setup by calling select() and testing for the ability to write to the socket
+Stream sockets can call connect() only once, but datagram sockets can call connect() multiple times to change their association
+-socket: the socket used to originate the connection request
+-address: The pointer to a socket address structure containing the address of the socket to which a connection will be attempted
+-address_len: The size of the socket address pointed to by address in bytes
+-Return: 0 on success; -1 on failure
+
+LISTEN [2, 3]
+int listen(int socket, int backlog);
+
+applies only to stream sockets.
+It indicates a readiness to accept client connection requests, and creates a connection request queue of length backlog to queue incoming connection requests.
+Once full, additional connection requests are rejected (error ECONNREFUSED or if the protocol suppers retransmission, ignored for later attempt)
+It transforms an active socket into a passive socket
+Calling listen() is the third of four steps that a server performs to accept a connection. It is called after allocating a stream socket with socket(), and after binding a name to socket with bind(). It must be called before calling accept()
+-backlog: the maximum length for the queue of pending connections
+-Return: 0 on success; -1 on failure
+
+ACCEPT
+int accept(int socket, struct sockaddr *__restrict__ address,
+           socklen_t *__restrict__address_len);
+
+Used by a server to accept a connection request from a client. Only with SOCK_STREAM sockets
+When a connection is available, the socket created is ready for use to read data from the process that requested the connection
+The call accepts the first connection on its queue of pending connections for the given socket socket. 
+The accept() call creates a new socket descriptor with the same properties as socket and returns it to the caller.
+If the queue has no pending connection requests, accept() blocks the caller unless socket is in nonblocking mode.
+If no connection requests are queued and socket is in nonblocking mode, accept() returns -1 and sets the error code to EWOULDBLOCK or EAGAIN.
+The new socket descriptor cannot be used to accept new connections. It is not in the listening state
+The original socket, socket, remains available to accept more connection requests.
+A socket can be checked for incoming connection requests using the select(), poll() or epoll() calls
+-socket: a stream socket descriptor created with the socket() call, bound to a local address with bind(2), and is listening for connections
+-address: The socket address of the connecting client that is filled in by accept() before it returns
+    The format of address is determined by the domain that the client resides in.
+    This parameter can be NULL if the caller is not interested in the client address.
+-address_len: Must initially point to an integer that contains the size in bytes of the storage pointed to by address.
+    On return, that integer contains the size required to represent the address of the connecting socket.
+    If this value is larger than the size supplied on input, then the information contained in sockaddr is truncated to the length supplied on input.
+    If address is NULL, address_len is ignored.
+-Return: nonnegative socket descriptor on success; -1 on failure
+
+HTONS [3]
+uint16_t htons(uint16_t hostshort);
+
+Translates a short integer from host byte order to network byte order (big-endian) 
+-hostshort: The unsigned short integer to be put into network byte order
+
+HTONL [3]
+uint32_t htonl(uint32_t hostlong);
+
+Converts the unsigned short integer hostshort from host byte order to network byte order.
+-hostlong: The unsigned integer to be put into network byte order
+
+NTOHS [3]
+uint16_t ntohs(uint16_t netshort);
+
+Converts the unsigned short integer netshort from network  byte  order  to host byte order.
+-netshort: network unsigned short integer
+
+NTOHL [3]
+uint32_t ntohl(uint32_t netlong);
+
+Converts the unsigned integer netlong from network byte order to host byte order
+-netshort: network unsigned integer
+
+INET_ADDR [2, 3]
+in_addr_t inet_addr(const char *cp);
+
+Converts the Internet host address cp from IPv4 numbers-and-dots notation into binary data in network byte order.
+If the input is invalid, INADDR_NONE (usually -1) is  returned.
+Use  of  this  function  is  problematic  because  -1  is   a   valid   address (255.255.255.255).
+Avoid  its  use  in favor of inet_aton(), inet_pton(3), or getaddrinfo(3), which provide a cleaner way to indicate error return.
+-Return: the Internet address in network byte order, on success; INADDR_NONE on failure (incorrect format)
+
+INETNTOA [2, 3]
+char *inet_ntoa(struct in_addr in);
+
+Converts the Internet host address in, given in network byte order, to a  string  in  IPv4  dotted-decimal notation (32-bit).
+The string is returned in a statically allocated buffer, which subsequent calls will overwrite
+-Return: pointer to the Internet address expressed in dotted-decimal notation
+    The storage pointed to exists on a per-thread basis (static allocation) and is overwritten by subsequent calls
+
+SEND [3]
+ssize_t send(int socket, const void *buffer, size_t length, int flags);
+
+Sends data on the socket with descriptor socket. The send() call applies to all connected sockets
+The send() call may be used only when the socket is in a connected state (so that the  intended recipient is known)
+The only difference between send() and write(2) is the presence of flags.
+With a zero flags argument, send() is equivalent to write(2).
+If  the message is too long to pass atomically through the underlying protocol(!), the error EMSGSIZE is returned, and the message is not transmitted
+When  the  message does not fit into the send buffer of the socket, send() normally blocks, unless the socket has been placed in nonblocking I/O mode.
+In nonblocking  mode  it  would  fail with the error EAGAIN or EWOULDBLOCK (returns -1) in this case.
+The select(2) call may be used to determine when it is possible to send more data.
+-buffer: buffer containing the message to transmit
+-length: ength of the message
+-flags: is the bitwise OR of zero or more of the available flags ([3])
+-Return: number of bytes sent, on success; -1 on failure
+
+RECV [2, 3]
+ssize_t recv(int socket, void *buffer, size_t length, int flags);
+
+Receives data on a socket and stores it in a buffer.
+The recv() call applies only to connected sockets.
+The only difference between recv() and read(2) is the presence of flags. With a zero flags argument, recv() is generally equivalent to read(2) (but see NOTES)
+If a message is too long to fit in the supplied buffer, excess bytes may be discarded  depending  on  the  type  of socket the message is received from.
+If no messages are available at the socket, the receive calls wait for a message to arrive, unless the socket is nonblocking (see fcntl(2)), in which case the value -1 is returned  and  the external variable errno is set to EAGAIN or EWOULDBLOCK.
+The receive calls normally return any data available, up to the requested amount, rather than waiting for receipt of the full  amount requested.
+An application can use select(2), poll(2), or epoll(7) to determine when more data arrives on a socket
+The flags argument is formed by ORing one or more of the available values ([3])
+-Return: number of bytes received (0 for EOF or len=0), on success; -1 on failure
+
+SIGNAL [3]
+void(*signal(int sig, void(*func)(int)))(int);
+or:
+typedef void (*sighandler_t)(int);
+sighandler_t signal(int signum, sighandler_t handler);
+
+SIGACTION [3]
+int sigaction(int signum, const struct sigaction *act, struct sigaction *oldact);
+
+The sigaction structure is defined as something like:
+
+    struct sigaction {
+        void     (*sa_handler)(int);
+        void     (*sa_sigaction)(int, siginfo_t *, void *);
+        sigset_t   sa_mask;
+        int        sa_flags;
+        void     (*sa_restorer)(void);
+    };
+When the SA_SIGINFO flag is specified in act.sa_flags, the signal handler address is passed via the act.sa_sigaction field.  This handler takes three arguments, as follows:
+
+    void
+    handler(int sig, siginfo_t *info, void *ucontext)
+    {
+        ...
+    }
+
+LSEEK [3]
+off_t lseek(int fd, off_t offset, int whence);
+
+Repositions  the file offset of the open file description associated with the file descriptor fd to the argument offset according to the directive whence as follows
+lseek() allows the file offset to be set beyond the end of the file (but this does  not  change the size of the file).  If data is later written at this point, subsequent reads of the data in the gap (a "hole") return null bytes ('\0') until data is actually written into the gap
+-whence:
+    SEEK_SET (The file offset is set to offset bytes)
+    SEEK_CUR (The file offset is set to its current location plus offset bytes)
+    SEEK_END (The file offset is set to the size of the file plus offset bytes)
+    SEEK_DATA (Adjust the file offset to the next location in the file greater than or equal to  offset containing data.  If offset points to data, then the file offset is set to offset.)
+    SEEK_HOLE (Adjust the file offset to the next hole in the file greater than or equal to offset.  If offset points into the middle of a hole, then the file offset  is  set  to  offset.   If there  is  no  hole past offset, then the file offset is adjusted to the end of the file (i.e., there is an implicit hole at the end of any file))
+-Return: the resulting offset location as measured in  bytes from the beginning of the file, on success; -1 on failure
+
+FSTAT [3]
+int fstat(int fd, struct stat *statbuf);
+
+Retrieves information about the file descriptor fd
+Returns a stat structure, which contains the following fields:
+    struct stat {
+        dev_t     st_dev;         /* ID of device containing file */
+        ino_t     st_ino;         /* Inode number */
+        mode_t    st_mode;        /* File type and mode */
+        nlink_t   st_nlink;       /* Number of hard links */
+        uid_t     st_uid;         /* User ID of owner */
+        gid_t     st_gid;         /* Group ID of owner */
+        dev_t     st_rdev;        /* Device ID (if special file) */
+        off_t     st_size;        /* Total size, in bytes */
+        blksize_t st_blksize;     /* Block size for filesystem I/O */
+        blkcnt_t  st_blocks;      /* Number of 512B blocks allocated */
+
+        /* Since Linux 2.6, the kernel supports nanosecond
+            precision for the following timestamp fields.
+            For the details before Linux 2.6, see NOTES. */
+
+        struct timespec st_atim;  /* Time of last access */
+        struct timespec st_mtim;  /* Time of last modification */
+        struct timespec st_ctim;  /* Time of last status change */
+
+    #define st_atime st_atim.tv_sec      /* Backward compatibility */
+    #define st_mtime st_mtim.tv_sec
+    #define st_ctime st_ctim.tv_sec
+    };
+-Return: 0 on success; -1 on failure
+
+FCNTL [2,3]
+int fcntl(int fd, int cmd, ... /* arg */ );
+
+Performs one of the operations described below on the open file descriptor fd.  The operation is determined by cmd
+fcntl() can take an optional third argument.  Whether or not this argument is required  is  determined  by  cmd.   The required argument type is indicated in parentheses after each cmd name ( most cases, the required type is int, and we identify the argument using the name arg), or void is specified if the argument is not required.
+-cmd: (examples)
+    F_SETFL (int): Set the file status flags to the value specified by arg
+        On Linux, this command can change only the  O_APPEND,  O_ASYNC,  O_DIRECT,  O_NOATIME,  and  O_NONBLOCK  flags
+    F_SETSIG (int): Set the signal sent when input or output becomes possible to the value given in arg
+        A value of zero means to send the default SIGIO signal.  Any other value (including SIGIO) is the signal to send instead, and in this case additional info is available to the signal handler if installed with SA_SIGINFO
+
+POLL (or equivalent, such as select(), kqueue() or epoll()-linux-)
+
+POLL
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+
+Performs  a similar task to select(2): it waits for one of a set of file descriptors to become ready to perform I/O.
+The bits that may be set/returned in events and revents are defined in <poll.h>
+    POLLIN There is data to read.
+    POLLPRI There is some exceptional condition on the file descriptor (out-of-band data on a TCP socket, tcp(7))
+    POLLOUT
+    POLLRDHUP Stream socket peer closed connection, or shut down  writing  half  of  connection
+    POLLERR Error condition (only returned in revents; ignored in events). This bit is also set for a  file  descriptor  referring  to  the  write  end of a pipe when the read end has been closed.
+    POLLHUP Hang up (only returned in revents; ignored in events). Note that when  reading  from  a channel  such  as  a  pipe or a stream socket, this event merely indicates that the peer closed its end of the channel.  Subsequent reads from the channel will return 0 (EOF) only after all outstanding data in the channel has been consumed
+    POLLNVAL Invalid request: fd not open (only returned in revents; ignored in events).
+    When  compiling with _XOPEN_SOURCE defined, one also has the following:
+    POLLRDNORM =POLLIN
+    POLLRDBAND Priority band data can be read (generally unused on Linux)
+    POLLWRNORM =POLLOUT
+    POLLWRBAND Priority data may be written
+-fds: set of file descriptors to be monitored
+    struct pollfd {
+               int   fd;         /* file descriptor for open file */
+               short events;     /* requested events */
+               short revents;    /* returned events */
+           };
+    .fd
+        If this field is negative, then the corresponding events field is ignored and the revents field returns zero
+    .events
+        Is an input parameter. A bit mask specifying the events the application is interested in for the file descriptor fd.  This field may be specified as zero, in which case the only events that can be returned in revents are POLLHUP, POLLERR, and POLLNVAL
+    .revents
+        Is an output parameter. Filled by the kernel with the  events  that  actually occurred.  The bits returned in revents can include any of those specified in events, or one of the values POLLERR, POLLHUP, or POLLNVAL.  (These three bits  are  meaningless  in  the  events field, and will be set in the revents field whenever the corresponding condition is true.)
+-nfds: number of items in the fds array in nfds
+-timeout: the number of milliseconds that poll() should block waiting  for a file descriptor to become ready.
+    The call will block until either:
+        *  a file descriptor becomes ready;
+        *  the call is interrupted by a signal handler; or
+        *  the timeout expires.
+    Specifying  a negative  value  in  timeout  means  an  infinite timeout.
+    Specifying a timeout of zero causes poll() to return immediately, even if no file descriptors are ready.
+
+SELECT
+int select(int nfds, fd_set *readfds, fd_set *writefds,
+                  fd_set *exceptfds, struct timeval *timeout);
+
+Allows a program to monitor multiple file descriptors, waiting until one or more of the file descriptors become "ready" for some class of  I/O  operation  (e.g.,  input possible).
+A file descriptor is considered ready if it is possible to perform a corresponding I/O operation (e.g., read(2), or a sufficiently small write(2)) without blocking
+select() can monitor only file descriptors numbers that are less than FD_SETSIZE; poll(2) does not have this limitation.
+
+EPOLL
+The  epoll  API performs a similar task to poll(2): monitoring multiple file descriptors to see if I/O is possible on any of them.
+The epoll API can be used either as an edge-triggered or  a level-triggered interface (=poll()) and scales well to large numbers of watched file descriptors
 
 REFERENCES:
 [1] https://www.geeksforgeeks.org/socket-programming-cc/
