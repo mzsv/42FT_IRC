@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/30 18:29:56 by amenses-          #+#    #+#             */
-/*   Updated: 2023/12/02 00:09:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2023/12/02 20:45:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,9 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <unistd.h>
+# include <fcntl.h>
+# include <poll.h>
+# include <cstdlib>
+# include <cstdio>
 
 #endif

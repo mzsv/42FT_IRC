@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    allowedFunctionsNotes.txt                          :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+         #
+#    By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/18 17:20:21 by amenses-          #+#    #+#              #
-#    Updated: 2023/11/21 17:53:20 by amenses-         ###   ########.fr        #
+#    Updated: 2023/12/02 20:30:32 by amenses-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -471,11 +471,13 @@ After poll() returns, you can check the revents field to see if POLLIN or POLLOU
 -fds: set (array) of file descriptors (sockets) to be monitored
     Add file descriptors: simply make sure you have enough space in the array for all you need, or realloc() more space as needed [4]
     Remove file descriptores: you can copy the last element in the array over-top the one you’re deleting. And then pass in one fewer as the count to poll(). Another option is that you can set any fd field to a negative number and poll() will ignore it [4]
+
     struct pollfd {
                int   fd;         /* file descriptor (socket) for open file */
                short events;     /* requested events (bitmap) */
                short revents;    /* returned events (bitmap, on return) */
            };
+
     .fd
         If this field is negative, then the corresponding events field is ignored and the revents field returns zero
     .events
