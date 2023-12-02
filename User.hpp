@@ -6,9 +6,12 @@
 /*   By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/19 17:15:32 by amenses-          #+#    #+#             */
-/*   Updated: 2023/11/19 17:31:53 by amenses-         ###   ########.fr       */
+/*   Updated: 2023/11/30 18:30:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef USER_HPP
+# define USER_HPP
 
 class User
 {
@@ -29,7 +32,9 @@ class User
         User(User const & src);
         User & operator=(User const & src);
         
-        // getters
+        // getters: isoperator, isonline, getchannels, getsocket, getnickname, getusername, getpassword
         // setters
         // methods
 };
+
+#endif
