@@ -10,6 +10,9 @@
 #                                                                              #
 # **************************************************************************** #
 
+-spotchat server
+-https://modern.ircdocs.horse/
+
 man tcp(7)
 A  newly created TCP socket has no remote or local address and is not fully specified.  To create an outgoing TCP connection use connect(2) to establish a connection to another TCP  socket.
 To  receive new incoming connections, first bind(2) the socket to a local address and port and then call listen(2) to put the socket into the listening state.  After that a  new  socket  for each  incoming connection can be accepted using accept(2).  A socket which has had accept(2) or connect(2) successfully called on it is fully specified and may transmit data.  Data cannot  be transmitted on listening or not yet connected sockets

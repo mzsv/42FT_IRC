@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 16:23:51 by amenses-          #+#    #+#             */
-/*   Updated: 2023/12/02 21:22:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/06 20:36:11 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ int main()
     }
     for (i = res; i != NULL; i = i->ai_next)
     {
+        std::cout << "ai_protocol: " << i->ai_protocol << std::endl;
         if ((listener = socket(res->ai_family, res->ai_socktype, \
             res->ai_protocol)) == -1)
         {
