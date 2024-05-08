@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/07 18:36:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/08 14:51:42 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,6 +157,7 @@ int User::read_message()
 	while ((bytes = recv(socket_fd_, bf, 99, 0)) > 0)
 	{
 		bf[bytes] = 0;
+		std::cout << "Received: " << bf << std::endl;
 		msg += bf;
 		memset(bf, 0, sizeof(bf));
 		if (msg.find('\n') != std::string::npos)
@@ -180,6 +181,8 @@ int User::read_message()
 	{
 		messages_ = split2queue(msg, '\n', true);
 	}
+	// print message
+	std::cout << "Message: " << msg << std::endl;
 	return 0;
 }
 
