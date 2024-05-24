@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/06 20:50:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/24 21:25:46 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,11 @@ class Server
 	std::string name_;
 	std::string password_;
 
-	time_t max_inactive_time_;
-	time_t max_response_time_;
-	const id_t timeout_;
+	// time_t max_inactive_time_;
+	// time_t max_response_time_;
+	const id_t timeout_; // used for poll(); shoudnt it be 0? check man
+	double max_inactive_time_;
+	double max_response_time_;
 
   public:
 	Server(int port, const std::string& password);
@@ -77,6 +79,7 @@ class Server
 	*/
 	int get_socket_fd() const;
 	const std::string& get_name() const;
+	const std::string& get_password() const;
 
 	/**
 	 * Setters
@@ -98,6 +101,8 @@ class Server
     int handle_message(User& user);
 	void notify_users(User& user, const std::string& message);
 	bool contains_nickname(const std::string& nickname) const;
+
+	// void ping_users() const; // already at server::check_connection()
 };
 
 

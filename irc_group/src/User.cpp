@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/08 14:51:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/24 18:01:08 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,11 +88,13 @@ void User::set_password(const std::string& password)
 
 void User::set_nickname(const std::string& nickname)
 {
+	// std::cout << "Setting nickname to: " << nickname << std::endl;
 	nickname_ = nickname;
 }
 
 void User::set_username(const std::string& username)
 {
+	// std::cout << "Setting username to: " << username << std::endl;
 	username_ = username;
 }
 

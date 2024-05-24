@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/06 20:49:52 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/24 21:31:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,9 @@
 /* ========================================================================== */
 
 Server::Server(int port, const std::string& password) :
-	port_(port), password_(password), timeout_(1)
+	port_(port), password_(password), timeout_(1),
+	max_inactive_time_(120), max_response_time_(60)
+	// should the listener socket be setup here?
 {
 }
 
@@ -47,6 +49,11 @@ int Server::get_socket_fd() const
 const std::string& Server::get_name() const
 {
 	return name_;
+}
+
+const std::string& Server::get_password() const
+{
+	return password_;
 }
 
 /**
@@ -92,11 +99,16 @@ void Server::listen_socket()
 		exit(EXIT_FAILURE);
 	}
 	fcntl(socket_fd_, F_SETFL, O_NONBLOCK);
+	name_ = inet_ntoa(sockaddr_.sin_addr);
 
 	// print address and port
 	std::cout << "Server is running on "
 		<< inet_ntoa(sockaddr_.sin_addr) << ":"
 		<< ntohs(sockaddr_.sin_port) << std::endl;
+	// print times
+	std::cout << "max_inactive_time_: " << max_inactive_time_ << std::endl;
+	std::cout << "max_response_time_: " << max_response_time_ << std::endl;
+	std::cout << "timeout_: " << timeout_ << std::endl;
 }
 
 /*
@@ -155,14 +167,17 @@ void Server::check_connection()
 	{
 		if (users_[i]->get_flags() & REGISTERED)
 		{
-			if (time(0) - users_[i]->get_time_of_last_action() > max_inactive_time_)
+			// if (time(0) - users_[i]->get_time_of_last_action() > max_inactive_time_)
+			if (difftime(time(0), users_[i]->get_time_of_last_action()) > max_inactive_time_)
 			{
-				users_[i]->send_message(":" + name_ + " PING :" + name_ + "\n");
+				users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n");
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
 				users_[i]->set_flag(PINGING);
 			}
-			if ((users_[i]->get_flags() & PINGING) && time(0) - users_[i]->get_time_after_pinging() > max_response_time_)
+			// if ((users_[i]->get_flags() & PINGING) && time(0) - users_[i]->get_time_after_pinging() > max_response_time_)
+			if ((users_[i]->get_flags() & PINGING) && \
+				difftime(time(0), users_[i]->get_time_after_pinging()) > max_response_time_)
 			{
 				users_[i]->set_flag(BREAK);
 			}
@@ -173,6 +188,7 @@ void Server::check_connection()
 //! Refactor this method
 int Server::check_connection(User& user)
 {
+	// separate function for registration? ! no need to check this all the time
 	if (!user.get_nickname().size() || !user.get_username().size())
 	{
 		return 0;
@@ -181,18 +197,35 @@ int Server::check_connection(User& user)
 	{
 		if (!(user.get_flags() & REGISTERED))
 		{
-			user.set_flag(REGISTERED);
+			user.set_flag(REGISTERED); //  Registration
 		}
 	}
 	else
 	{
 		return DISCONNECT;
 	}
+	// // check pinging time
+	// if (user.get_flags() & PINGING && time(0) - user.get_time_after_pinging() > max_response_time_)
+	// {
+	// 	return DISCONNECT;
+	// }
+	// // check timeout
+	// if (time(0) - user.get_time_of_last_action() > max_inactive_time_)
+	// {
+	// 	//maybe put this in a pinging function ? and reuse at ping_users
+	// 	user.send_message(":" + name_ + " PING :" + name_ + "\n");
+	// 	user.set_time_after_pinging();
+	// 	user.set_time_of_last_action();
+	// 	user.set_flag(PINGING);
+	// }
 	return 0;
 }
 
 void Server::get_connection()
 {
+	// doesn't poll check if there an incoming connection on the listening sock? is is more efficient?
+	// yes! poll must be used prior to accept ! (check evaluation sheet)
+	// ISSUE
 	size_t addr_len = sizeof(sockaddr);
 	int connection = accept(socket_fd_, (struct sockaddr*)&sockaddr_, (socklen_t*)&addr_len);
 	if (connection < 0)
@@ -207,6 +240,9 @@ void Server::get_connection()
 	pfd.revents = 0;
 	users_fds_.push_back(pfd);
 	users_.push_back(new User(connection, host, name_));
+
+	// + missing protocol registration message; do I need it for this project?
+	// I think we should, to confirm it responds to the correct protocol
 }
 
 
@@ -244,7 +280,7 @@ int Server::handle_message(User& user)
 		user.pop_message();
 		Logger::Log(INFO, message.get_message());
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
-			&& message.get_command() != "USER" && message.get_command() != "NICK")
+			&& message.get_command() != "USER" && message.get_command() != "NICK") // shorter way?
 		{
 			Response::error(user, ERR_NOTREGISTERED);
 		}
@@ -252,8 +288,10 @@ int Server::handle_message(User& user)
 		{
 			try
 			{
-				Executor executor(this);
+				std::cout << "executing..." << std::endl;
+				Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
 				int response = executor.execute(message, user);
+				std::cout << "response: " << response << std::endl;
 				if (response == DISCONNECT)
 				{
 					return DISCONNECT;
@@ -265,6 +303,8 @@ int Server::handle_message(User& user)
 			}
 		}
 	}
+	// print user info
+	// std::cout << "nick: " << user.get_nickname() << " username: " << user.get_username() << " host: " << user.get_host() << std::endl;
 	user.set_time_of_last_action();
 	return 0;
 }
@@ -296,3 +336,14 @@ bool Server::contains_nickname(const std::string& nickname) const
 	}
 	return false;
 }
+
+// void Server::ping_users() const // protocol conflict
+// {
+// 	for (size_t i = 0; i < users_.size(); ++i)
+// 	{
+// 		if (users_[i]->get_flags() & REGISTERED && !(users_[i]->get_flags() & PINGING))
+// 		{
+// 			users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n");
+// 		}
+// 	}
+// }

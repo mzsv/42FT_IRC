@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/06 20:52:47 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/24 21:02:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@ int main(int argc, char **argv)
     server.bind_socket();
     server.listen_socket();
     Logger::Log(INFO, "Hm...");
+    // print server timeout members
+    
+    
     while (true)
     {
         server.get_connection();
@@ -49,6 +52,7 @@ int main(int argc, char **argv)
         server.check_connection();
         server.delete_broken_connection();
         server.delete_empty_channels();
+        // server.ping_users();
     }
 
     return EXIT_SUCCESS;
