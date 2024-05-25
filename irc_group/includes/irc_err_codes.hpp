@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:01:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 22:14:06 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/25 18:29:24 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #define ERR_NOSUCHCHANNEL       403
 #define ERR_UNKNOWNCOMMAND		421
 #define ERR_NOTREGISTERED		451
+#define ERR_CHANNELISFULL		471
+#define ERR_INVITEONLYCHAN		473
+#define ERR_BADCHANNELKEY		475
 #define ERR_BADCHANMASK			476
 #define ERR_CHANOPRIVSNEEDED	482
 

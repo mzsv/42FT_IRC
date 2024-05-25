@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 22:13:44 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/25 21:35:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["PING"] = &Executor::ping;
 	functions_["PONG"] = &Executor::pong;
 	functions_["JOIN"] = &Executor::join;
+	// functions_["PART"] = &Executor::part;
 	
 	functions_["QUIT"] = &Executor::quit;
 }
@@ -135,20 +136,54 @@ int Executor::pong(const Message& message, User& user)
 	return 0;
 }
 
+std::vector<std::string> split_arguments(const std::string& arguments) // util !
+{
+	std::vector<std::string> result;
+	std::istringstream iss(arguments);
+	std::string token;
+	
+	while (std::getline(iss, token, ','))
+	{
+		result.push_back(token);
+	}
+	return result;
+}
+
 int Executor::join(const Message& message, User& user)
 {
-	if (message.get_arguments().size() == 0)
+	std::vector<std::string> channel_names;
+	std::vector<std::string> keys;
+
+	if (user.get_flags() & REGISTERED)
+	{
+		Response::error(user, ERR_NOTREGISTERED);
+	}
+	else if (message.get_arguments().size() == 0)
 	{
 		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command());
 	}
-	else if (message.get_arguments()[0][0] != '#')
+	else if (message.get_arguments()[0] == "0")
 	{
-		Response::error(user, ERR_BADCHANMASK, message.get_arguments()[0]);
+		// leave/PART all channels !
 	}
-	else
+	else 
 	{
-		// check if channel exists
-		// if not, create it
-		// add user to channel
+		channel_names = split_arguments(message.get_arguments()[0]);
+		if (message.get_arguments().size() > 1)
+		{
+			keys = split_arguments(message.get_arguments()[1]);
+		}	
+		for (size_t i = 0; i < channel_names.size(); ++i)
+		{
+			if (channel_names[i][0] != '#')
+			{
+				Response::error(user, ERR_BADCHANMASK, message.get_arguments()[0]);
+			}
+			else
+			{
+				server_->join_channel(channel_names[i], user);
+			}
+		}
 	}
+	return 0;
 }

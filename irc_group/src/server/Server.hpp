@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 21:25:46 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/25 21:36:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ class Executor;
 #include "Executor.hpp"
 
 #include "irc_err_codes.hpp"
+#include "irc_rpl_codes.hpp"
 
 #define DISCONNECT -2
 
@@ -103,6 +104,8 @@ class Server
 	bool contains_nickname(const std::string& nickname) const;
 
 	// void ping_users() const; // already at server::check_connection()
+
+	int join_channel(const std::string& name, const std::string& key, const User& creator);
 };
 
 

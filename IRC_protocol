@@ -27,3 +27,65 @@ RFC 1459
 
 <crlf>     ::= CR LF
 
+-The NUL character is not special in message framing, and basically could end up inside a parameter, but as it would cause extra complexities in normal C string handling. Therefore NUL is not allowed within messages
+-Use of the extended prefix (['!' <user> ] ['@' <host> ]) must not be used in server to server communications and is only intended for server to client messages in order to provide clients with more useful information about who a message is from without the need for additional queries
+
+2.4 NUMERIC REPLIES
+-Most of the messages sent to the server generate a reply of some sort.  The most common reply is the numeric reply, used for both errors and normal replies
+-A numeric reply is not allowed to originate from a client; any such messages received by a server are silently dropped
+
+5.1 CONNECTION LIVELINESS
+-To detect when a connection has died or become unresponsive, the server MUST poll each of its connections
+-The PING command (See "IRC Client Protocol" [IRC-CLIENT]) is used if the server doesn't get a response from its peer in a given amount of time.
+-If a connection doesn't respond in time, its connection is closed using the appropriate procedures
+
+3.7.2 PING MESSAGE // changes between protocols
+-Servers send a PING message at regular intervals if no other activity detected coming from a connection
+-If a connection fails to respond to a PING message within a set amount of time, that connection is closed
+-MAY be sent even if the connection is active
+-Numeric Replies: ERR_NOORIGIN, ERR_NOSUCHSERVER
+
+1.3 CHANNELS
+-To create a new channel or become part of an existing channel, a user is required to JOIN the channel.  If the channel doesn't exist prior to joining, the channel is created and the creating user becomes a channel operator
+-the channel ceases to exist when the last client leaves it
+
+2.1
+-Channels names are strings (beginning with a '&', '#', '+' or '!' character) of length up to fifty (50) characters.  Channel names are case insensitive
+-Channels with '+' as prefix do not support channel modes.  This means that all the modes are unset, with the exception of the 't' channel flag which is set.
+
+2.4.1 OPERATORS
+-Channel operators are identified by the '@' symbol next to their nickname whenever it is associated with a channel (i.e., replies to the NAMES, WHO and WHOIS commands).
+-Since channels starting with the character '+' as prefix do not support channel modes, no member can therefore have the status of channel operator
+
+3.1 STANDARD CHANNELS ('&', '#' or '+')
+-The user creating a channel automatically becomes channel operator with the notable exception of channels which name is prefixed by the character '+'
+
+4. CHANNEL MODES
+-i - toggle the invite-only channel flag;
+-t - toggle the topic settable by channel operator only flag;
+-k - set/remove the channel key (password);
+-o - give/take channel operator privilege;
+-l - set/remove the user limit to channel;
+
+4.2.2. INVITE ONLY FLAG
+-When the channel flag 'i' is set, new members are only accepted if their mask matches Invite-list (See section 4.3.2) or they have been invited by a channel operator. 
+-This flag also restricts the usage of the INVITE command (See "IRC Client Protocol" [IRC-CLIENT]) to channel operators.
+-For channels which have the invite-only flag set (See Section 4.2.2 (Invite Only Flag)), users whose address matches an invitation mask set for the channel are allowed to join the channel without any invitation (4.3.2)
+
+4.2.8. TOPIC
+The channel flag 't' is used to restrict the usage of the TOPIC command to channel operators
+
+4.2.9. USER LIMIT
+-A user limit may be set on channels by using the channel flag 'l'. When the limit is reached, servers MUST forbid their local users to join the channel.
+-The value of the limit MUST only be made available to the channel members in the reply sent by the server to a MODE query.
+
+4.2.10. CHANNEL KEY
+-When a channel key is set (by using the mode 'k'), servers MUST reject their local users request to join the channel unless this key is given.
+-The channel key MUST only be made visible to the channel members in the reply sent by the server to a MODE query.
+
+(IRC1459)
+
+4.2.1. JOIN MESSAGE
+-Once a user has joined a channel, they receive notice about all commands their server receives which affect the channel.  This includes MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE
+
+

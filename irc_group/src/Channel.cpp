@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/23 17:49:35 by amitcul          ###   ########.fr       */
+/*   Updated: 2024/05/25 20:35:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,17 @@ void Channel::set_topic(const User& user, std::string topic)
 	}
 }
 
+void Channel::set_password(const User& user, std::string password) // review !
+{
+	if (!is_operator(user))
+	{
+		Response::error(user, ERR_CHANOPRIVSNEEDED, name_);
+	}
+	else
+	{
+		password_ = password;
+	}
+}
 
 /**
  * Funcs
@@ -110,4 +121,26 @@ void Channel::send_message(const std::string& message, const User& user, bool in
 			(*begin)->send_message(to_send);
 		}
 	}
+}
+
+int Channel::add_user(const User& user)
+{
+	if (user_limit_ == 0 || users_.size() < user_limit_)
+	{
+		users_.push_back(&user);
+		user.send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n"); // \r\n or \n?
+		if (flags_ & TOPICSET)
+		{
+			Response::reply(user, RPL_TOPIC, name_, topic_); // !
+			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // !
+		}
+		Response::reply(user, RPL_NAMREPLY, name_, user.get_nickname()); // MUST include joining client
+		Response::reply(user, RPL_ENDOFNAMES, name_);
+		return 0; // not needed if messaging client and channel here !
+	}
+	else
+	{
+		Response::error(user, ERR_CHANNELISFULL, name_);
+	}
+	return -1;
 }

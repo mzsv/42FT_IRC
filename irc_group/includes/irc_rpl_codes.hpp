@@ -1,30 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Response.hpp                                       :+:      :+:    :+:   */
+/*   irc_rpl_codes.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 19:02:44 by amenses-         ###   ########.fr       */
+/*   Created: 2024/05/25 17:33:02 by amenses-          #+#    #+#             */
+/*   Updated: 2024/05/25 17:33:52 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RESPONSE_HPP
-#define RESPONSE_HPP
+#ifndef IRC_RPL_CODES_HPP
+#define IRC_RPL_CODES_HPP
 
-class User;
+#define RPL_TOPIC                332
+#define RPL_TOPICWHOTIME         333
+#define RPL_NAMREPLY             353
+#define RPL_ENDOFNAMES           366
 
-
-#include "User.hpp"
-
-class Response
-{
-  private:
-
-  public:
-	static void error(const User& user, int error, const std::string& arg1 = "", const std::string& arg2 = "");
-  static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
-};
-
-#endif // RESPONSE_HPP
+#endif // IRC_RPL_CODES_HPP

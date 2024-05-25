@@ -6,13 +6,14 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 21:44:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/25 21:12:45 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXECUTOR_HPP
 #define EXECUTOR_HPP
 
+#include <sstream>
 #include "Message.hpp"
 #include "User.hpp"
 #include "Response.hpp"
@@ -43,10 +44,10 @@ private:
 	int pong(const Message& message, User& user); // D : handle incoming pong
 	// int names(const Message& message, User& user); // list users in channel
 	int join(const Message& message, User& user); // add user to channel
+	// int part(const Message& message, User& user); // remove user from channel
 	// int authenticate(const Message& message, User& user); // authenticate user
 	// int privmsg(const Message& message, User& user); // send message to user/channel
 	// int list(const Message& message, User& user); // list channels
-	// int part(const Message& message, User& user); // remove user from channel
 
 	// // operators
 	// int kick(const Message& message, User& user);

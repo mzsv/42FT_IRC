@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 16:23:51 by amenses-          #+#    #+#             */
-/*   Updated: 2024/05/08 21:32:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/22 22:25:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ int main()
                 // std::cout << "POLLIN: " << i << std::endl;
                 if (fds[i].fd == listener)
                 {
-                    // handle listener's incoming connection
+                    // handle listener's incoming connection (new client)
                     struct sockaddr_storage client_addr;
                     socklen_t               client_addr_len = sizeof(client_addr);
                     int                     client_fd;
@@ -172,6 +172,14 @@ int main()
                         nfds++;
                     }
                     fds[i].revents = 0;
+                    //join channel test
+                    // std::string join = "JOIN #nc_channel\r\n";
+                    // send(client_fd, join.c_str(), join.size(), 0);
+                    //send PING
+                    // std::string ping = "PING aaa\r\n";
+
+                    // send(client_fd, ping.c_str(), ping.size(), 0);
+                    
                 }
                 else
                 // handle client's incoming message (not listener)
@@ -202,6 +210,9 @@ int main()
                     std::cout << "buffer: " << buffer << std::endl;
                     // continue ;
 
+                    // hello message
+                    // std::string hello = ":server_name PRIVMSG nc_user :hello\r\n";
+                    
                     //send to all clients
                     for (int j = 1; j < nfds; ++j) {
                         if (j != i && fds[j].fd > 0) {

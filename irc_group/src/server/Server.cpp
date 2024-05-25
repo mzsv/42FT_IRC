@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 21:31:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/25 21:36:30 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,3 +347,30 @@ bool Server::contains_nickname(const std::string& nickname) const
 // 		}
 // 	}
 // }
+
+int Server::join_channel(const std::string& name, const std::string& key, const User& creator) // review with modes
+{
+	if (channels_.find(name) != channels_.end())
+	{
+		if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(creator))
+		{
+			Response::error(creator, ERR_INVITEONLYCHAN, name);
+		}
+		else if (channels_[name]->get_flags() & PRIVATE && channels_[name]->get_password() != creator.get_password())
+		{
+			Response::error(creator, ERR_BADCHANNELKEY, name);
+		}
+		else if (!channels_[name]->contains_nickname(creator.get_nickname()))
+		{
+			return channels_[name]->add_user(creator);
+		}
+	}
+	else
+	{
+		channels_[name] = new Channel(name, "", creator);
+		return 0;
+	}
+	// do we have a CHANLIMIT? should we?
+	return -1;
+}
+

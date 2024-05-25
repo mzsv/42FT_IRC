@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/23 17:49:27 by amitcul          ###   ########.fr       */
+/*   Updated: 2024/05/25 18:41:50 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "User.hpp"
 
 
-#define PRIVATE		0b000001
+#define PRIVATE		0b000001 // requires key?? assuming that
 #define SECRET		0b000010
 #define MODERATED	0b000100
 #define INVITEONLY	0b001000
@@ -42,6 +42,7 @@ class Channel
 	Channel& operator=(const Channel& channel);
 
   public:
+  // password not required at creation, only set after key mode is set. right?
 	Channel(const std::string& name, const std::string& pass, const User& creator);
 	~Channel();
 
@@ -57,7 +58,8 @@ class Channel
 	 * Setters
 	*/
 	void set_topic(const User& user, std::string topic);
-
+	void set_password(const User& user, std::string password);
+	
 	/**
 	 * Funcs
 	*/
@@ -66,6 +68,8 @@ class Channel
 	void disconnect(User& user);
 	bool is_operator(const User& user) const;
 	void send_message(const std::string& message, const User& user, bool include_user) const;
+
+	int add_user(const User& user); // !
 };
 
 #endif // CHANNEL_HPP
