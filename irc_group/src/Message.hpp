@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:47:27 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 21:23:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:41:09 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Message
 	std::string command_;
 	std::string prefix_;
 	std::vector<std::string> arguments_;
+	std::string trailing_;
 
   public:
 	Message(const std::string& message);

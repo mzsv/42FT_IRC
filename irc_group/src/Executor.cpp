@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 19:05:58 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 22:13:25 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["PONG"] = &Executor::pong;
 	functions_["JOIN"] = &Executor::join;
 	functions_["PART"] = &Executor::part;
+	functions_["NAMES"] = &Executor::names;
+
+	functions_["KICK"] = &Executor::kick;
 	
 	functions_["QUIT"] = &Executor::quit;
 }
@@ -226,3 +229,83 @@ int Executor::part(const Message& message, User& user)
 	}
 	return 0;
 }
+
+int Executor::names(const Message& message, User& user)
+{
+	std::vector<std::string> channel_names;
+	
+	if (message.get_arguments().size() == 0)
+	{
+		// list users in all channels
+		server_->list_users("*", user);
+	}
+	else
+	{
+		channel_names = split_arguments(message.get_arguments()[0]);
+		for (size_t i = 0; i < channel_names.size(); ++i)
+		{
+			if (server_->contains_channel(channel_names[i]))
+			{
+				// list users in channel
+				server_->list_users(channel_names[i], user);
+			}
+			Response::reply(user, RPL_ENDOFNAMES, channel_names[i]);
+		}
+	}
+	return 0;
+}
+
+/**
+ * Operator functions
+*/
+
+int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 !
+{
+	std::string channel;
+	std::string target;
+	std::string reply;
+
+	if (message.get_arguments().size() < 2)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command());
+	}
+	else
+	{
+		channel = message.get_arguments()[0];
+		target = message.get_arguments()[1];
+		if (!server_->contains_channel(channel))
+		{
+			Response::error(user, ERR_NOSUCHCHANNEL, channel);
+		}
+		else if (!server_->user_on_channel(channel, user))
+		{
+			Response::error(user, ERR_NOTONCHANNEL, channel);
+		}
+		else if (!server_->user_on_channel(channel, target))
+		{
+			Response::error(user, ERR_USERNOTINCHANNEL, target, channel);
+		}
+		else if (!server_->is_operator(channel, user))
+		{
+			Response::error(user, ERR_CHANOPRIVSNEEDED, channel);
+		}
+		else
+		{
+			reply = " KICK " + channel + " " + target; // confirm client prefix is appended
+			if (message.get_arguments().size() > 2)
+			{
+				reply.append(" :" + message.get_arguments()[2] + "\n"); // \r\n ?
+			}
+			else
+			{
+				reply.append(" :Kicked\n");
+			}
+			server_->channel_broadcast(channel, user, reply); // ! check if this is correct (horse) kiscked user also notified right?
+			server_->leave_channel(channel, user);
+			// broadcast clients on channel
+			// server_->channels_[channel]->send_message(":" + user.get_prefix() + " KICK " + channel + " " + target + "\n", user, true);
+		}
+	}
+	return 0;
+}
+

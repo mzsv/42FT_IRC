@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 18:40:39 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:20:06 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,11 @@ class Server
 	int join_channel(const std::string& name, const std::string& key, const User& creator);
 	bool contains_channel(const std::string& name) const;
 	bool user_on_channel(const std::string& channel, const User& user) const;
+	bool user_on_channel(const std::string& channel, const std::string& user) const;
+	bool is_operator(const std::string& channel, const User& user) const;
 	void leave_channel(const std::string& name, const User& user);
+	void list_users(const std::string& channel_name, const User& user) const;
+	void channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const; // !
 };
-
 
 #endif // SERVER_SERVER_HPP

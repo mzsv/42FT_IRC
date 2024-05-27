@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/23 15:15:30 by amitcul          ###   ########.fr       */
+/*   Updated: 2024/05/27 16:41:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Message::Message(const std::string& message)
 		if (q.front()[0] == ':')
 		{
 			std::string s(q.front().begin() + 1, q.front().end());
-			q.pop();
+			q.pop(); // keeping the ":" so we know it was a trailing argument, needed for certain actions?
 			while (q.size())
 			{
 				s.append(" ");
@@ -39,6 +39,7 @@ Message::Message(const std::string& message)
 				q.pop();
 			}
 			arguments_.push_back(s);
+			trailing_ = s;
 		}
 		else
 		{

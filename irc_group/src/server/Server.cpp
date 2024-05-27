@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 19:18:23 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:49:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -318,7 +318,7 @@ int Server::handle_message(User& user)
 	return 0;
 }
 
-void Server::notify_users(User& user, const std::string& message)
+void Server::notify_users(User& user, const std::string& message) // ?
 {
 	const std::vector<const Channel*> channels = user.get_channels();
 	for (size_t i = 0; i < users_.size(); ++i)
@@ -398,6 +398,23 @@ bool Server::user_on_channel(const std::string& channel, const User& user) const
 	return false;
 }
 
+bool Server::user_on_channel(const std::string& channel, const std::string& user) const
+{
+	if (channels_.find(channel) != channels_.end())
+	{
+		return channels_.at(channel)->contains_nickname(user);
+	}
+	return false;
+}
+
+bool Server::is_operator(const std::string& channel, const User& user) const
+{
+	if (channels_.find(channel) != channels_.end())
+	{
+		return channels_.at(channel)->is_operator(user);
+	}
+}
+
 void Server::leave_channel(const std::string& name, const User& user)
 {
 	if (channels_.find(name) != channels_.end())
@@ -408,4 +425,27 @@ void Server::leave_channel(const std::string& name, const User& user)
 		}
 	}
 	// remove channel from User (really necessary to have a list of channels in User?)
+}
+
+void Server::list_users(const std::string& channel_name, const User& user) const
+{
+	// could also be implemented in executor, just need to add a get_channels() to Server to get list of channels?
+	if (channel_name == "*")
+	{
+		for (size_t i = 0; i < channels_.size(); ++i)
+		{
+			user.send_message(":" + name_ + " 353 " + user.get_nickname() + " = " + channel_name + " :" + channels_.at(channel_name)->get_users() + "\n");
+			Response::reply(user, RPL_ENDOFNAMES, channel_name);
+		}
+	}
+	// RPL_NAMREPLY - implement in Response as the other replies?!
+	user.send_message(":" + name_ + " 353 " + user.get_nickname() + " = " + channel_name + " :" + channels_.at(channel_name)->get_users() + "\n");
+}
+
+void Server::channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const
+{
+	if (channels_.find(channel_name) != channels_.end())
+	{
+		channels_.at(channel_name)->send_message(message, user, true);
+	}
 }

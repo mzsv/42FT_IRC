@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 18:58:36 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:50:14 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ void Channel::send_message(const std::string& message, const User& user, bool in
 	std::string to_send = ":" + user.get_prefix() + " " + message;
 	std::vector<const User*>::const_iterator begin = users_.begin();
 	std::vector<const User*>::const_iterator end = users_.end();
+
 	for (; begin != end; ++begin)
 	{
 		if (include_user || *begin != &user)
@@ -151,4 +152,17 @@ int Channel::add_user(const User& user)
 		Response::error(user, ERR_CHANNELISFULL, name_);
 	}
 	return -1;
+}
+
+const std::string Channel::get_users() const
+{
+	std::string res;
+
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		res += users_[i]->get_nickname();
+		res += " ";
+	}
+	res.pop_back();
+	return res;
 }

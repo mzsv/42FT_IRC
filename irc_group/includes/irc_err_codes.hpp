@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:01:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 18:33:46 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 17:05:56 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #define ERR_NOSUCHCHANNEL       403
 #define ERR_UNKNOWNCOMMAND		421
+#define ERR_USERNOTINCHANNEL    441
 #define ERR_NOTONCHANNEL        442
 #define ERR_NOTREGISTERED		451
 #define ERR_CHANNELISFULL		471

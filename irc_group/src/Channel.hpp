@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 18:49:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/27 16:05:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class Channel
 	void send_message(const std::string& message, const User& user, bool include_user) const;
 
 	int add_user(const User& user); // !
+	const std::string get_users() const;
 };
 
 #endif // CHANNEL_HPP
