@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 21:36:30 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/26 19:18:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,6 +289,15 @@ int Server::handle_message(User& user)
 			try
 			{
 				std::cout << "executing..." << std::endl;
+				// print message members
+				std::cout << "Message: " << message.get_message() << std::endl;
+				std::cout << "Command: " << message.get_command() << std::endl;
+				std::cout << "Prefix: " << message.get_prefix() << std::endl;
+				for (size_t i = 0; i < message.get_arguments().size(); ++i)
+				{
+					std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
+				}
+				
 				Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
 				int response = executor.execute(message, user);
 				std::cout << "response: " << response << std::endl;
@@ -348,29 +357,55 @@ bool Server::contains_nickname(const std::string& nickname) const
 // 	}
 // }
 
-int Server::join_channel(const std::string& name, const std::string& key, const User& creator) // review with modes
+int Server::join_channel(const std::string& name, const std::string& key, const User& user) // review with modes
 {
 	if (channels_.find(name) != channels_.end())
 	{
-		if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(creator))
+		if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
 		{
-			Response::error(creator, ERR_INVITEONLYCHAN, name);
+			Response::error(user, ERR_INVITEONLYCHAN, name);
 		}
-		else if (channels_[name]->get_flags() & PRIVATE && channels_[name]->get_password() != creator.get_password())
+		// assuming PRIVATE means mode k is on (key required for channel entry)
+		else if (channels_[name]->get_flags() & PRIVATE && channels_[name]->get_password() != key)
 		{
-			Response::error(creator, ERR_BADCHANNELKEY, name);
+			Response::error(user, ERR_BADCHANNELKEY, name);
 		}
-		else if (!channels_[name]->contains_nickname(creator.get_nickname()))
+		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{
-			return channels_[name]->add_user(creator);
+			return channels_[name]->add_user(user);
 		}
 	}
 	else
 	{
-		channels_[name] = new Channel(name, "", creator);
+		channels_[name] = new Channel(name, "", user);
 		return 0;
 	}
 	// do we have a CHANLIMIT? should we?
 	return -1;
 }
 
+bool Server::contains_channel(const std::string& name) const
+{
+	return channels_.find(name) != channels_.end();
+}
+
+bool Server::user_on_channel(const std::string& channel, const User& user) const
+{
+	if (channels_.find(channel) != channels_.end())
+	{
+		return channels_.at(channel)->contains_nickname(user.get_nickname());
+	}
+	return false;
+}
+
+void Server::leave_channel(const std::string& name, const User& user)
+{
+	if (channels_.find(name) != channels_.end())
+	{
+		if (channels_[name]->contains_nickname(user.get_nickname()))
+		{
+			channels_[name]->disconnect(user);
+		}
+	}
+	// remove channel from User (really necessary to have a list of channels in User?)
+}

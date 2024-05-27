@@ -89,3 +89,4 @@ The channel flag 't' is used to restrict the usage of the TOPIC command to chann
 -Once a user has joined a channel, they receive notice about all commands their server receives which affect the channel.  This includes MODE, KICK, PART, QUIT and of course PRIVMSG/NOTICE
 
 
+

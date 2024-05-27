@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 20:35:13 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/26 18:58:36 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,16 @@ bool Channel::is_empty()
 }
 
 // placeholder
-void Channel::disconnect(User& user)
+void Channel::disconnect(const User& user)
 {
-	(void)user;
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		if (users_[i] == &user)
+		{
+			users_.erase(users_.begin() + i);	
+			break ;
+		}
+	}
 }
 
 bool Channel::is_operator(const User& user) const
@@ -136,6 +143,7 @@ int Channel::add_user(const User& user)
 		}
 		Response::reply(user, RPL_NAMREPLY, name_, user.get_nickname()); // MUST include joining client
 		Response::reply(user, RPL_ENDOFNAMES, name_);
+		// needs to also broadcast to all users in channel (privmsg to all, i guess)
 		return 0; // not needed if messaging client and channel here !
 	}
 	else

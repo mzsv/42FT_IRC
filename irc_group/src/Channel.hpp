@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 18:41:50 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/26 18:49:27 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,13 @@ class Channel
 {
   private:
 	std::string name_;
-	std::string password_;
+	std::string password_; // key
 	std::string topic_;
 	unsigned short user_limit_;
 	unsigned char flags_;
 
 	std::vector<const User*> operators_;
-	std::vector<const User*> users_;
+	std::vector<const User*> users_; // not efficient for insertion/deletion of elements; set instead?
 	std::vector<const User*> speakers_;
 
 	Channel();
@@ -65,7 +65,7 @@ class Channel
 	*/
 	bool contains_nickname(const std::string& nickname) const;
 	bool is_empty();
-	void disconnect(User& user);
+	void disconnect(const User& user);
 	bool is_operator(const User& user) const;
 	void send_message(const std::string& message, const User& user, bool include_user) const;
 

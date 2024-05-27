@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 21:35:23 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/26 19:05:58 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["PING"] = &Executor::ping;
 	functions_["PONG"] = &Executor::pong;
 	functions_["JOIN"] = &Executor::join;
-	// functions_["PART"] = &Executor::part;
+	functions_["PART"] = &Executor::part;
 	
 	functions_["QUIT"] = &Executor::quit;
 }
@@ -147,7 +147,7 @@ std::vector<std::string> split_arguments(const std::string& arguments) // util !
 		result.push_back(token);
 	}
 	return result;
-}
+} // maybe usen umap for join? channel,key
 
 int Executor::join(const Message& message, User& user)
 {
@@ -181,7 +181,46 @@ int Executor::join(const Message& message, User& user)
 			}
 			else
 			{
-				server_->join_channel(channel_names[i], user);
+				if (keys.size() > i)
+				{
+					server_->join_channel(channel_names[i], keys[i], user);
+				}
+				else
+				{
+					server_->join_channel(channel_names[i], "", user);
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+int Executor::part(const Message& message, User& user)
+{
+	std::vector<std::string> channel_names;
+	
+	if (message.get_arguments().size() == 0)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command());
+	}
+	else 
+	{
+		channel_names = split_arguments(message.get_arguments()[0]); // maybe just call it channels?
+		for (size_t i = 0; i < channel_names.size(); ++i)
+		{
+			if (!server_->contains_channel(channel_names[i]))
+			{
+				Response::error(user, ERR_NOSUCHCHANNEL, channel_names[i]);
+			}
+			else if (!server_->user_on_channel(channel_names[i], user))
+			{
+				Response::error(user, ERR_NOTONCHANNEL, channel_names[i]);
+			}
+			else
+			{
+				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
+				user.send_message(":" + user.get_prefix() + " PART " + channel_names[i]);
+				// MAY broadcast message to channel in addition (horse)
 			}
 		}
 	}

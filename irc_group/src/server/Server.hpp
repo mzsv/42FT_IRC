@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/25 21:36:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/26 18:40:39 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,9 @@ class Server
 	// void ping_users() const; // already at server::check_connection()
 
 	int join_channel(const std::string& name, const std::string& key, const User& creator);
+	bool contains_channel(const std::string& name) const;
+	bool user_on_channel(const std::string& channel, const User& user) const;
+	void leave_channel(const std::string& name, const User& user);
 };
 
 
