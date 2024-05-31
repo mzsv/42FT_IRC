@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 17:34:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 20:23:56 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,24 @@ const time_t& Channel::get_topic_time() const
 	return topic_time_;
 }
 
+const User* Channel::get_user(const std::string& nickname) const
+{
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		if (users_[i]->get_nickname() == nickname)
+		{
+			return users_[i];
+		}
+	}
+	return NULL;
+}
+
 /**
  * Setters
 */
 void Channel::set_topic(const User& user, std::string topic)
 {
-	if ((flags_ & TOPIC) && !is_operator(user))
+	if ((flags_ & TOPICMODE) && !is_operator(user))
 	{
 		Response::error(user, ERR_CHANOPRIVSNEEDED, name_);
 	}
@@ -126,6 +138,18 @@ bool Channel::is_operator(const User& user) const
 	return false;
 }
 
+bool Channel::is_operator(const std::string& nickname) const
+{
+	for (size_t i = 0; i < operators_.size(); ++i)
+	{
+		if (speakers_[i]->get_nickname() == nickname)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Channel::send_message(const std::string& message, const User& user, bool include_user) const
 {
 	std::string to_send = ":" + user.get_prefix() + " " + message;
@@ -147,7 +171,7 @@ int Channel::add_user(const User& user)
 	{
 		users_.push_back(&user);
 		user.send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n"); // \r\n or \n?
-		if (flags_ & TOPIC)
+		if (flags_ & TOPICMODE)
 		{
 			Response::reply(user, RPL_TOPIC, name_, topic_); // !
 			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // !
@@ -177,4 +201,43 @@ const std::string Channel::get_users() const
 		}
 	}
 	return res;
+}
+
+void Channel::set_flag(unsigned char flag)
+{
+	flags_ |= flag;
+}
+
+void Channel::reset_flag(unsigned char flag)
+{
+	flags_ &= ~flag;
+}
+
+void Channel::set_user_limit(unsigned short limit)
+{
+	user_limit_ = limit;
+}
+
+void Channel::add_operator(std::string nickname)
+{
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		if (users_[i]->get_nickname() == nickname)
+		{
+			operators_.push_back(users_[i]);
+			break ;
+		}
+	}
+}
+
+void Channel::remove_operator(std::string nickname)
+{
+	for (size_t i = 0; i < operators_.size(); ++i)
+	{
+		if (operators_[i]->get_nickname() == nickname)
+		{
+			operators_.erase(operators_.begin() + i);
+			break ;
+		}
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 16:50:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 16:36:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -301,7 +301,7 @@ int Server::handle_message(User& user)
 				{
 					std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
 				}
-				std::cout << "contains_trailing: " << message.contains_trailing() << std::endl;
+				std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
 				std::cout << "Trailing: " << message.get_trailing() << std::endl;
 				
 				Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
@@ -466,11 +466,13 @@ bool Server::check_channel_mode(const std::string& channel_name, const unsigned 
 	return false;
 }
 
-const std::string& Server::get_channel_topic(const std::string& channel_name) const
+const std::string Server::get_channel_topic(const std::string& channel_name) const
 {
+	std::string res;
+
 	if (channels_.find(channel_name) != channels_.end())
 	{
 		return channels_.at(channel_name)->get_topic();
 	}
-	return "";
+	return res;
 }

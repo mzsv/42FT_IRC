@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:01:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 14:18:35 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 19:14:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,5 +31,8 @@
 #define ERR_PASSWDMISMATCH		464
 #define ERR_ERRONEUSNICKNAME	432
 #define ERR_NICKNAMEINUSE		433
+#define ERR_KEYSET              467
+#define ERR_UNKNOWNMODE         472
+#define ERR_UMODEUNKNOWNFLAG    501
 
 #endif // IRC_ERR_CODES_HPP

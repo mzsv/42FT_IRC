@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 18:09:00 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 19:56:04 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ bool is_valid_nickname(const std::string& nickname);
 
 typedef int (Executor::*FunctionPointer)(const Message&, User&);
 
-typedef int (Executor::*ModeFunctionPointer)(std::string channel, User& user, std::queue<std::string>& q_values);
+typedef int (Executor::*ModeFunctionPointer)(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
 
 class Executor
 {
@@ -64,16 +64,17 @@ private:
 	/**
 	 * Mode Funcs
 	*/
-	int invite_only(std::string channel, User& user, std::queue<std::string>& q_values);
-
+	int invite_only(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+	int topic_mode(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+	int channel_key(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+	int user_limit(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+	int channel_operator(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+	
 public:
 	Executor(Server* server);
 	~Executor();
 
 	int execute(const Message& message, User& user);
 };
-
-
-
 
 #endif // EXECUTOR_HPP

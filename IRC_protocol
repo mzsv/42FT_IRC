@@ -112,3 +112,10 @@ Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]
 USER MODES
 Parameters: <nickname> {[+|-]|i|w|s|o}
 -NOT required by the subject [irc subject]
+
+4.2.2 INVITE ONLY
+-new members are only accepted if their mask matches Invite-list (See section 4.3.2) or they have been invited by a channel operator
+-This flag also restricts the usage of the INVITE command (See "IRC Client Protocol" [IRC-CLIENT]) to channel operators
+-If this mode is set on a channel, a user must have received an INVITE for this channel before being allowed to join it. If they have not received an invite, they will receive an ERR_INVITEONLYCHAN (473) reply and the command will fail. [horse]
+-If this mode is set on a channel, and a client sends a JOIN request for that channel, they must supply <key> in order for the command to succeed. If they do not supply a <key>, or the key they supply does not match the value of this mode, they will receive an ERR_BADCHANNELKEY (475) reply and the command will fail ! [horse]
+

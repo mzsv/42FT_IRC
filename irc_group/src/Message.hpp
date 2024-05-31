@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:47:27 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 14:57:26 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 16:39:15 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ class Message
 	const std::string& get_command() const;
 	const std::string& get_prefix() const;
 	const std::vector<std::string>& get_arguments() const;
-	const bool get_trailing_flag() const;
-	const std::string& get_trailing() const;
+	bool get_trailing_flag() const;
+	const std::string get_trailing() const;
 
 	// bool contains_trailing() const;
 };

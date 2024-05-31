@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 15:16:13 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 17:07:00 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ class Server
 	std::vector<User*> users_;
 	std::vector<struct pollfd> users_fds_;
 	std::map<std::string, Channel*> channels_;
+	std::vector<std::string> invited_users_; // !
 	// std::map<Channel*, std::set<User*>> operators;
 	std::string name_;
 	std::string password_;
@@ -117,7 +118,7 @@ class Server
 	void list_users(const std::string& channel_name, const User& user) const;
 	void channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const; // !
 	bool check_channel_mode(const std::string& channel_name, const unsigned char& mode) const;
-	const std::string& get_channel_topic(const std::string& channel_name) const;
+	const std::string get_channel_topic(const std::string& channel_name) const;
 };
 
 #endif // SERVER_SERVER_HPP

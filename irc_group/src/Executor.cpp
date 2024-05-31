@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/28 18:07:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/31 20:30:24 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,15 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["KICK"] = &Executor::kick;
 	functions_["INVITE"] = &Executor::invite;
 	functions_["TOPIC"] = &Executor::topic;
-	functions_["MODE"] = &Executor::mode;
+	// functions_["MODE"] = &Executor::mode;
 
 	functions_["QUIT"] = &Executor::quit;
 
 	mode_functions_['i'] = &Executor::invite_only;
-	// mode_functions_['t'] = &Executor::topic_mode;
-	// mode_functions_['k'] = &Executor::channel_key;
-	// mode_functions_['o'] = &Executor::set_operator;
-	// mode_functions_['l'] = &Executor::user_limit;
+	mode_functions_['t'] = &Executor::topic_mode;
+	mode_functions_['k'] = &Executor::channel_key;
+	mode_functions_['o'] = &Executor::channel_operator;
+	mode_functions_['l'] = &Executor::user_limit;
 }
 
 Executor::~Executor()
@@ -394,7 +394,7 @@ int Executor::topic(const Message& message, User& user)
 		else
 		{
 			topic = message.get_arguments()[1];
-			if (server_->check_channel_mode(channel, TOPIC) && !server_->is_operator(channel, user))
+			if (server_->check_channel_mode(channel, TOPICMODE) && !server_->is_operator(channel, user))
 			{
 				Response::error(user, ERR_CHANOPRIVSNEEDED, channel);
 			}
@@ -410,6 +410,17 @@ int Executor::topic(const Message& message, User& user)
 		}
 	}
 	return 0;
+}
+
+std::queue<std::string> vector_to_queue(const std::vector<std::string>& v, size_t i = 0) // UTIL
+{
+	std::queue<std::string> q;
+
+	for (; i < v.size(); ++i)
+	{
+		q.push(v[i]);
+	}
+	return q;
 }
 
 int Executor::mode(const Message& message, User& user)
@@ -442,18 +453,177 @@ int Executor::mode(const Message& message, User& user)
 		else
 		{
 			modes = message.get_arguments()[1];
-			if (modes[0] == '-')
+			modes[0] == '-' ? activate = false : activate = true;
+			if (modes[0] == '+' || modes[0] == '-')
 			{
-				activate = false;
 				modes = modes.substr(1);
 			}
 			if (message.get_arguments().size() > 2)
 			{
-				q_values = split2queue(message.get_arguments()[2], ' ', false); // ! confirm
+				q_values = vector_to_queue(message.get_arguments(), 2);
 			}
 			for (size_t i = 0; i < modes.size(); ++i)
 			{
+				if (mode_functions_.find(modes[i]) != mode_functions_.end())
+				{
+					ModeFunctionPointer mfp = NULL;
+					
+					if (modes[i] == 'k' || modes[i] == 'o')
+					{
+						mfp = mode_functions_.at('B');
+					}
+					else if (modes[i] == 'l')
+					{
+						mfp = mode_functions_.at('C');
+					}
+					else if (modes[i] == 'i' || modes[i] == 't')
+					{
+						mfp = mode_functions_.at('D');
+					}
+					if (mfp)
+					{
+						(this->*mfp)(channel, user, q_values, activate);
+					}
+				}
+				else
+				{
+					Response::error(user, ERR_UNKNOWNMODE, "what?"); // confirm ! also not sure it's needed for each... !
+				}
 			}
 		}
 	}
+	return 0;
+}
+
+int Executor::invite_only(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+{
+	(void)user;
+	(void)q_values;
+	if (activate)
+	{
+		server_->get_channels().at(channel)->set_flag(INVITEONLY);
+	}
+	else
+	{
+		server_->get_channels().at(channel)->reset_flag(INVITEONLY);
+	}
+	return 0;
+}
+
+int Executor::topic_mode(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+{
+	(void)user;
+	(void)q_values;
+	if (activate)
+	{
+		server_->get_channels().at(channel)->set_flag(TOPICMODE);
+	}
+	else
+	{
+		server_->get_channels().at(channel)->reset_flag(TOPICMODE);
+	}
+	return 0;
+}
+
+int Executor::channel_key(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+{
+	// double check JOIN command for key !
+	std::string key;
+
+	if (q_values.size() == 0)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, "MODE");
+	}
+	else
+	{
+		key = q_values.front();
+		q_values.pop();
+		if (activate)
+		{
+			if (server_->get_channels().at(channel)->get_flags() & CHANNELKEY)
+			{
+				Response::error(user, ERR_KEYSET, channel);
+			}
+			server_->get_channels().at(channel)->set_flag(CHANNELKEY);
+			server_->get_channels().at(channel)->set_password(user, key);
+		}
+		else
+		{
+			if (key != server_->get_channels().at(channel)->get_password())
+			{
+				Response::error(user, ERR_KEYSET, channel); // confirm !
+			}
+			else
+			{
+				server_->get_channels().at(channel)->set_password(user, "");
+				server_->get_channels().at(channel)->reset_flag(CHANNELKEY);
+			}
+		}
+	}
+	return 0;
+}
+
+int Executor::user_limit(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+{
+	// double check JOIN command for user limit !
+	if (q_values.size() == 0)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, "MODE");
+	}
+	else
+	{
+		std::istringstream iss(q_values.front());
+		unsigned short value = 0;
+
+		iss >> value;
+		if (iss.fail() || value == 0)
+		{
+			Response::error(user, ERR_NEEDMOREPARAMS, "MODE"); // confirm ! seems right though
+		}
+		else if (activate)
+		{
+			server_->get_channels().at(channel)->set_flag(USERLIMIT); // necessary or redundant? better to keep to be able to show active modes
+			server_->get_channels().at(channel)->set_user_limit(value);
+		}
+		else
+		{
+			server_->get_channels().at(channel)->reset_flag(USERLIMIT);
+			server_->get_channels().at(channel)->set_user_limit(0);
+		}
+	}
+	return 0;
+}
+
+int Executor::channel_operator(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+{
+	std::string target_nick;
+
+	if (q_values.size() == 0)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, "MODE");
+	}
+	else
+	{
+		target_nick = q_values.front();
+		q_values.pop();
+		if (!server_->get_channels().at(channel)->contains_nickname(target_nick))
+		{
+			Response::error(user, ERR_NOSUCHNICK, target_nick);
+		}
+		else if (activate)
+		{
+			if (!server_->get_channels().at(channel)->is_operator(target_nick))
+			{
+				server_->get_channels().at(channel)->add_operator(target_nick);
+			}
+		}
+		else
+		{
+			if (server_->get_channels().at(channel)->is_operator(target_nick))
+			{
+				server_->get_channels().at(channel)->remove_operator(target_nick);
+			}
+		}
+	}
+	return 0;
 }
