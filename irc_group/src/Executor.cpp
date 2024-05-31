@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 22:13:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 18:07:25 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,18 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["JOIN"] = &Executor::join;
 	functions_["PART"] = &Executor::part;
 	functions_["NAMES"] = &Executor::names;
-
 	functions_["KICK"] = &Executor::kick;
-	
+	functions_["INVITE"] = &Executor::invite;
+	functions_["TOPIC"] = &Executor::topic;
+	functions_["MODE"] = &Executor::mode;
+
 	functions_["QUIT"] = &Executor::quit;
+
+	mode_functions_['i'] = &Executor::invite_only;
+	// mode_functions_['t'] = &Executor::topic_mode;
+	// mode_functions_['k'] = &Executor::channel_key;
+	// mode_functions_['o'] = &Executor::set_operator;
+	// mode_functions_['l'] = &Executor::user_limit;
 }
 
 Executor::~Executor()
@@ -302,10 +310,150 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 !
 			}
 			server_->channel_broadcast(channel, user, reply); // ! check if this is correct (horse) kiscked user also notified right?
 			server_->leave_channel(channel, user);
-			// broadcast clients on channel
-			// server_->channels_[channel]->send_message(":" + user.get_prefix() + " KICK " + channel + " " + target + "\n", user, true);
 		}
 	}
 	return 0;
 }
 
+int Executor::invite(const Message& message, User& user)
+{
+	std::string channel;
+	std::string target;
+
+	if (message.get_arguments().size() < 2)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command());
+	}
+	else
+	{
+		channel = message.get_arguments()[0];
+		target = message.get_arguments()[1];
+		// maybe group all these check in a function that can be used in all exec actions?
+		if (!server_->contains_channel(channel))
+		{
+			Response::error(user, ERR_NOSUCHCHANNEL, channel);
+		}
+		else if (!server_->user_on_channel(channel, user))
+		{
+			Response::error(user, ERR_NOTONCHANNEL, channel);
+		}
+		else if (server_->check_channel_mode(channel, INVITEONLY) && !server_->is_operator(channel, user))
+		{
+			Response::error(user, ERR_CHANOPRIVSNEEDED, channel);
+		}
+		else if (!server_->contains_nickname(target))
+		{
+			Response::error(user, ERR_NOSUCHNICK, target);
+		}
+		else if (server_->user_on_channel(channel, target))
+		{
+			Response::error(user, ERR_USERONCHANNEL, target, channel);
+		}
+		else
+		{
+			// RPL_INVITING (341) !
+			user.send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel);
+		}
+	}
+	return 0;
+}
+
+int Executor::topic(const Message& message, User& user)
+{
+	std::string channel;
+	std::string topic;
+
+	if (message.get_arguments().size() < 1)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command());
+	}
+	else
+	{
+		channel = message.get_arguments()[0];
+		if (!server_->contains_channel(channel))
+		{
+			Response::error(user, ERR_NOSUCHCHANNEL, channel);
+		}
+		else if (!server_->user_on_channel(channel, user))
+		{
+			Response::error(user, ERR_NOTONCHANNEL, channel);
+		}
+		else if (message.get_arguments().size() == 1)
+		{
+			// RPL_NOTOPIC (331) or RPL_TOPIC (332) !
+			if (server_->get_channel_topic(channel).empty())
+			{
+				Response::reply(user, RPL_NOTOPIC, channel);
+			}
+			else
+			{
+				Response::reply(user, RPL_TOPIC, channel, server_->get_channel_topic(channel));
+				Response::reply(user, RPL_TOPICWHOTIME, channel, user.get_prefix());
+			}
+		}
+		else
+		{
+			topic = message.get_arguments()[1];
+			if (server_->check_channel_mode(channel, TOPIC) && !server_->is_operator(channel, user))
+			{
+				Response::error(user, ERR_CHANOPRIVSNEEDED, channel);
+			}
+			else if (topic.empty())
+			{
+				server_->get_channels().at(channel)->set_topic(user, "");
+			}
+			else
+			{
+				server_->get_channels().at(channel)->set_topic(user, topic);
+				server_->get_channels().at(channel)->set_topic_time();
+			}
+		}
+	}
+	return 0;
+}
+
+int Executor::mode(const Message& message, User& user)
+{
+	std::string channel;
+	std::string modes;
+	bool activate = true;
+	std::queue<std::string> q_values;
+
+	if (message.get_arguments().size() == 0)
+	{
+		Response::error(user, ERR_NEEDMOREPARAMS, message.get_command()); // debatable !
+	}
+	else
+	{
+		channel = message.get_arguments()[0];
+		if (!server_->contains_channel(channel))
+		{
+			Response::error(user, ERR_NOSUCHCHANNEL, channel);
+		}
+		else if (!server_->user_on_channel(channel, user))
+		{
+			Response::error(user, ERR_NOTONCHANNEL, channel);
+		}
+		else if (message.get_arguments().size() == 1)
+		{
+			Response::reply(user, RPL_CHANNELMODEIS, channel); // !
+			Response::reply(user, RPL_CREATIONTIME, channel); // !
+		}
+		else
+		{
+			modes = message.get_arguments()[1];
+			if (modes[0] == '-')
+			{
+				activate = false;
+				modes = modes.substr(1);
+			}
+			if (message.get_arguments().size() > 2)
+			{
+				q_values = split2queue(message.get_arguments()[2], ' ', false); // ! confirm
+			}
+			for (size_t i = 0; i < modes.size(); ++i)
+			{
+			}
+		}
+	}
+}

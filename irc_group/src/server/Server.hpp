@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 17:20:06 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 15:16:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,8 @@ class Server
 	const std::string& get_name() const;
 	const std::string& get_password() const;
 
+	const std::map<std::string, Channel*>& get_channels() const;
+
 	/**
 	 * Setters
 	*/
@@ -105,6 +107,7 @@ class Server
 
 	// void ping_users() const; // already at server::check_connection()
 
+	// maybe just get_channels_() and use the channel object to get info for the executor?
 	int join_channel(const std::string& name, const std::string& key, const User& creator);
 	bool contains_channel(const std::string& name) const;
 	bool user_on_channel(const std::string& channel, const User& user) const;
@@ -113,6 +116,8 @@ class Server
 	void leave_channel(const std::string& name, const User& user);
 	void list_users(const std::string& channel_name, const User& user) const;
 	void channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const; // !
+	bool check_channel_mode(const std::string& channel_name, const unsigned char& mode) const;
+	const std::string& get_channel_topic(const std::string& channel_name) const;
 };
 
 #endif // SERVER_SERVER_HPP

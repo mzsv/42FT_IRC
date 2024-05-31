@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 17:49:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 16:50:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,10 @@ const std::string& Server::get_password() const
 	return password_;
 }
 
+const std::map<std::string, Channel*>& Server::get_channels() const
+{
+	return channels_;
+}
 /**
  * Setters
 */
@@ -297,6 +301,8 @@ int Server::handle_message(User& user)
 				{
 					std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
 				}
+				std::cout << "contains_trailing: " << message.contains_trailing() << std::endl;
+				std::cout << "Trailing: " << message.get_trailing() << std::endl;
 				
 				Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
 				int response = executor.execute(message, user);
@@ -366,7 +372,7 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 			Response::error(user, ERR_INVITEONLYCHAN, name);
 		}
 		// assuming PRIVATE means mode k is on (key required for channel entry)
-		else if (channels_[name]->get_flags() & PRIVATE && channels_[name]->get_password() != key)
+		else if (channels_[name]->get_flags() & CHANNELKEY && channels_[name]->get_password() != key)
 		{
 			Response::error(user, ERR_BADCHANNELKEY, name);
 		}
@@ -413,6 +419,7 @@ bool Server::is_operator(const std::string& channel, const User& user) const
 	{
 		return channels_.at(channel)->is_operator(user);
 	}
+	return false;
 }
 
 void Server::leave_channel(const std::string& name, const User& user)
@@ -448,4 +455,22 @@ void Server::channel_broadcast(const std::string& channel_name, const User& user
 	{
 		channels_.at(channel_name)->send_message(message, user, true);
 	}
+}
+
+bool Server::check_channel_mode(const std::string& channel_name, const unsigned char& mode) const
+{
+	if (channels_.find(channel_name) != channels_.end())
+	{
+		return channels_.at(channel_name)->get_flags() & mode;
+	}
+	return false;
+}
+
+const std::string& Server::get_channel_topic(const std::string& channel_name) const
+{
+	if (channels_.find(channel_name) != channels_.end())
+	{
+		return channels_.at(channel_name)->get_topic();
+	}
+	return "";
 }

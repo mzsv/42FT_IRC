@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 16:24:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 18:09:00 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,18 @@ bool is_valid_nickname(const std::string& nickname);
 
 typedef int (Executor::*FunctionPointer)(const Message&, User&);
 
+typedef int (Executor::*ModeFunctionPointer)(std::string channel, User& user, std::queue<std::string>& q_values);
+
 class Executor
 {
 private:
 	Server* server_;
 	std::map<std::string, FunctionPointer> functions_;
+	std::map<char, ModeFunctionPointer> mode_functions_;
 
+	/**
+	 * Funcs
+	*/
 	int pass(const Message& message, User& user); // D
 	int nick(const Message& message, User& user); // D
 	int user(const Message& message, User& user); // D
@@ -51,9 +57,14 @@ private:
 
 	// // operators
 	int kick(const Message& message, User& user);
-	// int invite(const Message& message, User& user);
-	// int topic(const Message& message, User& user);
-	// int mode(const Message& message, User& user);
+	int invite(const Message& message, User& user);
+	int topic(const Message& message, User& user);
+	int mode(const Message& message, User& user);
+
+	/**
+	 * Mode Funcs
+	*/
+	int invite_only(std::string channel, User& user, std::queue<std::string>& q_values);
 
 public:
 	Executor(Server* server);

@@ -6,17 +6,18 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 17:50:14 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 17:34:29 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name, const std::string& password, const User& creator) :
-	name_(name), password_(password), user_limit_(0), flags_(NOMSGOUT)
+	name_(name), password_(password), user_limit_(0), flags_(NOMSGOUT), topic_time_(0)
 {
 	users_.push_back(&creator);
 	operators_.push_back(&creator);
+	creation_time_ = time(NULL);
 }
 
 Channel::~Channel()
@@ -46,13 +47,17 @@ const std::string& Channel::get_topic() const
 	return topic_;
 }
 
+const time_t& Channel::get_topic_time() const
+{
+	return topic_time_;
+}
 
 /**
  * Setters
 */
 void Channel::set_topic(const User& user, std::string topic)
 {
-	if ((flags_ & TOPICSET) && !is_operator(user))
+	if ((flags_ & TOPIC) && !is_operator(user))
 	{
 		Response::error(user, ERR_CHANOPRIVSNEEDED, name_);
 	}
@@ -73,6 +78,11 @@ void Channel::set_password(const User& user, std::string password) // review !
 	{
 		password_ = password;
 	}
+}
+
+void Channel::set_topic_time()
+{
+	topic_time_ = time(NULL);
 }
 
 /**
@@ -137,7 +147,7 @@ int Channel::add_user(const User& user)
 	{
 		users_.push_back(&user);
 		user.send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n"); // \r\n or \n?
-		if (flags_ & TOPICSET)
+		if (flags_ & TOPIC)
 		{
 			Response::reply(user, RPL_TOPIC, name_, topic_); // !
 			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // !
@@ -161,8 +171,10 @@ const std::string Channel::get_users() const
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
 		res += users_[i]->get_nickname();
-		res += " ";
+		if (i != users_.size() - 1)
+		{
+			res += " ";
+		}
 	}
-	res.pop_back();
 	return res;
 }

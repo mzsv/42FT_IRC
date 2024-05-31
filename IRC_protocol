@@ -94,7 +94,21 @@ The channel flag 't' is used to restrict the usage of the TOPIC command to chann
 -If no <channel> parameter is given, a list of all channels and their occupants is returned.  At the end of this list, a list of users who are visible but either not on any channel or not on a visible channel are listed as being on `channel' "*"
 -When you implement modes, nicks with channel operator privileges on a channel must have their nick prefixed by @ in the RPL_NAMREPLY reply. Similarly, nicks with “voice” privileges must have their nick prefixed by + [uchicago]
 
+4.2.7. INVITE MESSAGE
+-To invite a user to a channel which is invite only (MOD +i), the client sending the invite must be recognised as being channel operator on the given channel
+-Other channel members SHOULD NOT be notified [horse]
+-The invited user can then choose to join the channel by sending a JOIN command [chatGPT]
+	   ERR_NEEDMOREPARAMS              ERR_NOSUCHNICK*
+           ERR_NOTONCHANNEL                ERR_USERONCHANNEL
+           ERR_CHANOPRIVSNEEDED
+           RPL_INVITING                    RPL_AWAY
 
-
-
-
+4.2.3. MODE MESSAGE
+-It allows bot usernames and channels to have their mode changed
+CHANNEL MODES
+Parameters: <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>]
+               [<ban mask>]
+-When using the 'o' and 'b' options, a restriction on a total of three per mode command has been imposed.  That is, any combination of 'o' (and other 2)
+USER MODES
+Parameters: <nickname> {[+|-]|i|w|s|o}
+-NOT required by the subject [irc subject]

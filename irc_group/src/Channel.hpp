@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 16:05:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 18:07:02 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,18 @@
 
 #include "User.hpp"
 
+// not dealing with private, secret or moderated channels in this project !
+// #define PRIVATE		0b000001 // requires key?? assuming that
+// #define SECRET		0b000010
+// #define MODERATED	0b000100
+// #define INVITEONLY	0b001000
+// #define TOPICSET	0b010000 // topic set by operator only mode? assuming that. maybe change names?
+#define NOMSGOUT	0b100000 // ?
 
-#define PRIVATE		0b000001 // requires key?? assuming that
-#define SECRET		0b000010
-#define MODERATED	0b000100
-#define INVITEONLY	0b001000
-#define TOPICSET	0b010000
-#define NOMSGOUT	0b100000
-
+#define INVITEONLY	0b000001
+#define TOPICMODE	0b000010
+#define CHANNELKEY	0b000100
+#define USERLIMIT	0b001000
 
 class Channel
 {
@@ -36,6 +40,9 @@ class Channel
 	std::vector<const User*> operators_;
 	std::vector<const User*> users_; // not efficient for insertion/deletion of elements; set instead?
 	std::vector<const User*> speakers_;
+
+	time_t topic_time_; // needed for TOPIC
+	time_t creation_time_;
 
 	Channel();
 	Channel(const Channel& channel);
@@ -54,11 +61,15 @@ class Channel
 	const std::string& get_topic() const;
 	unsigned char get_flags() const;
 
+	const time_t& get_topic_time() const;
+
 	/**
 	 * Setters
 	*/
 	void set_topic(const User& user, std::string topic);
 	void set_password(const User& user, std::string password);
+
+	void set_topic_time();
 	
 	/**
 	 * Funcs

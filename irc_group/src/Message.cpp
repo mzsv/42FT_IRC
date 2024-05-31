@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/27 16:41:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/05/28 14:57:35 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 Message::Message(const std::string& message)
 {
 	message_ = message;
+	has_trailing_ = false;
 	std::string trimmed = std::string(message.begin(), message.end() - 1);
 	std::queue<std::string> q = split2queue(trimmed, ' ', false);
 	if (q.size() > 0 && q.front()[0] == ':')
@@ -39,7 +40,8 @@ Message::Message(const std::string& message)
 				q.pop();
 			}
 			arguments_.push_back(s);
-			trailing_ = s;
+			// trailing_ = s;
+			has_trailing_ = true;
 		}
 		else
 		{
@@ -70,3 +72,17 @@ const std::vector<std::string>& Message::get_arguments() const
 	return arguments_;
 }
 
+const bool Message::get_trailing_flag() const
+{
+	return trailing_flag_;
+}
+
+const std::string& Message::get_trailing() const
+{
+	return trailing_flag_ ? arguments_[arguments_.size() - 1] : "";
+}
+
+// bool Message::contains_trailing() const
+// {
+// 	return arguments_[arguments_.size() - 1][0] == ':'; // trailing arguments start with ':'
+// }
