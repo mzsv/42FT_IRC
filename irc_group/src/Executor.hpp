@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 19:56:04 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 19:24:27 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ private:
 	int part(const Message& message, User& user); // remove user from channel
 	int names(const Message& message, User& user); // list users in channel
 	// int authenticate(const Message& message, User& user); // authenticate user
-	// int privmsg(const Message& message, User& user); // message user to user/channel
+	int privmsg(const Message& message, User& user); // message user to user/channel
 	// int list(const Message& message, User& user); // list channels
 
 	// // operators

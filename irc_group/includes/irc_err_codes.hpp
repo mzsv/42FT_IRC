@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:01:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 19:14:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 19:55:50 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #define ERR_NOSUCHNICK			401
 #define ERR_NOSUCHCHANNEL       403
+#define ERR_CANNOTSENDTOCHAN	404
+#define ERR_NORECIPIENT			411
+#define ERR_NOTEXTTOSEND        412
 #define ERR_UNKNOWNCOMMAND		421
 #define ERR_USERNOTINCHANNEL    441
 #define ERR_NOTONCHANNEL        442

@@ -119,3 +119,8 @@ Parameters: <nickname> {[+|-]|i|w|s|o}
 -If this mode is set on a channel, a user must have received an INVITE for this channel before being allowed to join it. If they have not received an invite, they will receive an ERR_INVITEONLYCHAN (473) reply and the command will fail. [horse]
 -If this mode is set on a channel, and a client sends a JOIN request for that channel, they must supply <key> in order for the command to succeed. If they do not supply a <key>, or the key they supply does not match the value of this mode, they will receive an ERR_BADCHANNELKEY (475) reply and the command will fail ! [horse]
 
+PRIVMSG
+Parameters: <receiver>{,<receiver>} <text to be sent>
+-When the PRIVMSG message is sent from a server to a client and <target> starts with a dollar character ('$', 0x24), the message is a broadcast sent to all clients on one or multiple servers. [horse]
+-If <target> is a user and that user has been set as away, the server may reply with an RPL_AWAY (301) numeric and the command will continue. [horse]
+

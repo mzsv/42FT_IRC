@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 16:36:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 20:41:27 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,7 +386,7 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 		channels_[name] = new Channel(name, "", user);
 		return 0;
 	}
-	// do we have a CHANLIMIT? should we?
+	// check CHANLIMIT !
 	return -1;
 }
 
@@ -475,4 +475,16 @@ const std::string Server::get_channel_topic(const std::string& channel_name) con
 		return channels_.at(channel_name)->get_topic();
 	}
 	return res;
+}
+
+const User* Server::get_user(const std::string& nickname) const
+{
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		if (users_[i]->get_nickname() == nickname)
+		{
+			return users_[i];
+		}
+	}
+	return 0;
 }

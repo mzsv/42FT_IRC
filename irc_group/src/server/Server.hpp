@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 17:07:00 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 20:10:04 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class Server
 	sockaddr_in sockaddr_;
 	int socket_fd_;
 
-	std::vector<User*> users_;
+	std::vector<User*> users_; // map instead ? easier to find by nick, for the user actions
 	std::vector<struct pollfd> users_fds_;
 	std::map<std::string, Channel*> channels_;
 	std::vector<std::string> invited_users_; // !
@@ -84,6 +84,9 @@ class Server
 	const std::string& get_password() const;
 
 	const std::map<std::string, Channel*>& get_channels() const;
+	
+	// this could replace contains_nickname(), check for nullptr
+	const User* get_user(const std::string& nickname) const; // get one user from the vector
 
 	/**
 	 * Setters

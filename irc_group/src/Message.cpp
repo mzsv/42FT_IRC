@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 16:39:11 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 19:34:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Message::Message(const std::string& message)
 	}
 	if (q.size())
 	{
-		command_ = q.front();
+		command_ = q.front(); // what if there is no command? what if starts with ':'?
 	}
 	q.pop();
 	while (q.size())

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 20:30:24 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/14 20:55:32 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["KICK"] = &Executor::kick;
 	functions_["INVITE"] = &Executor::invite;
 	functions_["TOPIC"] = &Executor::topic;
-	// functions_["MODE"] = &Executor::mode;
+	functions_["MODE"] = &Executor::mode;
+	functions_["PRIVMSG"] = &Executor::privmsg;
 
 	functions_["QUIT"] = &Executor::quit;
 
@@ -200,6 +201,8 @@ int Executor::join(const Message& message, User& user)
 				{
 					server_->join_channel(channel_names[i], "", user);
 				}
+				// send replies to client as per protocol
+				user.send_message(":" + user.get_prefix() + " JOIN " + channel_names[i]);
 			}
 		}
 	}
@@ -595,6 +598,7 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 }
 
 int Executor::channel_operator(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
+// need to set flag? what if there are many operators, when to reset?
 {
 	std::string target_nick;
 
@@ -622,6 +626,56 @@ int Executor::channel_operator(std::string channel, User& user, std::queue<std::
 			if (server_->get_channels().at(channel)->is_operator(target_nick))
 			{
 				server_->get_channels().at(channel)->remove_operator(target_nick);
+			}
+		}
+	}
+	return 0;
+}
+
+int Executor::privmsg(const Message& message, User& user)
+{
+	std::string target;
+	std::string message_text;
+
+	if (message.get_arguments().size() < 2)
+	{
+		if (message.get_arguments().size() == 1 && message.get_trailing_flag())
+		{
+			Response::error(user, ERR_NOTEXTTOSEND, message.get_command());
+		}
+		else
+		{
+			Response::error(user, ERR_NORECIPIENT, message.get_command());
+		}
+	}
+	else
+	{
+		target = message.get_arguments()[0];
+		message_text = message.get_arguments()[1];
+		if (target[0] == '#') // channel
+		{
+			if (!server_->contains_channel(target))
+			{
+				Response::error(user, ERR_NOSUCHCHANNEL, target);
+			}
+			else if (!server_->user_on_channel(target, user))
+			{
+				Response::error(user, ERR_CANNOTSENDTOCHAN, target);
+			}
+			else
+			{
+				server_->channel_broadcast(target, user, ":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\n");
+			}
+		}
+		else // user
+		{
+			if (!server_->contains_nickname(target))
+			{
+				Response::error(user, ERR_NOSUCHNICK, target);
+			}
+			else
+			{
+				server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\n");
 			}
 		}
 	}
