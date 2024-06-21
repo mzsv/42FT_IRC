@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/14 20:55:32 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/21 13:17:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int Executor::execute(const Message& message, User& user)
 
 int Executor::quit(const Message& message, User& user)
 {
-	(void)message;
+	(void)message; // !
 	(void)user;
 	return 0;
 }
@@ -127,7 +127,7 @@ int Executor::ping(const Message& message, User& user)
 	}
 	else
 	{
-		user.send_message(":" + server_->get_name() + " PONG " + message.get_arguments()[0]);
+		user.send_message(":" + server_->get_name() + " PONG " + message.get_arguments()[0] + "\n"); //  ! manage the addition of \n here or in the send_message? function
 	}
 	return 0;
 }
@@ -176,7 +176,12 @@ int Executor::join(const Message& message, User& user)
 	}
 	else if (message.get_arguments()[0] == "0")
 	{
-		// leave/PART all channels !
+		std::map<std::string, Channel*>::const_iterator it = server_->get_channels().begin();
+
+		for (; it != server_->get_channels().end(); ++it)
+		{
+			server_->leave_channel(it->first, user);
+		}
 	}
 	else 
 	{
@@ -184,7 +189,7 @@ int Executor::join(const Message& message, User& user)
 		if (message.get_arguments().size() > 1)
 		{
 			keys = split_arguments(message.get_arguments()[1]);
-		}	
+		}
 		for (size_t i = 0; i < channel_names.size(); ++i)
 		{
 			if (channel_names[i][0] != '#')
@@ -201,8 +206,6 @@ int Executor::join(const Message& message, User& user)
 				{
 					server_->join_channel(channel_names[i], "", user);
 				}
-				// send replies to client as per protocol
-				user.send_message(":" + user.get_prefix() + " JOIN " + channel_names[i]);
 			}
 		}
 	}

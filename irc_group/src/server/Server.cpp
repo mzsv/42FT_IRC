@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/14 20:41:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/21 12:15:02 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -367,11 +367,14 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 {
 	if (channels_.find(name) != channels_.end())
 	{
-		if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
+		if (channels_[name]->get_flags() & USERLIMIT && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
+		{
+			Response::error(user, ERR_CHANNELISFULL, name);
+		}
+		else if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
 		{
 			Response::error(user, ERR_INVITEONLYCHAN, name);
 		}
-		// assuming PRIVATE means mode k is on (key required for channel entry)
 		else if (channels_[name]->get_flags() & CHANNELKEY && channels_[name]->get_password() != key)
 		{
 			Response::error(user, ERR_BADCHANNELKEY, name);
@@ -386,7 +389,6 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 		channels_[name] = new Channel(name, "", user);
 		return 0;
 	}
-	// check CHANLIMIT !
 	return -1;
 }
 

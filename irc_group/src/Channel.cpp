@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 20:23:56 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/21 12:17:41 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,11 @@ const std::string& Channel::get_topic() const
 const time_t& Channel::get_topic_time() const
 {
 	return topic_time_;
+}
+
+const unsigned short& Channel::get_user_limit() const
+{
+	return user_limit_;
 }
 
 const User* Channel::get_user(const std::string& nickname) const
@@ -174,7 +179,7 @@ int Channel::add_user(const User& user)
 		if (flags_ & TOPICMODE)
 		{
 			Response::reply(user, RPL_TOPIC, name_, topic_); // !
-			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // !
+			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // ! optional
 		}
 		Response::reply(user, RPL_NAMREPLY, name_, user.get_nickname()); // MUST include joining client
 		Response::reply(user, RPL_ENDOFNAMES, name_);

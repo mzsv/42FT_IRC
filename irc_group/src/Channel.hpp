@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/31 20:23:15 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/06/21 13:20:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ class Channel
 	const std::string& get_password() const;
 	const std::string& get_topic() const;
 	unsigned char get_flags() const;
+	const unsigned short& get_user_limit() const;
 
 	const time_t& get_topic_time() const;
 	const std::string get_users() const;
