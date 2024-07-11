@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/14 19:24:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/11 19:32:48 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Logger.hpp"
 #include "Server.hpp"
 #include "irc_err_codes.hpp"
+// #include "irc_codes.hpp"
 
 /**
  * Probably the better solution here would be to transform that class to Singleton,
@@ -38,6 +39,7 @@ private:
 	Server* server_;
 	std::map<std::string, FunctionPointer> functions_;
 	std::map<char, ModeFunctionPointer> mode_functions_;
+	std::map<std::string, std::string> params;
 
 	/**
 	 * Funcs

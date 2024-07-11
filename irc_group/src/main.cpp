@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/26 17:51:30 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/11 19:38:50 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ bool is_valid_data(char **argv);
     - Chaining reading
 */
 
+// handle params and response
 int main(int argc, char **argv)
 {
     if (argc != 3 || !is_valid_data(argv))
@@ -43,8 +44,7 @@ int main(int argc, char **argv)
     server.listen_socket();
     Logger::Log(INFO, "Hm...");
     // print server timeout members
-    
-    
+
     while (true)
     {
         server.get_connection();

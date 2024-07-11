@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/21 12:15:02 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/11 19:38:29 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,7 +312,7 @@ int Server::handle_message(User& user)
 					return DISCONNECT;
 				}
 			}
-			catch (const std::exception& e)
+			catch (const std::exception& e) // throw exceptions at executor !
 			{
 				Response::error(user, ERR_UNKNOWNCOMMAND, message.get_command());
 			}
