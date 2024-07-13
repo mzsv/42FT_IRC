@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   logger.cpp                                         :+:      :+:    :+:   */
+/*   Logger.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/08 17:56:54 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/22 20:31:50 by amitcul          ###   ########.fr       */
+/*   Updated: 2024/07/13 16:52:43 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #define ERROR(msg)  std::cout << ANSI_COLOR_RED << "ERROR: " << msg << ANSI_COLOR_RESET << std::endl
 #define WARN(msg)   std::cout << ANSI_COLOR_YELLOW << "WARN: " << msg << ANSI_COLOR_RESET << std::endl
 #define INFO(msg)   std::cout << ANSI_COLOR_GREEN << "INFO: " << msg << ANSI_COLOR_RESET << std::endl
-#define DEBUG__(msg)  std::cout << ANSI_COLOR_BLUE << "DEBUG: " << msg << ANSI_COLOR_RESET << std::endl
+#define DEBUG(msg)  std::cout << ANSI_COLOR_BLUE << "DEBUG: " << msg << ANSI_COLOR_RESET << std::endl
 
 
 void Logger::Log(const LogType type, const std::string& msg)
@@ -39,7 +39,7 @@ void Logger::Log(const LogType type, const std::string& msg)
 		break;
 	case DEBUG:
 		#ifdef DEBUG
-		DEBUG__(msg);
+		DEBUG(msg);
 		#endif
 		break;
 	}

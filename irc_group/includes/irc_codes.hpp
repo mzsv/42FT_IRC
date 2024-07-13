@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/11 18:47:57 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/13 20:08:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ enum IrcCode
     ERR_NOSUCHNICK,
     ERR_NOSUCHCHANNEL,
     ERR_CANNOTSENDTOCHAN,
+    ERR_NOORIGIN,
     ERR_NORECIPIENT,
     ERR_NOTEXTTOSEND,
     ERR_UNKNOWNCOMMAND,
@@ -48,6 +49,7 @@ enum IrcCode
     ERR_KEYSET,
     ERR_UNKNOWNMODE,
     ERR_UMODEUNKNOWNFLAG,
+    ERR_INVALIDMODEPARAM,
 };
 
 #endif // IRC_CODES_HPP

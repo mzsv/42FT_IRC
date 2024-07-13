@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/11 19:38:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/13 18:09:22 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,31 +290,24 @@ int Server::handle_message(User& user)
 		}
 		else
 		{
-			try
+			std::cout << "executing..." << std::endl;
+			// print message members
+			std::cout << "Message: " << message.get_message() << std::endl;
+			std::cout << "Command: " << message.get_command() << std::endl;
+			std::cout << "Prefix: " << message.get_prefix() << std::endl;
+			for (size_t i = 0; i < message.get_arguments().size(); ++i)
 			{
-				std::cout << "executing..." << std::endl;
-				// print message members
-				std::cout << "Message: " << message.get_message() << std::endl;
-				std::cout << "Command: " << message.get_command() << std::endl;
-				std::cout << "Prefix: " << message.get_prefix() << std::endl;
-				for (size_t i = 0; i < message.get_arguments().size(); ++i)
-				{
-					std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
-				}
-				std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
-				std::cout << "Trailing: " << message.get_trailing() << std::endl;
-				
-				Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
-				int response = executor.execute(message, user);
-				std::cout << "response: " << response << std::endl;
-				if (response == DISCONNECT)
-				{
-					return DISCONNECT;
-				}
+				std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
 			}
-			catch (const std::exception& e) // throw exceptions at executor !
+			std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
+			std::cout << "Trailing: " << message.get_trailing() << std::endl;
+			
+			Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
+			int response = executor.execute(message, user);
+			std::cout << "response: " << response << std::endl;
+			if (response == DISCONNECT)
 			{
-				Response::error(user, ERR_UNKNOWNCOMMAND, message.get_command());
+				return DISCONNECT;
 			}
 		}
 	}
@@ -369,15 +362,15 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 	{
 		if (channels_[name]->get_flags() & USERLIMIT && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
 		{
-			Response::error(user, ERR_CHANNELISFULL, name);
+			Response::error_reply(user, ERR_CHANNELISFULL);
 		}
 		else if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
 		{
-			Response::error(user, ERR_INVITEONLYCHAN, name);
+			Response::error_reply(user, ERR_INVITEONLYCHAN);
 		}
 		else if (channels_[name]->get_flags() & CHANNELKEY && channels_[name]->get_password() != key)
 		{
-			Response::error(user, ERR_BADCHANNELKEY, name);
+			Response::error_reply(user, ERR_BADCHANNELKEY);
 		}
 		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{

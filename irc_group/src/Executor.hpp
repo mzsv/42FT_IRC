@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/11 19:32:48 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/13 20:18:45 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
  * to not create an instance on every execution
 */
 
-bool is_valid_nickname(const std::string& nickname);
+bool is_valid_nickname(const std::string& nick);
 
 typedef int (Executor::*FunctionPointer)(const Message&, User&);
 
