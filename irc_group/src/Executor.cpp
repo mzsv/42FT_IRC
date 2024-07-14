@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/13 20:11:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/14 19:31:47 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,7 @@ int Executor::join(const Message& message, User& user)
 		for (size_t i = 0; i < channel_names.size(); ++i)
 		{
 			Response::add_param("channel", channel_names[i]);
-			if (channel_names[i][0] != '#')
+			if (!is_valid_channel(channel_names[i]))
 			{
 				Response::error_reply(user, ERR_BADCHANMASK);
 			}
@@ -258,7 +258,7 @@ int Executor::part(const Message& message, User& user)
 	return 0;
 }
 
-int Executor::names(const Message& message, User& user)
+int Executor::names(const Message& message, User& user) //  Not required !
 {
 	std::vector<std::string> channel_names;
 	
@@ -569,7 +569,7 @@ int Executor::channel_key(std::string channel, User& user, std::queue<std::strin
 		q_values.pop();
 		if (activate)
 		{
-			// add chek for key, cannot have spaces
+			// add check for key, cannot have spaces
 			if (server_->get_channels().at(channel)->get_flags() & CHANNELKEY)
 			{
 				Response::error_reply(user, ERR_KEYSET);

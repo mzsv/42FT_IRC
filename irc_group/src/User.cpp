@@ -6,16 +6,17 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/05/24 18:01:08 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/14 21:24:02 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "User.hpp"
 
-User::User(int socket_fd, const std::string& host, std::string& server_name) :
+User::User(int socket_fd, const std::string& host, const Server* server, std::string& server_name) :
 	socket_fd_(socket_fd),
 	host_(host),
 	server_name_(server_name),
+	server_(server),
 	flags_(RECEIVENOTICE),
 	time_of_registrations_(time(0))
 {
@@ -41,6 +42,11 @@ const std::string& User::get_host() const
 const std::string& User::get_server_name() const
 {
 	return server_name_;
+}
+
+const Server* User::get_server() const
+{
+	return server_;
 }
 
 const std::string& User::get_password() const

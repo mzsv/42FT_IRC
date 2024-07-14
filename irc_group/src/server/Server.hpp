@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/14 20:10:04 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/14 20:14:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,12 +65,14 @@ class Server
 	// std::map<Channel*, std::set<User*>> operators;
 	std::string name_;
 	std::string password_;
+	int max_users_;
 
 	// time_t max_inactive_time_;
 	// time_t max_response_time_;
 	const id_t timeout_; // used for poll(); shoudnt it be 0? check man
 	double max_inactive_time_;
 	double max_response_time_;
+	double creation_time_;
 
   public:
 	Server(int port, const std::string& password);

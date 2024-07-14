@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/23 17:21:42 by amitcul          ###   ########.fr       */
+/*   Updated: 2024/07/14 21:23:39 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class User
     int socket_fd_;
     std::string host_;
     const std::string& server_name_;
+    const Server* server_;
     std::string password_;
     std::string nickname_;
     std::string username_;
@@ -64,7 +65,7 @@ class User
     User& operator=(const User& oth);
 
   public:
-    User(int socket_fd, const std::string& host, std::string& server_name);
+    User(int socket_fd, const std::string& host, const Server* server, std::string& server_name);
     ~User();
 
     /**
@@ -72,6 +73,7 @@ class User
     */
     int get_socket_fd() const;
     const std::string& get_host() const;
+    const Server* get_server() const;
     const std::string& get_server_name() const;
     const std::string& get_password() const;
     const std::string& get_nickname() const;

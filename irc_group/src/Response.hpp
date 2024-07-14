@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/13 16:58:47 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/14 21:27:54 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,55 @@
 
 class User;
 
+#include <iomanip>
 #include "User.hpp"
 #include "irc_codes.hpp"
+
+typedef std::string (Response::*RplFunctionPointer)(const User&, IrcCode);
 
 class Response // should it really be static?
 {
   private:
   static std::map<IrcCode, std::string> irc_messages_;
   static std::map<std::string, std::string> params_;
+  static std::map<IrcCode, RplFunctionPointer> rpl_functions_;
   static std::string generate_message(IrcCode code);
+  
+  std::string rpl_welcome(const User& user, IrcCode code);
+  std::string rpl_yourhost(const User& user, IrcCode code);
+  std::string rpl_created(const User& user, IrcCode code);
+  std::string rpl_myinfo(const User& user, IrcCode code);
+  std::string rpl_isupport(const User& user, IrcCode code);
+  std::string rpl_luserclient(const User& user, IrcCode code);
+  std::string rpl_luserop(const User& user, IrcCode code);
+  std::string rpl_luserunknown(const User& user, IrcCode code);
+  std::string rpl_luserchannels(const User& user, IrcCode code);
+  std::string rpl_luserme(const User& user, IrcCode code);
+  std::string rpl_localusers(const User& user, IrcCode code);
+  std::string rpl_globalusers(const User& user, IrcCode code);
+  std::string rpl_channelmodeis(const User& user, IrcCode code);
+  std::string rpl_creationtime(const User& user, IrcCode code);
+  std::string rpl_notopic(const User& user, IrcCode code);
+  std::string rpl_topic(const User& user, IrcCode code);
+  std::string rpl_topicwhotime(const User& user, IrcCode code);
+  std::string rpl_inviting(const User& user, IrcCode code);
+  std::string rpl_namreply(const User& user, IrcCode code);
+  std::string rpl_endofnames(const User& user, IrcCode code);
+  std::string rpl_motd(const User& user, IrcCode code);
+  std::string rpl_motdstart(const User& user, IrcCode code);
+  std::string rpl_endofmotd(const User& user, IrcCode code);
+  
 
   public:
   static std::map<IrcCode, std::string> initialize_irc_messages();
+  static std::map<IrcCode, RplFunctionPointer> initialize_rpl_functions();
   static void add_param(const std::string& key, const std::string& value);
   static std::map<std::string, std::string>& get_params(); // is it used ?
   static void params_clear();
-	static void error(const User& user, int error, const std::string& arg1 = "", const std::string& arg2 = "");
-  static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
+	// static void error(const User& user, int error, const std::string& arg1 = "", const std::string& arg2 = "");
+  // static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
   static void error_reply(const User& user, IrcCode code);
+  static void reply(const User& user, IrcCode code);
 
 };
 

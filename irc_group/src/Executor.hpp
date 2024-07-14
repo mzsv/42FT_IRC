@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/13 20:18:45 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/14 21:16:16 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,13 @@
 
 bool is_valid_nickname(const std::string& nick);
 
+bool is_valid_channel(const std::string& channel);
+
+bool is_valid_key(const std::string& key);
+
 typedef int (Executor::*FunctionPointer)(const Message&, User&);
 
-typedef int (Executor::*ModeFunctionPointer)(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
+typedef int (Executor::*ModeFunctionPointer)(std::string, User&, std::queue<std::string>&, bool);
 
 class Executor
 {
@@ -47,12 +51,12 @@ private:
 	int pass(const Message& message, User& user); // D
 	int nick(const Message& message, User& user); // D
 	int user(const Message& message, User& user); // D
-	int quit(const Message& message, User& user); // remove user from server
+	int quit(const Message& message, User& user); // remove user from server NOT IMPLEMENTED YET !
 	int ping(const Message& message, User& user); // D : respond to ping
 	int pong(const Message& message, User& user); // D : handle incoming pong
 	int join(const Message& message, User& user); // add user to channel
 	int part(const Message& message, User& user); // remove user from channel
-	int names(const Message& message, User& user); // list users in channel
+	int names(const Message& message, User& user); // list users in channel NOT REQUIRED !
 	// int authenticate(const Message& message, User& user); // authenticate user
 	int privmsg(const Message& message, User& user); // message user to user/channel
 	// int list(const Message& message, User& user); // list channels
