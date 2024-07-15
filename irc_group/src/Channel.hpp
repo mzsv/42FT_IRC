@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/21 13:20:13 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/15 20:49:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,11 @@
 // #define TOPICSET	0b010000 // topic set by operator only mode? assuming that. maybe change names?
 #define NOMSGOUT	0b100000 // ?
 
-#define INVITEONLY	0b000001
+#define INVITEONLY	0b000001 // use enum instead? cleaner right?
 #define TOPICMODE	0b000010
 #define CHANNELKEY	0b000100
-#define USERLIMIT	0b001000
-#define CHANNELOP	0b010000 //  is this needed ? is it a flag for channel modes?
+#define CHANNELOP	0b001000 //  is this needed ? is it a flag for channel modes?
+#define USERLIMIT	0b010000
 
 class Channel
 {
@@ -43,7 +43,7 @@ class Channel
 	std::vector<const User*> speakers_;
 
 	time_t topic_time_; // needed for TOPIC
-	time_t creation_time_;
+	time_t start_time_;
 
 	Channel();
 	Channel(const Channel& channel);
@@ -64,8 +64,10 @@ class Channel
 	const unsigned short& get_user_limit() const;
 
 	const time_t& get_topic_time() const;
-	const std::string get_users() const;
+	const std::vector<const User*>& get_users() const;
+	const std::vector<const User*>& get_operators() const;
 	const User* get_user(const std::string& nickname) const;
+	const time_t& get_start_time() const;
 
 	/**
 	 * Setters

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/21 12:17:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/15 23:55:51 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Channel::Channel(const std::string& name, const std::string& password, const Use
 {
 	users_.push_back(&creator);
 	operators_.push_back(&creator);
-	creation_time_ = time(NULL);
+	start_time_ = time(NULL);
 }
 
 Channel::~Channel()
@@ -69,6 +69,11 @@ const User* Channel::get_user(const std::string& nickname) const
 	return NULL;
 }
 
+const time_t& Channel::get_start_time() const
+{
+	return start_time_;
+}
+
 /**
  * Setters
 */
@@ -76,7 +81,7 @@ void Channel::set_topic(const User& user, std::string topic)
 {
 	if ((flags_ & TOPICMODE) && !is_operator(user))
 	{
-		Response::error(user, ERR_CHANOPRIVSNEEDED, name_);
+		Response::reply(ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
@@ -89,7 +94,7 @@ void Channel::set_password(const User& user, std::string password) // review !
 {
 	if (!is_operator(user))
 	{
-		Response::error(user, ERR_CHANOPRIVSNEEDED, name_);
+		Response::reply(ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
@@ -178,34 +183,24 @@ int Channel::add_user(const User& user)
 		user.send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n"); // \r\n or \n?
 		if (flags_ & TOPICMODE)
 		{
-			Response::reply(user, RPL_TOPIC, name_, topic_); // !
-			Response::reply(user, RPL_TOPICWHOTIME, name_, user.get_nickname()); // ! optional
+			Response::reply(RPL_TOPIC); // !
+			Response::reply(RPL_TOPICWHOTIME); // ! optional
 		}
-		Response::reply(user, RPL_NAMREPLY, name_, user.get_nickname()); // MUST include joining client
-		Response::reply(user, RPL_ENDOFNAMES, name_);
+		Response::reply(RPL_NAMREPLY); // MUST include joining client
+		Response::reply(RPL_ENDOFNAMES);
 		// needs to also broadcast to all users in channel (privmsg to all, i guess)
 		return 0; // not needed if messaging client and channel here !
 	}
 	else
 	{
-		Response::error(user, ERR_CHANNELISFULL, name_);
+		Response::error_reply(ERR_CHANNELISFULL);
 	}
 	return -1;
 }
 
-const std::string Channel::get_users() const
+const std::vector<const User*>& Channel::get_users() const
 {
-	std::string res;
-
-	for (size_t i = 0; i < users_.size(); ++i)
-	{
-		res += users_[i]->get_nickname();
-		if (i != users_.size() - 1)
-		{
-			res += " ";
-		}
-	}
-	return res;
+	return users_;
 }
 
 void Channel::set_flag(unsigned char flag)
@@ -245,4 +240,9 @@ void Channel::remove_operator(std::string nickname)
 			break ;
 		}
 	}
+}
+
+const std::vector<const User*>& Channel::get_operators() const
+{
+	return operators_;
 }

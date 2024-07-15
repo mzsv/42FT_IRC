@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/13 18:09:22 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/16 00:22:14 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,12 @@
 
 Server::Server(int port, const std::string& password) :
 	port_(port), password_(password), timeout_(1),
-	max_inactive_time_(120), max_response_time_(60)
+	max_inactive_time_(120), max_response_time_(60),
+	description("42 IRC server"), version("1.0"),
+	available_channel_modes("itkol"), max_local_users_(0)
 	// should the listener socket be setup here?
 {
+	time(&start_time_);
 }
 
 Server::~Server()
@@ -243,7 +246,8 @@ void Server::get_connection()
 	pfd.events = POLLIN;
 	pfd.revents = 0;
 	users_fds_.push_back(pfd);
-	users_.push_back(new User(connection, host, name_));
+	users_.push_back(new User(connection, host, this, name_));
+	max_local_users_ = std::max(max_local_users_, users_.size());
 
 	// + missing protocol registration message; do I need it for this project?
 	// I think we should, to confirm it responds to the correct protocol
@@ -286,7 +290,7 @@ int Server::handle_message(User& user)
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK") // shorter way?
 		{
-			Response::error(user, ERR_NOTREGISTERED);
+			// Response::error(user, ERR_NOTREGISTERED);
 		}
 		else
 		{
@@ -303,7 +307,7 @@ int Server::handle_message(User& user)
 			std::cout << "Trailing: " << message.get_trailing() << std::endl;
 			
 			Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
-			int response = executor.execute(message, user);
+			int response = executor.execute(message, user); // response confusion with Response !
 			std::cout << "response: " << response << std::endl;
 			if (response == DISCONNECT)
 			{
@@ -362,15 +366,15 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 	{
 		if (channels_[name]->get_flags() & USERLIMIT && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
 		{
-			Response::error_reply(user, ERR_CHANNELISFULL);
+			Response::reply(ERR_CHANNELISFULL);
 		}
 		else if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
 		{
-			Response::error_reply(user, ERR_INVITEONLYCHAN);
+			Response::reply(ERR_INVITEONLYCHAN);
 		}
 		else if (channels_[name]->get_flags() & CHANNELKEY && channels_[name]->get_password() != key)
 		{
-			Response::error_reply(user, ERR_BADCHANNELKEY);
+			Response::reply(ERR_BADCHANNELKEY);
 		}
 		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{
@@ -429,21 +433,6 @@ void Server::leave_channel(const std::string& name, const User& user)
 	// remove channel from User (really necessary to have a list of channels in User?)
 }
 
-void Server::list_users(const std::string& channel_name, const User& user) const
-{
-	// could also be implemented in executor, just need to add a get_channels() to Server to get list of channels?
-	if (channel_name == "*")
-	{
-		for (size_t i = 0; i < channels_.size(); ++i)
-		{
-			user.send_message(":" + name_ + " 353 " + user.get_nickname() + " = " + channel_name + " :" + channels_.at(channel_name)->get_users() + "\n");
-			Response::reply(user, RPL_ENDOFNAMES, channel_name);
-		}
-	}
-	// RPL_NAMREPLY - implement in Response as the other replies?!
-	user.send_message(":" + name_ + " 353 " + user.get_nickname() + " = " + channel_name + " :" + channels_.at(channel_name)->get_users() + "\n");
-}
-
 void Server::channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const
 {
 	if (channels_.find(channel_name) != channels_.end())
@@ -482,4 +471,34 @@ const User* Server::get_user(const std::string& nickname) const
 		}
 	}
 	return 0;
+}
+
+const time_t& Server::get_start_time() const
+{
+	return start_time_;
+}
+
+const std::string& Server::get_description() const
+{
+	return description;
+}
+
+const std::string& Server::get_version() const
+{
+	return version;
+}
+
+const std::string& Server::get_available_channel_modes() const
+{
+	return available_channel_modes;
+}
+
+const std::vector<User*>& Server::get_users() const
+{
+	return users_;
+}
+
+const size_t& Server::get_max_local_users() const
+{
+	return max_local_users_;
 }

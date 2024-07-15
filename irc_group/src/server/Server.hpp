@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/14 20:14:13 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/15 23:52:27 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,12 @@ class Executor;
 #include "Message.hpp"
 #include "Response.hpp"
 #include "Executor.hpp"
-
 #include "irc_err_codes.hpp"
 #include "irc_rpl_codes.hpp"
+#include "to_string_.hpp"
 
 #define DISCONNECT -2
+#define NR_OF_SERVERS 1
 
 #ifdef __APPLE__
 #define IRC_NOSIGNAL SO_NOSIGPIPE
@@ -65,14 +66,17 @@ class Server
 	// std::map<Channel*, std::set<User*>> operators;
 	std::string name_;
 	std::string password_;
-	int max_users_;
 
 	// time_t max_inactive_time_;
 	// time_t max_response_time_;
 	const id_t timeout_; // used for poll(); shoudnt it be 0? check man
 	double max_inactive_time_;
 	double max_response_time_;
-	double creation_time_;
+	time_t start_time_;
+	std::string description;
+	std::string version;
+	std::string available_channel_modes;
+	size_t max_local_users_;
 
   public:
 	Server(int port, const std::string& password);
@@ -89,7 +93,12 @@ class Server
 	
 	// this could replace contains_nickname(), check for nullptr
 	const User* get_user(const std::string& nickname) const; // get one user from the vector
-
+	const time_t& get_start_time() const;
+	const std::string& get_description() const;
+	const std::string& get_version() const;
+	const std::string& get_available_channel_modes() const;
+	const std::vector<User*>& get_users() const;
+	const size_t& get_max_local_users() const;
 	/**
 	 * Setters
 	*/
@@ -120,7 +129,6 @@ class Server
 	bool user_on_channel(const std::string& channel, const std::string& user) const;
 	bool is_operator(const std::string& channel, const User& user) const;
 	void leave_channel(const std::string& name, const User& user);
-	void list_users(const std::string& channel_name, const User& user) const;
 	void channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const; // !
 	bool check_channel_mode(const std::string& channel_name, const unsigned char& mode) const;
 	const std::string get_channel_topic(const std::string& channel_name) const;

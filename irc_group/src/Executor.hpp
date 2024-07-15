@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/14 21:16:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/15 23:00:19 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,10 @@ private:
 	// int authenticate(const Message& message, User& user); // authenticate user
 	int privmsg(const Message& message, User& user); // message user to user/channel
 	// int list(const Message& message, User& user); // list channels
-
+	int motd(const Message& message, User& user); // message of the day
+	int lusers(const Message& message, User& user); // list users
+	int error(const Message& message, User& user); // implement !
+	
 	// // operators
 	int kick(const Message& message, User& user);
 	int invite(const Message& message, User& user);

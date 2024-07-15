@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/14 18:46:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/15 21:40:31 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ enum IrcCode
     ERR_NORECIPIENT = 411,
     ERR_NOTEXTTOSEND = 412,
     ERR_UNKNOWNCOMMAND = 421,
-    ERR_NOMOTD = 422, // not implemented !
+    ERR_NOMOTD = 422,
     ERR_ERRONEUSNICKNAME = 432,
     ERR_NICKNAMEINUSE = 433,
     ERR_USERNOTINCHANNEL = 441,
