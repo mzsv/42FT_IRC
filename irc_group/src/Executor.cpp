@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 00:45:40 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/16 21:49:05 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,7 @@ int Executor::execute(const Message& message, User& user)
 	Response::set_user(&user);
 	try
 	{
-		std::cout << "-" << message.get_command() << "-" << std::endl;
 		fp = functions_.at(message.get_command());
-		// print fp
-		std::cout << "fp: SUCCESS! " << fp << std::endl;
 		(this->*fp)(message, user);
 	}
 	catch (const std::exception& e)
@@ -273,7 +270,8 @@ int Executor::part(const Message& message, User& user)
 int Executor::names(const Message& message, User& user) //  Not required !
 {
 	std::vector<std::string> channel_names;
-	
+
+	Response::add_param("channel", ""); // redundant ? better way to handle this ?
 	if (message.get_arguments().size() == 0)
 	{
 		std::vector<const Channel*> channels = user.get_channels(); // const on every !

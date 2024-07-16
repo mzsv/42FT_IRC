@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 00:22:14 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/16 23:54:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,7 @@ void Server::delete_broken_connection()
 		}
 		notify_users(*(users_[i]), ":" + users_[i]->get_prefix() + " QUIT :" + users_[i]->get_quit_message() + "\n");
 		close(users_[i]->get_socket_fd());
+		Logger::Log(INFO, "User " + users_[i]->get_nickname() + " disconnected.");
 		std::map<std::string, Channel*>::iterator begin = channels_.begin();
 		std::map<std::string, Channel*>::iterator end = channels_.end();
 		for (; begin != end; ++begin)
@@ -142,7 +143,7 @@ void Server::delete_broken_connection()
 			}
 		}
 		delete users_[i];
-		users_.erase(users_.begin() + i);
+		users_.erase(users_.begin() + i); // ?
 		users_fds_.erase(users_fds_.begin() + i);
 		--i;
 	}
@@ -205,26 +206,13 @@ int Server::check_connection(User& user)
 		if (!(user.get_flags() & REGISTERED))
 		{
 			user.set_flag(REGISTERED); //  Registration
+			Logger::Log(INFO, "User " + user.get_nickname() + " registered.");
 		}
 	}
 	else
 	{
 		return DISCONNECT;
 	}
-	// // check pinging time
-	// if (user.get_flags() & PINGING && time(0) - user.get_time_after_pinging() > max_response_time_)
-	// {
-	// 	return DISCONNECT;
-	// }
-	// // check timeout
-	// if (time(0) - user.get_time_of_last_action() > max_inactive_time_)
-	// {
-	// 	//maybe put this in a pinging function ? and reuse at ping_users
-	// 	user.send_message(":" + name_ + " PING :" + name_ + "\n");
-	// 	user.set_time_after_pinging();
-	// 	user.set_time_of_last_action();
-	// 	user.set_flag(PINGING);
-	// }
 	return 0;
 }
 
@@ -269,11 +257,14 @@ void Server::process_message()
 			if (users_[i]->read_message() == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
+				Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated (read).");
 			}
 			else if (handle_message(*(users_[i])) == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
+				Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated.");
 			}
+			Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " message processed.");
 			users_fds_[i].revents = 0;
 		}
 	}
@@ -290,7 +281,7 @@ int Server::handle_message(User& user)
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK") // shorter way?
 		{
-			// Response::error(user, ERR_NOTREGISTERED);
+			Response::reply(ERR_NOTREGISTERED);
 		}
 		else
 		{
@@ -348,17 +339,6 @@ bool Server::contains_nickname(const std::string& nickname) const
 	}
 	return false;
 }
-
-// void Server::ping_users() const // protocol conflict
-// {
-// 	for (size_t i = 0; i < users_.size(); ++i)
-// 	{
-// 		if (users_[i]->get_flags() & REGISTERED && !(users_[i]->get_flags() & PINGING))
-// 		{
-// 			users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n");
-// 		}
-// 	}
-// }
 
 int Server::join_channel(const std::string& name, const std::string& key, const User& user) // review with modes
 {

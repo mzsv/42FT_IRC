@@ -1,0 +1,4 @@
+PASS 111
+NICK aaa
+USER aaa 0 * :aaa
+

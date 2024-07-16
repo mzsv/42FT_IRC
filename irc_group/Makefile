@@ -2,7 +2,7 @@
 NAME	=	ft_irc
 
 CXX		=	c++
-CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g # confirm !
 RM		=	rm -rf
 
 INCLUDES = ./includes

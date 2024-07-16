@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/15 23:25:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/16 18:33:29 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ class Response // should it really be static?
   static std::string rpl_motd(IrcCode code);
   static std::string rpl_motdstart(IrcCode code);
   static std::string rpl_endofmotd(IrcCode code);
-  
+
 
   public:
   static void set_targets(const User* user, const Channel* channel); //  still needed ?

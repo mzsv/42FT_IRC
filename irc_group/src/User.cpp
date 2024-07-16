@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/14 21:24:02 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 00:22:29 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,12 +96,14 @@ void User::set_nickname(const std::string& nickname)
 {
 	// std::cout << "Setting nickname to: " << nickname << std::endl;
 	nickname_ = nickname;
+	Logger::Log(DEBUG, "Setting nickname to: " + nickname);
 }
 
 void User::set_username(const std::string& username)
 {
 	// std::cout << "Setting username to: " << username << std::endl;
 	username_ = username;
+	Logger::Log(DEBUG, "Setting username to: " + username);
 }
 
 void User::set_flag(unsigned char flag)
@@ -161,9 +163,19 @@ int User::read_message()
 	{
 		msg = messages_.front();
 	}
+	// iterate over the messages and print content
+	std::cout << "--Messages--: " << messages_.size() << std::endl;
+	std::queue<std::string> temp = messages_;
+	while (temp.size() > 0)
+	{
+		std::cout << "Message: " << temp.front() << std::endl;
+		temp.pop();
+	}
 	int bytes;
+	Logger::Log(DEBUG, "Reading message");
 	while ((bytes = recv(socket_fd_, bf, 99, 0)) > 0)
 	{
+		Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
 		bf[bytes] = 0;
 		std::cout << "Received: " << bf << std::endl;
 		msg += bf;
@@ -173,12 +185,33 @@ int User::read_message()
 			break;
 		}
 	}
+	if (bytes < 0)
+	{
+		Logger::Log(DEBUG, "Error: " + to_string_(errno));
+	}
+	// while (1)
+	// {
+	// 	std::cout << "..." << std::endl;
+	// 	// check all sockets status
+	// 	bytes = recv(socket_fd_, bf, 99, 0);
+	// 	Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
+	// 	bf[bytes] = 0;
+	// 	std::cout << "Received: " << bf << std::endl;
+	// 	msg += bf;
+	// 	memset(bf, 0, sizeof(bf));
+	// 	if (msg.find('\n') != std::string::npos)
+	// 	{
+	// 		break;
+	// 	}
+	// }
+	Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
 	if (msg.size() > 512)
 	{
 		msg = msg.substr(0, 510) + "\r\n";
 	}
 	if (bytes == 0)
 	{
+		Logger::Log(DEBUG, "EOF: Client disconnected");
 		return DISCONNECT;
 	}
 	while (msg.find("\r\n") != std::string::npos)

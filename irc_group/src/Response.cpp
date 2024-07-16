@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 00:25:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/16 20:28:51 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -369,7 +369,10 @@ std::string Response::rpl_namreply(IrcCode code)
 
 std::string Response::rpl_endofnames(IrcCode code)
 {
-	Response::add_param("channel", channel_->get_name()); // fails when for an invalid channel !
+	if (channel_)
+	{
+		Response::add_param("channel", channel_->get_name()); // fails when for an invalid channel !
+	}
 	return Response::generate_message(code);
 }
 
