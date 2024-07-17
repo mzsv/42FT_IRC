@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 20:28:51 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 23:34:07 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,19 +168,6 @@ std::string Response::generate_message(IrcCode code)
         }
     }
     return message;
-}
-
-void Response::error_reply(IrcCode code)
-{
-	std::string message = Response::generate_message(code);
-	std::ostringstream oss;
-
-	oss << std::fixed << std::setprecision(3) << static_cast<int>(code);
-	std::string code_str = oss.str();
-	user_->send_message(":" + user_->get_server_name() + " " + code_str + \
-		" " + user_->get_prefix() + " " + message + "\r\n");
-	params_.clear(); // is it here?
-	Logger::Log(ERROR, message);
 }
 
 std::string Response::rpl_welcome(IrcCode code)
@@ -347,8 +334,8 @@ std::string Response::rpl_inviting(IrcCode code)
 std::string Response::rpl_namreply(IrcCode code)
 {
 	std::string nicknames;
-	std::vector<const User*> users = channel_->get_users();
-	std::vector<const User*> ops = channel_->get_operators();
+	const std::vector<const User*> users = channel_->get_users();
+	const std::vector<const User*> ops = channel_->get_operators();
 
 	for (size_t i = 0; i < users.size(); ++i)
 	{
@@ -407,10 +394,11 @@ void Response::reply(IrcCode code)
 		message = Response::generate_message(code);
 		Logger::Log(ERROR, message);
 	}
-	oss << std::fixed << std::setprecision(3) << static_cast<int>(code);
-	user_->send_message(":" + user_->get_server_name() + " " + oss.str() + \
-		" " + user_->get_prefix() + " " + message + "\r\n");
-	
+	oss << ":" << user_->get_server_name() << " " \
+		<< std::setw(3) << std::setfill('0') << code \
+		<< " " << user_->get_prefix() << " " \
+		<< message << "\r\n";
+	user_->send_message(oss.str());
 }
 
 void Response::reset()

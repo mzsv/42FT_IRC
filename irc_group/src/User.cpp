@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 00:22:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 20:02:40 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ void User::send_message(const std::string& message) const
 	{
 		send(socket_fd_, message.c_str(), message.size(), IRC_NOSIGNAL);
 	}
+	Logger::Log(DEBUG, "Sent message: " + message);
 }
 
 int User::read_message()
@@ -187,23 +188,17 @@ int User::read_message()
 	}
 	if (bytes < 0)
 	{
-		Logger::Log(DEBUG, "Error: " + to_string_(errno));
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
+        	Logger::Log(ERROR, "No data available to read, non-blocking operation.");
+		}
+		else
+		{
+			// Handle other errors
+			Logger::Log(ERROR, "Error reading from socket.");
+		}
+		Logger::Log(ERROR, "Error: " + to_string_(errno));
 	}
-	// while (1)
-	// {
-	// 	std::cout << "..." << std::endl;
-	// 	// check all sockets status
-	// 	bytes = recv(socket_fd_, bf, 99, 0);
-	// 	Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
-	// 	bf[bytes] = 0;
-	// 	std::cout << "Received: " << bf << std::endl;
-	// 	msg += bf;
-	// 	memset(bf, 0, sizeof(bf));
-	// 	if (msg.find('\n') != std::string::npos)
-	// 	{
-	// 		break;
-	// 	}
-	// }
 	Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
 	if (msg.size() > 512)
 	{

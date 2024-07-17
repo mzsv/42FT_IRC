@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/15 23:52:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 14:49:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class User;
 class Channel;
 class Executor;
 
+#include <cerrno>
 #include "User.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"

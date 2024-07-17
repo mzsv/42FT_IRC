@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/11 19:38:50 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 17:00:00 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         server.check_connection();
         server.delete_broken_connection();
         server.delete_empty_channels();
+        // Logger::Log(DEBUG, "Server is running...");
         // server.ping_users();
     }
 

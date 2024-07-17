@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 21:49:05 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 19:09:44 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["TOPIC"] = &Executor::topic;
 	functions_["MODE"] = &Executor::mode;
 	functions_["PRIVMSG"] = &Executor::privmsg;
+	functions_["MOTD"] = &Executor::motd;
+	functions_["LUSERS"] = &Executor::lusers;
 
 	functions_["QUIT"] = &Executor::quit;
 
@@ -181,7 +183,7 @@ std::vector<std::string> split_arguments(const std::string& arguments) // util !
 int Executor::join(const Message& message, User& user)
 {
 	Logger::Log(DEBUG, "Joining channel");
-	
+
 	std::vector<std::string> channel_names;
 	std::vector<std::string> keys;
 
@@ -218,19 +220,27 @@ int Executor::join(const Message& message, User& user)
 			}
 			else
 			{
-				Logger::Log(DEBUG, "Channel names: " + to_string_(channel_names.size()));
+				Logger::Log(DEBUG, "#Channel names: " + to_string_(channel_names.size()));
+				Logger::Log(DEBUG, "#Keys: " + to_string_(keys.size()));
 				if (keys.size() > i) // test this and confirm !
 				{
 					server_->join_channel(channel_names[i], keys[i], user);
 				}
 				else
 				{
+					Logger::Log(DEBUG, "Joining channel without key");
 					server_->join_channel(channel_names[i], "", user);
 				}
 				Response::set_channel(user.get_server()->get_channels().at(channel_names[i]));
+				Logger::Log(INFO, "Channel joined: " + channel_names[i]);
 			}
 		}
 	}
+	// Logger::Log(INFO, "Total channels joined: " + to_string_(channel_names.size()));
+	// for (size_t i = 0; i < channel_names.size(); ++i)
+	// {
+	// 	Logger::Log(INFO, "Channel: " + channel_names[i]);
+	// }
 	return 0;
 }
 
@@ -735,7 +745,7 @@ int Executor::privmsg(const Message& message, User& user)
 
 int Executor::motd(const Message& message, User& user)
 {
-	std::string filename = "../../motd.txt";
+	std::string filename = "MOTD.txt";
 	std::ifstream motd_file(filename.c_str(), std::ios_base::in);
 	std::string line;
 

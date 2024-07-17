@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/15 23:55:51 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 21:38:56 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ bool Channel::contains_nickname(const std::string& nichname) const
 // placeholder
 bool Channel::is_empty()
 {
-	return false;
+	return users_.empty();
 }
 
 // placeholder
@@ -175,18 +175,18 @@ void Channel::send_message(const std::string& message, const User& user, bool in
 	}
 }
 
-int Channel::add_user(const User& user)
+int Channel::add_user(const User& user) // redundant. also done in join_channel in server.cpp
 {
 	if (user_limit_ == 0 || users_.size() < user_limit_)
 	{
 		users_.push_back(&user);
-		user.send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n"); // \r\n or \n?
-		if (flags_ & TOPICMODE)
+		user.send_message(":" + user.get_nickname() + " JOIN " + name_ + "\r\n");
+		if (topic_.size())
 		{
-			Response::reply(RPL_TOPIC); // !
-			Response::reply(RPL_TOPICWHOTIME); // ! optional
+			Response::reply(RPL_TOPIC);
+			Response::reply(RPL_TOPICWHOTIME);
 		}
-		Response::reply(RPL_NAMREPLY); // MUST include joining client
+		Response::reply(RPL_NAMREPLY);
 		Response::reply(RPL_ENDOFNAMES);
 		// needs to also broadcast to all users in channel (privmsg to all, i guess)
 		return 0; // not needed if messaging client and channel here !

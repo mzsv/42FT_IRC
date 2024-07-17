@@ -2,7 +2,7 @@
 NAME	=	ft_irc
 
 CXX		=	c++
-CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g # confirm !
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g -fsanitize=address # confirm !
 RM		=	rm -rf
 
 INCLUDES = ./includes

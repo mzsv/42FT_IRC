@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 23:54:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/17 23:19:16 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 Server::Server(int port, const std::string& password) :
 	port_(port), password_(password), timeout_(1),
 	max_inactive_time_(120), max_response_time_(60),
-	description("42 IRC server"), version("1.0"),
+	description("42 IRC Server"), version("1.0"),
 	available_channel_modes("itkol"), max_local_users_(0)
 	// should the listener socket be setup here?
 {
@@ -82,7 +82,7 @@ void Server::create_socket()
 
 void Server::bind_socket()
 {
-	int idk = 0;
+	int idk = 1;
 	if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &idk, sizeof(int)) < 0)
 	{
 		Logger::Log(FATAL, "Setsocket failed.");
@@ -154,19 +154,39 @@ void Server::delete_broken_connection()
 */
 void Server::delete_empty_channels()
 {
-	std::map<std::string, Channel*>::iterator begin = channels_.begin();
-	std::map<std::string, Channel*>::iterator end = channels_.end();
-	for (; begin != end; ++begin)
+	std::map<std::string, Channel*>::iterator it = channels_.begin();
+	
+	while (it != channels_.end())
 	{
-		if ((*begin).second->is_empty())
+		if (it->second->is_empty())
 		{
-			delete (*begin).second;
-			channels_.erase((*begin).first);
-			begin = channels_.begin();
-			continue;
+			delete it->second;
+			channels_.erase(it++);
 		}
-		++begin;
+		else
+		{
+			++it;
+		}
 	}
+	// print channels
+	// for (it = channels_.begin(); it != channels_.end(); ++it)
+	// {
+	// 	std::cout << it->first << std::endl;
+	
+	// }
+	// std::map<std::string, Channel*>::iterator begin = channels_.begin();
+	// std::map<std::string, Channel*>::iterator end = channels_.end();
+	// for (; begin != end; ++begin)
+	// {
+	// 	if ((*begin).second->is_empty())
+	// 	{
+	// 		delete (*begin).second;
+	// 		channels_.erase((*begin).first);
+	// 		begin = channels_.begin();
+	// 		continue;
+	// 	}
+	// 	++begin;
+	// }
 }
 
 void Server::check_connection()
@@ -206,6 +226,15 @@ int Server::check_connection(User& user)
 		if (!(user.get_flags() & REGISTERED))
 		{
 			user.set_flag(REGISTERED); //  Registration
+			user.set_time_of_registrations(); // singular !
+			Response::reply(RPL_WELCOME);
+			Response::reply(RPL_YOURHOST);
+			Response::reply(RPL_CREATED);
+			Response::reply(RPL_MYINFO);
+			Response::reply(RPL_ISUPPORT);
+			Executor executor(this); // redundant !
+			executor.execute(Message("LUSERS\n"), user);
+			executor.execute(Message("MOTD\n"), user);
 			Logger::Log(INFO, "User " + user.get_nickname() + " registered.");
 		}
 	}
@@ -227,33 +256,90 @@ void Server::get_connection()
 	{
 		return;
 	}
-	char host[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &(sockaddr_.sin_addr), host, INET_ADDRSTRLEN);
+	char* host = inet_ntoa(sockaddr_.sin_addr);
 	struct pollfd pfd;
 	pfd.fd = connection;
 	pfd.events = POLLIN;
+	pfd.events |= POLLRDHUP;
+	pfd.events |= POLLERR;
+	pfd.events |= POLLHUP;
+	pfd.events |= POLLNVAL;
+	pfd.events |= POLLOUT;
+	pfd.events |= POLLPRI;
+	pfd.events |= POLLWRBAND;
+	pfd.events |= POLLWRNORM;
 	pfd.revents = 0;
 	users_fds_.push_back(pfd);
 	users_.push_back(new User(connection, host, this, name_));
 	max_local_users_ = std::max(max_local_users_, users_.size());
-
+	Logger::Log(INFO, "User connected from " + std::string(host) + "to " + name_);
+	Logger::Log(DEBUG, "users_ size: " + to_string_(users_.size()));
+	Logger::Log(DEBUG, "user->server_name: " + users_.back()->get_server_name());
 	// + missing protocol registration message; do I need it for this project?
 	// I think we should, to confirm it responds to the correct protocol
 }
 
+void print_poll_revents(const struct pollfd& pfd) // DEBUG !
+{
+	if (pfd.revents & POLLIN)
+	{
+		Logger::Log(DEBUG, "------------->POLLIN");
+	}
+	// if (pfd.revents & POLLOUT)
+	// {
+	// 	Logger::Log(DEBUG, "------------->POLLOUT");
+	// }
+	if (pfd.revents & POLLERR)
+	{
+		Logger::Log(DEBUG, "------------->POLLERR");
+	}
+	if (pfd.revents & POLLHUP)
+	{
+		Logger::Log(DEBUG, "------------->POLLHUP");
+	}
+	if (pfd.revents & POLLNVAL)
+	{
+		Logger::Log(DEBUG, "------------->POLLNVAL");
+	}
+	if (pfd.revents & POLLRDHUP)
+	{
+		Logger::Log(DEBUG, "------------->POLLRDHUP");
+	}
+	// if (pfd.revents & POLLWRBAND)
+	// {
+	// 	Logger::Log(DEBUG, "------------->POLLWRBAND");
+	// }
+	// if (pfd.revents & POLLWRNORM)
+	// {
+	// 	Logger::Log(DEBUG, "------------->POLLWRNORM");
+	// }
+	if (pfd.revents & POLLPRI)
+	{
+		Logger::Log(DEBUG, "------------->POLLPRI");
+	}
+}
 
 void Server::process_message()
 {
+	// print users_fds_ size
+	// Logger::Log(DEBUG, "users_fds_ size: " + to_string_(users_fds_.size()));
+	
 	int p = poll(users_fds_.data(), users_fds_.size(), timeout_);
-	std::vector<int> to_erase;
+	// std::vector<int> to_erase;
+	// Logger::Log(DEBUG, "Polling: " + to_string_(p));
 	if (p == 0)
 	{
 		return;
 	}
 	for (size_t i = 0; i < users_fds_.size(); ++i)
 	{
+		// Logger::Log(DEBUG, "POLLED " + users_[i]->get_nickname());
+		print_poll_revents(users_fds_[i]);
+		// users_[i]->send_message("you been POLLED :42\r\n");
 		if (users_fds_[i].revents & POLLIN)
 		{
+			Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " POLLIN.");
+			Response::set_user(users_[i]); // !
 			if (users_[i]->read_message() == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
@@ -267,6 +353,7 @@ void Server::process_message()
 			Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " message processed.");
 			users_fds_[i].revents = 0;
 		}
+		// users_[i]->send_message("POLL flags checked\r\n");
 	}
 }
 
@@ -358,12 +445,23 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 		}
 		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{
+			Response::set_channel(channels_[name]);
 			return channels_[name]->add_user(user);
 		}
 	}
 	else
 	{
 		channels_[name] = new Channel(name, "", user);
+		Response::set_channel(channels_[name]); // or use the one from params_, already set
+		// Response::set_user(&user);
+		user.send_message(":" + user.get_nickname() + " JOIN " + name + "\r\n");
+		if (channels_[name]->get_topic().size())
+		{
+			Response::reply(RPL_TOPIC);
+			Response::reply(RPL_TOPICWHOTIME);
+		}
+		Response::reply(RPL_NAMREPLY);
+		Response::reply(RPL_ENDOFNAMES);
 		return 0;
 	}
 	return -1;
