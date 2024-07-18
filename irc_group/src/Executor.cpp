@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 19:09:44 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 23:03:32 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 Executor::Executor(Server* server) : server_(server)
 {
+	functions_["CAP"] = &Executor::ignore;
 	functions_["PASS"] = &Executor::pass;
 	functions_["NICK"] = &Executor::nick;
 	functions_["USER"] = &Executor::user;
@@ -29,6 +30,8 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["PRIVMSG"] = &Executor::privmsg;
 	functions_["MOTD"] = &Executor::motd;
 	functions_["LUSERS"] = &Executor::lusers;
+	functions_["WHO"] = &Executor::who;
+	functions_["WHOIS"] = &Executor::ignore; // implement !
 
 	functions_["QUIT"] = &Executor::quit;
 
@@ -55,7 +58,7 @@ int Executor::execute(const Message& message, User& user)
 	try
 	{
 		fp = functions_.at(message.get_command());
-		(this->*fp)(message, user);
+		return (this->*fp)(message, user);
 	}
 	catch (const std::exception& e)
 	{
@@ -67,9 +70,19 @@ int Executor::execute(const Message& message, User& user)
 
 int Executor::quit(const Message& message, User& user) // complete !
 {
-	(void)message; // !
-	(void)user;
-	return 0;
+	std::string reason;
+	std::vector<const Channel*> channels = user.get_channels();
+
+	if (message.get_arguments().size() > 0)
+	{
+		reason = message.get_arguments()[0];
+	}
+	user.send_message(":" + user.get_prefix() + " ERROR :" + reason + "\r\n");
+	for (size_t i = 0; i < channels.size(); ++i)
+	{
+		channels[i]->send_message(":" + user.get_prefix() + " QUIT :" + reason + "\r\n", user, false);
+	}
+	return DISCONNECT;
 }
 
 int Executor::pass(const Message& message, User& user)
@@ -134,6 +147,7 @@ int Executor::user(const Message& message, User& user)
 	else
 	{
 		user.set_username(message.get_arguments()[0]);
+		user.set_realname(message.get_arguments()[3]); // or trailing?
 	}
 	return server_->check_connection(user); // necessary? or redundant?
 }
@@ -503,6 +517,7 @@ int Executor::mode(const Message& message, User& user)
 		}
 		else if (message.get_arguments().size() == 1)
 		{
+			Response::set_channel(server_->get_channels().at(channel));
 			Response::reply(RPL_CHANNELMODEIS); // !
 			Response::reply(RPL_CREATIONTIME); // !
 		}
@@ -523,24 +538,26 @@ int Executor::mode(const Message& message, User& user)
 				Response::add_param("mode", modes.substr(i, 1));
 				if (mode_functions_.find(modes[i]) != mode_functions_.end())
 				{
-					ModeFunctionPointer mfp = NULL;
+					ModeFunctionPointer mfp = mode_functions_.at(modes[i]);
+					(this->*mfp)(channel, user, q_values, activate);
+					// ModeFunctionPointer mfp = NULL;
 					
-					if (modes[i] == 'k' || modes[i] == 'o')
-					{
-						mfp = mode_functions_.at('B');
-					}
-					else if (modes[i] == 'l')
-					{
-						mfp = mode_functions_.at('C');
-					}
-					else if (modes[i] == 'i' || modes[i] == 't')
-					{
-						mfp = mode_functions_.at('D');
-					}
-					if (mfp)
-					{
-						(this->*mfp)(channel, user, q_values, activate);
-					}
+					// if (modes[i] == 'k' || modes[i] == 'o')
+					// {
+					// 	mfp = mode_functions_.at('B');
+					// }
+					// else if (modes[i] == 'l')
+					// {
+					// 	mfp = mode_functions_.at('C');
+					// }
+					// else if (modes[i] == 'i' || modes[i] == 't')
+					// {
+					// 	mfp = mode_functions_.at('D');
+					// }
+					// if (mfp)
+					// {
+					// 	(this->*mfp)(channel, user, q_values, activate);
+					// }
 				}
 				else
 				{
@@ -780,5 +797,47 @@ int Executor::lusers(const Message& message, User& user)
 	Response::reply(RPL_LUSERME);
 	Response::reply(RPL_LOCALUSERS);
 	Response::reply(RPL_GLOBALUSERS);
+	return 0;
+}
+
+int Executor::ignore(const Message& message, User& user)
+{
+	(void)message;
+	(void)user;
+	return 0;
+}
+
+int Executor::who(const Message& message, User& user)
+{
+	std::string mask;
+
+	if (message.get_arguments().size() == 0)
+	{
+		Response::reply(ERR_NEEDMOREPARAMS);
+	}
+	else
+	{
+		mask = message.get_arguments()[0];
+		Response::add_param("who_mask", mask);
+		if (mask[0] == '#')
+		{
+			if (server_->contains_channel(mask) && server_->user_on_channel(mask, user))
+			{
+				const Channel* channel = server_->get_channels().at(mask);
+				const std::vector<const User*> channel_users = channel->get_users();
+				Response::set_channel(channel);
+				for (size_t i = 0; i < channel_users.size(); ++i)
+				{
+					Response::set_user(channel_users[i]);
+					Response::reply(RPL_WHOREPLY);
+				}
+			}
+		}
+		else if (server_->contains_nickname(mask))
+		{
+			Response::reply(RPL_WHOREPLY);
+		}
+		Response::reply(RPL_ENDOFWHO);
+	}
 	return 0;
 }

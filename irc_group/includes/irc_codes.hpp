@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/15 21:40:31 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 18:09:11 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,14 @@ enum IrcCode
     RPL_LUSERME = 255,
     RPL_LOCALUSERS = 265,
     RPL_GLOBALUSERS = 266, // redundant (same as LOCALUSERS) because it's only one server
+    RPL_ENDOFWHO = 315, // implement !
     RPL_CHANNELMODEIS = 324,
     RPL_CREATIONTIME = 329,
     RPL_NOTOPIC = 331,
     RPL_TOPIC = 332,
     RPL_TOPICWHOTIME = 333,
     RPL_INVITING = 341,
+    RPL_WHOREPLY = 352, //  implement !
     RPL_NAMREPLY = 353,
     RPL_ENDOFNAMES = 366,
     RPL_MOTD = 372,

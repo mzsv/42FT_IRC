@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/16 18:33:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 18:11:22 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,14 @@ class Response // should it really be static?
   static std::string rpl_luserme(IrcCode code);
   static std::string rpl_localusers(IrcCode code);
   static std::string rpl_globalusers(IrcCode code);
+  static std::string rpl_endofwho(IrcCode code);
   static std::string rpl_channelmodeis(IrcCode code);
   static std::string rpl_creationtime(IrcCode code);
   static std::string rpl_notopic(IrcCode code);
   static std::string rpl_topic(IrcCode code);
   static std::string rpl_topicwhotime(IrcCode code);
   static std::string rpl_inviting(IrcCode code);
+  static std::string rpl_whoreply(IrcCode code);
   static std::string rpl_namreply(IrcCode code);
   static std::string rpl_endofnames(IrcCode code);
   static std::string rpl_motd(IrcCode code);

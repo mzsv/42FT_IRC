@@ -6,12 +6,12 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 14:49:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 23:50:32 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_SERVER_HPP
-#define SERVER_SERVER_HPP
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
 #include <string>
 #include <vector>
@@ -135,4 +135,4 @@ class Server
 	const std::string get_channel_topic(const std::string& channel_name) const;
 };
 
-#endif // SERVER_SERVER_HPP
+#endif // SERVER_HPP

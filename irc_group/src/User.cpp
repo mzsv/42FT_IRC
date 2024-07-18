@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 20:02:40 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 23:40:58 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,11 @@ const std::string& User::get_username() const
 	return username_;
 }
 
+const std::string& User::get_realname() const
+{
+	return realname_;
+}
+
 unsigned char User::get_flags() const
 {
 	return flags_;
@@ -104,6 +109,11 @@ void User::set_username(const std::string& username)
 	// std::cout << "Setting username to: " << username << std::endl;
 	username_ = username;
 	Logger::Log(DEBUG, "Setting username to: " + username);
+}
+
+void User::set_realname(const std::string& realname)
+{
+	realname_ = realname;
 }
 
 void User::set_flag(unsigned char flag)
@@ -236,4 +246,9 @@ std::string User::get_prefix() const
 std::string User::get_quit_message() const
 {
 	return "Quit message template";
+}
+
+void User::add_channel(const Channel& channel)
+{
+	channels_.push_back(&channel);
 }

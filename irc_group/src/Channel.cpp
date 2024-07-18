@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 21:38:56 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 23:35:27 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,20 +110,24 @@ void Channel::set_topic_time()
 /**
  * Funcs
 */
-// placeholder
-bool Channel::contains_nickname(const std::string& nichname) const
+
+bool Channel::contains_nickname(const std::string& nickname) const
 {
-	(void)nichname;
+	for (size_t i = 0; i < users_.size(); ++i)
+	{
+		if (users_[i]->get_nickname() == nickname)
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
-// placeholder
 bool Channel::is_empty()
 {
 	return users_.empty();
 }
 
-// placeholder
 void Channel::disconnect(const User& user)
 {
 	for (size_t i = 0; i < users_.size(); ++i)
@@ -140,7 +144,7 @@ bool Channel::is_operator(const User& user) const
 {
 	for (size_t i = 0; i < operators_.size(); ++i)
 	{
-		if (speakers_[i]->get_prefix() == user.get_prefix())
+		if (operators_[i]->get_prefix() == user.get_prefix())
 		{
 			return true;
 		}
@@ -152,7 +156,7 @@ bool Channel::is_operator(const std::string& nickname) const
 {
 	for (size_t i = 0; i < operators_.size(); ++i)
 	{
-		if (speakers_[i]->get_nickname() == nickname)
+		if (operators_[i]->get_nickname() == nickname)
 		{
 			return true;
 		}
@@ -162,7 +166,7 @@ bool Channel::is_operator(const std::string& nickname) const
 
 void Channel::send_message(const std::string& message, const User& user, bool include_user) const
 {
-	std::string to_send = ":" + user.get_prefix() + " " + message;
+	// std::string to_send = ":" + user.get_prefix() + " " + message;
 	std::vector<const User*>::const_iterator begin = users_.begin();
 	std::vector<const User*>::const_iterator end = users_.end();
 
@@ -170,7 +174,9 @@ void Channel::send_message(const std::string& message, const User& user, bool in
 	{
 		if (include_user || *begin != &user)
 		{
-			(*begin)->send_message(to_send);
+			// (*begin)->send_message(to_send);
+			(*begin)->send_message(message);
+			Logger::Log(DEBUG, "Sending message to: " + (*begin)->get_nickname());
 		}
 	}
 }
@@ -180,7 +186,8 @@ int Channel::add_user(const User& user) // redundant. also done in join_channel 
 	if (user_limit_ == 0 || users_.size() < user_limit_)
 	{
 		users_.push_back(&user);
-		user.send_message(":" + user.get_nickname() + " JOIN " + name_ + "\r\n");
+		// user.send_message(":" + user.get_nickname() + " JOIN " + name_ + "\r\n");
+		send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n", user, true);
 		if (topic_.size())
 		{
 			Response::reply(RPL_TOPIC);
@@ -193,7 +200,7 @@ int Channel::add_user(const User& user) // redundant. also done in join_channel 
 	}
 	else
 	{
-		Response::error_reply(ERR_CHANNELISFULL);
+		Response::reply(ERR_CHANNELISFULL);
 	}
 	return -1;
 }

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/15 20:41:44 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/18 23:40:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class User
     std::string password_;
     std::string nickname_;
     std::string username_;
+    std::string realname_;
     unsigned char flags_;
     time_t time_of_registrations_;
     time_t time_of_last_action_;
@@ -78,6 +79,7 @@ class User
     const std::string& get_password() const;
     const std::string& get_nickname() const;
     const std::string& get_username() const;
+    const std::string& get_realname() const;
     unsigned char get_flags() const;
     time_t get_time_of_registrations() const;
     time_t get_time_of_last_action() const;
@@ -90,6 +92,7 @@ class User
     void set_password(const std::string& password);
     void set_nickname(const std::string& nickname);
     void set_username(const std::string& username);
+    void set_realname(const std::string& realname);
     void set_flag(unsigned char flag);
     void set_time_of_registrations();
     void set_time_after_pinging();
@@ -105,6 +108,7 @@ class User
     void reset_flag(unsigned char flag);
     std::string get_prefix() const;
     std::string get_quit_message() const;
+    void add_channel(const Channel& channel);
 };
 
 
