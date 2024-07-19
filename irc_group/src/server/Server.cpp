@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 23:50:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 00:37:13 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,9 +130,11 @@ void Server::delete_broken_connection()
 		{
 			continue;
 		}
-		notify_users(*(users_[i]), ":" + users_[i]->get_prefix() + " QUIT :" + users_[i]->get_quit_message() + "\n"); //  ERROR !
-		close(users_[i]->get_socket_fd());
-		Logger::Log(INFO, "User " + users_[i]->get_nickname() + " disconnected.");
+		// notify_users(*(users_[i]), ":" + users_[i]->get_prefix() + " QUIT :" + users_[i]->get_quit_message() + "\n"); //  ERROR !
+		if (users_[i]->get_flags() & TIMEDOUT)
+		{
+			users_[i]->send_message(":" + users_[i]->get_prefix() + " ERROR :Ping timeout: " + to_string_(max_response_time_) + " seconds\r\n");
+		}
 		std::map<std::string, Channel*>::iterator begin = channels_.begin();
 		std::map<std::string, Channel*>::iterator end = channels_.end();
 		for (; begin != end; ++begin)
@@ -140,8 +142,14 @@ void Server::delete_broken_connection()
 			if ((*begin).second->contains_nickname(users_[i]->get_nickname()))
 			{
 				(*begin).second->disconnect(*(users_[i]));
+				if (users_[i]->get_flags() & TIMEDOUT)
+				{
+					begin->second->send_message(":" + users_[i]->get_prefix() + " QUIT :PING timeout: " + to_string_(max_response_time_) + " seconds\r\n", *users_[i], false);
+				}
 			}
 		}
+		close(users_[i]->get_socket_fd());
+		Logger::Log(INFO, "User " + users_[i]->get_nickname() + " disconnected.");
 		delete users_[i];
 		users_.erase(users_.begin() + i); // ?
 		users_fds_.erase(users_fds_.begin() + i);
@@ -198,7 +206,7 @@ void Server::check_connection()
 			// if (time(0) - users_[i]->get_time_of_last_action() > max_inactive_time_)
 			if (difftime(time(0), users_[i]->get_time_of_last_action()) > max_inactive_time_)
 			{
-				users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n");
+				users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n"); // ping message !
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
 				users_[i]->set_flag(PINGING);
@@ -208,6 +216,7 @@ void Server::check_connection()
 				difftime(time(0), users_[i]->get_time_after_pinging()) > max_response_time_)
 			{
 				users_[i]->set_flag(BREAK);
+				users_[i]->set_flag(TIMEDOUT);
 			}
 		}
 	}
@@ -364,7 +373,7 @@ int Server::handle_message(User& user)
 	{
 		Message message(user.get_message().front());
 		user.pop_message();
-		Logger::Log(INFO, message.get_message());
+		Logger::Log(INFO, message.get_message() + " from " + user.get_nickname());
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK" \
 			&& message.get_command() != "CAP") // shorter way?
@@ -420,6 +429,7 @@ bool Server::contains_nickname(const std::string& nickname) const
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
+		Logger::Log(DEBUG, "Checking nickname: " + users_[i]->get_nickname() + " against: " + nickname);
 		if (users_[i]->get_nickname() == nickname)
 		{
 			return true;
@@ -428,7 +438,7 @@ bool Server::contains_nickname(const std::string& nickname) const
 	return false;
 }
 
-int Server::join_channel(const std::string& name, const std::string& key, const User& user) // review with modes
+int Server::join_channel(const std::string& name, const std::string& key, User& user) // review with modes
 {
 	if (channels_.find(name) != channels_.end())
 	{
@@ -447,12 +457,14 @@ int Server::join_channel(const std::string& name, const std::string& key, const 
 		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{
 			Response::set_channel(channels_[name]);
+			user.add_channel(*channels_[name]);
 			return channels_[name]->add_user(user); // review !
 		}
 	}
 	else
 	{
 		channels_[name] = new Channel(name, "", user); // already adds user
+		user.add_channel(*channels_[name]);
 		Response::set_channel(channels_[name]); // or use the one from params_, already set
 		// Response::set_user(&user);
 		// user.send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n"); //  JOIN message
@@ -516,16 +528,16 @@ bool Server::is_operator(const std::string& channel, const User& user) const
 	return false;
 }
 
-void Server::leave_channel(const std::string& name, const User& user)
+void Server::leave_channel(const std::string& name, User& user)
 {
 	if (channels_.find(name) != channels_.end())
 	{
 		if (channels_[name]->contains_nickname(user.get_nickname()))
 		{
 			channels_[name]->disconnect(user);
+			user.remove_channel(*channels_[name]);
 		}
 	}
-	// remove channel from User (really necessary to have a list of channels in User?)
 }
 
 void Server::channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const
@@ -556,7 +568,7 @@ const std::string Server::get_channel_topic(const std::string& channel_name) con
 	return res;
 }
 
-const User* Server::get_user(const std::string& nickname) const
+User* Server::get_user(const std::string& nickname) const
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{

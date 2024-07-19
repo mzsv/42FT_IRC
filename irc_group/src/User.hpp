@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 23:40:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 00:05:19 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Channel;
   FLAGS
 */
 #define REGISTERED      0b00000001
-#define INVISIBLE		    0b00000010
+#define TIMEDOUT		    0b00000010
 #define RECEIVENOTICE	  0b00000100
 #define RECEIVEWALLOPS	0b00001000
 #define CHANOPERATOR		0b00010000
@@ -109,6 +109,8 @@ class User
     std::string get_prefix() const;
     std::string get_quit_message() const;
     void add_channel(const Channel& channel);
+    void remove_channel(const Channel& channel);
+    time_t get_idle_time() const;
 };
 
 

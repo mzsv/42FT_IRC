@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 23:40:58 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/19 21:34:59 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ void User::send_message(const std::string& message) const
 	{
 		send(socket_fd_, message.c_str(), message.size(), IRC_NOSIGNAL);
 	}
-	Logger::Log(DEBUG, "Sent message: " + message);
+	Logger::Log(DEBUG, "Sent message: " + message + " to " + nickname_);
 }
 
 int User::read_message()
@@ -251,4 +251,21 @@ std::string User::get_quit_message() const
 void User::add_channel(const Channel& channel)
 {
 	channels_.push_back(&channel);
+}
+
+void User::remove_channel(const Channel& channel)
+{
+	for (size_t i = 0; i < channels_.size(); ++i)
+	{
+		if (channels_[i] == &channel)
+		{
+			channels_.erase(channels_.begin() + i);
+			break ;
+		}
+	}
+}
+
+time_t User::get_idle_time() const
+{
+	return time(0) - time_of_last_action_;
 }

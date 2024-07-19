@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 23:35:27 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 00:42:43 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void Channel::set_topic(const User& user, std::string topic)
 	else
 	{
 		topic_ = topic;
-		send_message("TOPIC " + name_ + " :" + topic_ + "\n", user, true);
+		send_message(":" + user.get_prefix() + " TOPIC " + name_ + " :" + topic_ + "\n", user, true);
 	}
 }
 
@@ -128,13 +128,21 @@ bool Channel::is_empty()
 	return users_.empty();
 }
 
-void Channel::disconnect(const User& user)
+void Channel::disconnect(const User& user) // map instead of vector ? user - op status
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
 		if (users_[i] == &user)
 		{
-			users_.erase(users_.begin() + i);	
+			users_.erase(users_.begin() + i);
+			break ;
+		}
+	}
+	for (size_t i = 0; i < operators_.size(); ++i)
+	{
+		if (operators_[i] == &user)
+		{
+			operators_.erase(operators_.begin() + i);
 			break ;
 		}
 	}
@@ -166,6 +174,7 @@ bool Channel::is_operator(const std::string& nickname) const
 
 void Channel::send_message(const std::string& message, const User& user, bool include_user) const
 {
+	Logger::Log(DEBUG, "Broadcasting on channel: " + name_);
 	// std::string to_send = ":" + user.get_prefix() + " " + message;
 	std::vector<const User*>::const_iterator begin = users_.begin();
 	std::vector<const User*>::const_iterator end = users_.end();
@@ -176,7 +185,7 @@ void Channel::send_message(const std::string& message, const User& user, bool in
 		{
 			// (*begin)->send_message(to_send);
 			(*begin)->send_message(message);
-			Logger::Log(DEBUG, "Sending message to: " + (*begin)->get_nickname());
+			Logger::Log(DEBUG, "Sending message to: " + (*begin)->get_nickname() + " to channel: " + name_);
 		}
 	}
 }

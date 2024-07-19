@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 23:03:32 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 00:24:52 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["MOTD"] = &Executor::motd;
 	functions_["LUSERS"] = &Executor::lusers;
 	functions_["WHO"] = &Executor::who;
-	functions_["WHOIS"] = &Executor::ignore; // implement !
+	functions_["WHOIS"] = &Executor::whois; // implement !
 
 	functions_["QUIT"] = &Executor::quit;
 
@@ -70,14 +70,15 @@ int Executor::execute(const Message& message, User& user)
 
 int Executor::quit(const Message& message, User& user) // complete !
 {
-	std::string reason;
+	std::string reason = "Quit: ";
 	std::vector<const Channel*> channels = user.get_channels();
 
 	if (message.get_arguments().size() > 0)
 	{
-		reason = message.get_arguments()[0];
+		reason += message.get_arguments()[0];
 	}
 	user.send_message(":" + user.get_prefix() + " ERROR :" + reason + "\r\n");
+	Logger::Log(DEBUG, "Quit - channel size: " + to_string_(channels.size()));
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		channels[i]->send_message(":" + user.get_prefix() + " QUIT :" + reason + "\r\n", user, false);
@@ -282,8 +283,14 @@ int Executor::part(const Message& message, User& user)
 			}
 			else
 			{
+				std::string reason;
+				if (message.get_arguments().size() > 1)
+				{
+					reason = ":" + message.get_arguments()[1];
+				}
+				server_->get_channels().at(channel_names[i])->send_message(":" + user.get_prefix() + " PART " + channel_names[i] + " " + reason + "\r\n", user, true);
 				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
-				user.send_message(":" + user.get_prefix() + " PART " + channel_names[i] + "\r\n"); // RPL ?
+				// user.send_message(":" + user.get_prefix() + " PART " + channel_names[i] + "\r\n"); // RPL ?
 				// MAY broadcast message to channel in addition (horse)
 			}
 		}
@@ -326,7 +333,7 @@ int Executor::names(const Message& message, User& user) //  Not required !
  * Operator functions
 */
 
-int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 !
+int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assumed by default if no TARGMAX ad)
 {
 	std::string channel;
 	std::string target;
@@ -361,18 +368,16 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 !
 		}
 		else
 		{
-			// Response::set_user(server_->get_user(target));
-			reply = " KICK " + channel + " " + target; // confirm client prefix is appended
+			std::string comment = ":Kicked";
+			User* target_user = server_->get_user(target);
+
 			if (message.get_arguments().size() > 2)
 			{
-				reply.append(" :" + message.get_arguments()[2] + "\n"); // \r\n ?
+				comment = ":" + message.get_arguments()[2];
 			}
-			else
-			{
-				reply.append(" :Kicked\n");
-			}
-			server_->channel_broadcast(channel, user, reply); // ! check if this is correct (horse) kiscked user also notified right?
-			server_->leave_channel(channel, user);
+			reply = " KICK " + channel + " " + target + " " + comment + "\r\n"; // confirm client prefix is appended
+			server_->get_channels().at(channel)->send_message(":" + user.get_prefix() + reply, user, true);
+			server_->leave_channel(channel, *target_user);
 		}
 	}
 	return 0;
@@ -742,7 +747,8 @@ int Executor::privmsg(const Message& message, User& user)
 			}
 			else
 			{
-				server_->channel_broadcast(target, user, ":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\n");
+				server_->get_channels().at(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n", user, false);
+				// server_->channel_broadcast(target, user, ":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\n");
 			}
 		}
 		else // user
@@ -753,7 +759,7 @@ int Executor::privmsg(const Message& message, User& user)
 			}
 			else
 			{
-				server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\n");
+				server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n");
 			}
 		}
 	}
@@ -828,7 +834,7 @@ int Executor::who(const Message& message, User& user)
 				Response::set_channel(channel);
 				for (size_t i = 0; i < channel_users.size(); ++i)
 				{
-					Response::set_user(channel_users[i]);
+					Response::set_target_user(channel_users[i]);
 					Response::reply(RPL_WHOREPLY);
 				}
 			}
@@ -838,6 +844,43 @@ int Executor::who(const Message& message, User& user)
 			Response::reply(RPL_WHOREPLY);
 		}
 		Response::reply(RPL_ENDOFWHO);
+	}
+	return 0;
+}
+
+int Executor::whois(const Message& message, User& user)
+{
+	(void)user;
+	if (message.get_arguments().size() == 0)
+	{
+		Response::reply(ERR_NONICKNAMEGIVEN);
+	}
+	else
+	{
+		std::string mask;
+		if (message.get_arguments().size() > 1)
+		{
+			mask = message.get_arguments()[0];
+		}
+		else
+		{
+			mask = message.get_arguments()[1];
+		}
+		Response::add_param("whois_mask", mask);
+		if (server_->contains_nickname(mask))
+		{
+			Response::set_user(&user);
+			Response::reply(RPL_WHOISUSER);
+			Response::reply(RPL_WHOISHOST);
+			Response::reply(RPL_WHOISSERVER);
+			Response::reply(RPL_WHOISMODES);
+			Response::reply(RPL_WHOISIDLE);
+			Response::reply(RPL_ENDOFWHOIS);
+		}
+		else
+		{
+			Response::reply(ERR_NOSUCHNICK);
+		}
 	}
 	return 0;
 }

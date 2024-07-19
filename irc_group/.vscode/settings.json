@@ -67,6 +67,7 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "strstream": "cpp",
-        "semaphore": "cpp"
+        "semaphore": "cpp",
+        "*.ipp": "cpp"
     }
 }

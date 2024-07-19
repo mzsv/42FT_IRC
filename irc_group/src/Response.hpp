@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 18:11:22 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/19 23:19:46 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,9 @@ typedef std::string (*RplFunctionPointer)(IrcCode); // no this for static functi
 class Response // should it really be static?
 {
   private:
-  static User* user_;
-  static Channel* channel_;
+  static const User* user_;
+  static const User* target_user_;
+  static const Channel* channel_;
   static std::string command_;
   static std::map<IrcCode, std::string> irc_messages_;
   static std::map<std::string, std::string> params_;
@@ -47,7 +48,11 @@ class Response // should it really be static?
   static std::string rpl_luserme(IrcCode code);
   static std::string rpl_localusers(IrcCode code);
   static std::string rpl_globalusers(IrcCode code);
+  static std::string rpl_whoisuser(IrcCode code);
+  static std::string rpl_whoisserver(IrcCode code);
   static std::string rpl_endofwho(IrcCode code);
+  static std::string rpl_whoisidle(IrcCode code);
+  static std::string rpl_endofwhois(IrcCode code);
   static std::string rpl_channelmodeis(IrcCode code);
   static std::string rpl_creationtime(IrcCode code);
   static std::string rpl_notopic(IrcCode code);
@@ -60,11 +65,14 @@ class Response // should it really be static?
   static std::string rpl_motd(IrcCode code);
   static std::string rpl_motdstart(IrcCode code);
   static std::string rpl_endofmotd(IrcCode code);
+  static std::string rpl_whoishost(IrcCode code);
+  static std::string rpl_whoismodes(IrcCode code);
 
 
   public:
   static void set_targets(const User* user, const Channel* channel); //  still needed ?
   static void set_user(const User* user);
+  static void set_target_user(const User* user);
   static void set_channel(const Channel* channel);
   static void set_command(const std::string& command);
   static std::map<IrcCode, std::string> initialize_irc_messages();

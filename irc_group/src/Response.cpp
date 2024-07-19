@@ -6,15 +6,17 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 22:07:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/19 23:34:11 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-User* Response::user_ = NULL;
+const User* Response::user_ = NULL;
 
-Channel* Response::channel_ = NULL;
+const User* Response::target_user_ = NULL;
+
+const Channel* Response::channel_ = NULL;
 
 std::string Response::command_; // ?
 
@@ -41,20 +43,26 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_LUSERME] = ":I have {n_clients} clients and {n_servers} servers";
 	messages[RPL_LOCALUSERS] = "{n_local} {n_local_max} :Current local users {n_local}, max {n_local_max}";
 	messages[RPL_GLOBALUSERS] = "{n_global} {n_global_max} :Current global users {n_global}, max {n_global_max}";
+	messages[RPL_WHOISUSER] = "{whois_mask} {whois_username} {whois_hostname} * :{whois_realname}"; // implement !
+	messages[RPL_WHOISSERVER] = "{whois_mask} {server_name} :{server_info}"; // implement !
 	messages[RPL_ENDOFWHO] = "{who_mask} :End of /WHO list"; // implement !
+	messages[RPL_WHOISIDLE] = "{whois_mask} {idle_time} {signon_time} :seconds idle, signon time"; // implement !
+	messages[RPL_ENDOFWHOIS] = "{whois_mask} :End of /WHOIS list"; // implement !
 	messages[RPL_CHANNELMODEIS] = "{channel} {activated_modes} {mode_params}";
 	messages[RPL_CREATIONTIME] = "{channel} {ch_timestamp} :Channel created at {ch_timestamp}";
 	messages[RPL_NOTOPIC] = "{channel} :No topic is set";
 	messages[RPL_TOPIC] = "{channel} :{topic}";
 	messages[RPL_TOPICWHOTIME] = "{channel} {nickname} {t_timestamp} :{topic}";
 	messages[RPL_INVITING] = "{nickname} {channel} :Inviting {target_nickname} to {channel}";
-	messages[RPL_WHOREPLY] = "{channel} {username} {hostname} {server_name} {nickname} {who_flags} :{hopcount} {realname}"; // implement !
+	messages[RPL_WHOREPLY] = "{channel} {target_username} {target_hostname} {server_name} {target_nickname} {who_flags} :{hopcount} {target_realname}"; // implement !
 	messages[RPL_NAMREPLY] = "= {channel} :{nicknames}"; // NOT REQUIRED ! nicknames = "@nickname1 +nickname2 nickname3" @ for op, + for voice
 	messages[RPL_ENDOFNAMES] = "{channel} :End of /NAMES list";
 	messages[RPL_MOTD] = ":- {message_of_the_day}";
 	messages[RPL_MOTDSTART] = ":- {server_name} Message of the Day - ";
 	messages[RPL_ENDOFMOTD] = ":End of /MOTD command";
-
+	messages[RPL_WHOISHOST] = "{whois_mask} :is connecting from {whois_client_prefix} {whois_hostname}"; // implement !
+	messages[RPL_WHOISMODES] = "{whois_mask} :is using modes +{activated_umodes}"; // implement !
+	
 	// Error Responses
 	messages[ERR_NOSUCHNICK] = "{nickname} :No such nick/channel";
 	messages[ERR_NOSUCHCHANNEL] = "{channel} :No such channel";
@@ -82,6 +90,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[ERR_UMODEUNKNOWNFLAG] = ":Unknown MODE flag";
 	messages[ERR_INVALIDMODEPARAM] = "{channel} {mode} {value} :Invalid mode parameter";
 	messages[ERR_NOMOTD] = ":MOTD File is missing";
+	messages[ERR_NONICKNAMEGIVEN] = ":No nickname given";
 	return messages;
 }
 
@@ -101,7 +110,11 @@ std::map<IrcCode, RplFunctionPointer> Response::initialize_rpl_functions()
 	functions[RPL_LUSERME] = &Response::rpl_luserme;
 	functions[RPL_LOCALUSERS] = &Response::rpl_localusers;
 	functions[RPL_GLOBALUSERS] = &Response::rpl_globalusers;
+	functions[RPL_WHOISUSER] = &Response::rpl_whoisuser;
+	functions[RPL_WHOISSERVER] = &Response::rpl_whoisserver;
 	functions[RPL_ENDOFWHO] = &Response::rpl_endofwho;
+	functions[RPL_WHOISIDLE] = &Response::rpl_whoisidle;
+	functions[RPL_ENDOFWHOIS] = &Response::rpl_endofwhois;
 	functions[RPL_CHANNELMODEIS] = &Response::rpl_channelmodeis;
 	functions[RPL_CREATIONTIME] = &Response::rpl_creationtime;
 	functions[RPL_NOTOPIC] = &Response::rpl_notopic;
@@ -114,6 +127,8 @@ std::map<IrcCode, RplFunctionPointer> Response::initialize_rpl_functions()
 	functions[RPL_MOTD] = &Response::rpl_motd;
 	functions[RPL_MOTDSTART] = &Response::rpl_motdstart;
 	functions[RPL_ENDOFMOTD] = &Response::rpl_endofmotd;
+	functions[RPL_WHOISHOST] = &Response::rpl_whoishost;
+	functions[RPL_WHOISMODES] = &Response::rpl_whoismodes;
 	return functions;
 }
 
@@ -125,7 +140,12 @@ void Response::set_targets(const User* user, const Channel* channel) //  still n
 
 void Response::set_user(const User* user)
 {
-	user_ = const_cast<User*>(user);
+	user_ = user;
+}
+
+void Response::set_target_user(const User* user)
+{
+	target_user_ = user;
 }
 
 void Response::set_channel(const Channel* channel)
@@ -270,9 +290,43 @@ std::string Response::rpl_globalusers(IrcCode code)
 	return Response::generate_message(code);
 }
 
+std::string Response::rpl_whoisuser(IrcCode code)
+{
+	const User* target = user_->get_server()->get_user(params_["whois_mask"]);
+
+	Response::add_param("whois_client_prefix", target->get_prefix());
+	Response::add_param("whois_username", target->get_username());
+	Response::add_param("whois_hostname", target->get_host());
+	Response::add_param("whois_realname", target->get_realname());
+	return Response::generate_message(code);
+}
+
+std::string Response::rpl_whoisserver(IrcCode code)
+{
+	const User* target = user_->get_server()->get_user(params_["whois_mask"]);
+
+	Response::add_param("server_name", target->get_server_name());
+	Response::add_param("server_info", "want my number? x");
+	return Response::generate_message(code);
+}
+
 std::string Response::rpl_endofwho(IrcCode code)
 {
 	Response::add_param("who_mask", params_["who_mask"]);
+	return Response::generate_message(code);
+}
+
+std::string Response::rpl_whoisidle(IrcCode code)
+{
+	const User* target = user_->get_server()->get_user(params_["whois_mask"]);
+
+	Response::add_param("idle_time", to_string_(target->get_idle_time()));
+	Response::add_param("signon_time", to_string_(target->get_time_of_registrations()));
+	return Response::generate_message(code);
+}
+
+std::string Response::rpl_endofwhois(IrcCode code)
+{
 	return Response::generate_message(code);
 }
 
@@ -345,11 +399,11 @@ std::string Response::rpl_inviting(IrcCode code)
 std::string Response::rpl_whoreply(IrcCode code)
 {
 	Response::add_param("channel", channel_->get_name());
-	Response::add_param("username", user_->get_username());
-	Response::add_param("hostname", user_->get_host());
-	Response::add_param("server_name", user_->get_server_name());
-	Response::add_param("nickname", user_->get_nickname()); // redundant ?
-	if (channel_->is_operator(user_->get_nickname()))
+	Response::add_param("target_username", target_user_->get_username());
+	Response::add_param("target_hostname", target_user_->get_host());
+	Response::add_param("server_name", target_user_->get_server_name());
+	Response::add_param("target_nickname", target_user_->get_nickname()); // redundant ?
+	if (channel_->is_operator(target_user_->get_nickname()))
 	{
 		Response::add_param("who_flags", "H@");
 	}
@@ -358,7 +412,7 @@ std::string Response::rpl_whoreply(IrcCode code)
 		Response::add_param("who_flags", "H");
 	}
 	Response::add_param("hopcount", "0");
-	Response::add_param("realname", user_->get_realname()); // redundant ?
+	Response::add_param("target_realname", target_user_->get_realname()); // redundant ?
 	return Response::generate_message(code);
 }
 
@@ -407,6 +461,21 @@ std::string Response::rpl_motdstart(IrcCode code)
 
 std::string Response::rpl_endofmotd(IrcCode code)
 {
+	return Response::generate_message(code);
+}
+
+std::string Response::rpl_whoishost(IrcCode code)
+{
+	const User* target = user_->get_server()->get_user(params_["whois_mask"]);
+
+	Response::add_param("whois_client_prefix", target->get_prefix());
+	Response::add_param("whois_hostname", target->get_host());
+	return Response::generate_message(code);
+}
+
+std::string Response::rpl_whoismodes(IrcCode code)
+{
+	Response::add_param("activated_umodes", ""); // no user modes supported
 	return Response::generate_message(code);
 }
 
