@@ -6,14 +6,15 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 00:42:43 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 23:00:12 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name, const std::string& password, const User& creator) :
-	name_(name), password_(password), user_limit_(0), flags_(NOMSGOUT), topic_time_(0)
+	name_(name), password_(password), user_limit_(0),
+	flags_(NOMSGOUT | TOPICMODE), topic_time_(0)
 {
 	users_.push_back(&creator);
 	operators_.push_back(&creator);
@@ -261,4 +262,24 @@ void Channel::remove_operator(std::string nickname)
 const std::vector<const User*>& Channel::get_operators() const
 {
 	return operators_;
+}
+
+bool Channel::is_invited(const std::string& nickname) const
+{
+	return invites_.find(nickname) != invites_.end();
+}
+
+void Channel::add_invite(const std::string& nickname)
+{
+	invites_.insert(nickname);
+}
+
+void Channel::remove_invite(const std::string& nickname)
+{
+	invites_.erase(nickname);
+}
+
+void Channel::clear_invites()
+{
+	invites_.clear();
 }

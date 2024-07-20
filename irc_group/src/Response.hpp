@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/19 23:19:46 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 21:41:41 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ class Response // should it really be static?
   static std::map<std::string, std::string> params_;
   static std::map<IrcCode, RplFunctionPointer> rpl_functions_;
   static std::string generate_message(IrcCode code);
-  
   
   static std::string rpl_welcome(IrcCode code);
   static std::string rpl_yourhost(IrcCode code);

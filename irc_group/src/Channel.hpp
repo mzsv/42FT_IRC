@@ -6,28 +6,22 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 22:57:07 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 23:00:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+#include <set>
 #include "User.hpp"
 
-// not dealing with private, secret or moderated channels in this project !
-// #define PRIVATE		0b000001 // requires key?? assuming that
-// #define SECRET		0b000010
-// #define MODERATED	0b000100
-// #define INVITEONLY	0b001000
-// #define TOPICSET	0b010000 // topic set by operator only mode? assuming that. maybe change names?
-#define NOMSGOUT	0b100000 // ?
-
-#define INVITEONLY	0b000001 // use enum instead? cleaner right?
-#define TOPICMODE	0b000010
-#define CHANNELKEY	0b000100
-#define CHANNELOP	0b001000 //  is this needed ? is it a flag for channel modes?
-#define USERLIMIT	0b010000
+#define INVITEONLY	0b000001 // 'i' flag in RFC 2811, default: OFF
+#define TOPICMODE	0b000010 // 't' flag in RFC 2811, default: ON
+#define CHANNELKEY	0b000100 // 'k' flag in RFC 2811, default: off
+#define CHANNELOP	0b001000 // 'o' flag in RFC 2811, really needed as a flag? maybe just a vector of operators or map?
+#define USERLIMIT	0b010000 // 'l' flag in RFC 2811, default: ON
+#define NOMSGOUT	0b100000 // 'n' flag in RFC 2811, default: ON
 
 class Channel
 {
@@ -40,8 +34,8 @@ class Channel
 
 	std::vector<const User*> operators_;
 	std::vector<const User*> users_; // not efficient for insertion/deletion of elements; set instead?
-	std::vector<const User*> speakers_;
-
+	// std::vector<const User*> speakers_;
+	std::set<std::string> invites_; // invited users
 	time_t topic_time_; // needed for TOPIC
 	time_t start_time_;
 
@@ -93,6 +87,10 @@ class Channel
 	void add_operator(std::string nickname);
 	void remove_operator(std::string nickname);
 	void reset_flag(unsigned char flag);
+	bool is_invited(const std::string& nickname) const;
+	void add_invite(const std::string& nickname);
+	void remove_invite(const std::string& nickname);
+	void clear_invites();
 };
 
 #endif // CHANNEL_HPP

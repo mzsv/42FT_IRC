@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/19 21:17:53 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 00:48:10 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,17 @@ class Executor;
 
 #define DISCONNECT -2
 #define NR_OF_SERVERS 1
+
+#define CASEMAP "ascii"
+#define CHANLIMIT "#:"
+#define CHANMODES ",ko,l,it"
+#define CHANNELLEN 42
+#define NICKLEN 9
+#define PREFIX "(o)@"
+#define STATUSMSG="@"
+#define TOPICLEN 307
+#define USERLEN 9
+
 
 #ifdef __APPLE__
 #define IRC_NOSIGNAL SO_NOSIGPIPE

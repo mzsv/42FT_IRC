@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 00:37:13 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 23:14:07 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -396,6 +396,17 @@ int Server::handle_message(User& user)
 			
 			Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
 			int response = executor.execute(message, user); // response confusion with Response !
+			// print all users per channel
+			std::map<std::string, Channel*>::const_iterator it = channels_.begin();
+			for (; it != channels_.end(); ++it)
+			{
+				std::vector<const User*> users = it->second->get_operators();
+				std::cout << ">>>>>>>>>>Channel: " << it->first << std::endl;
+				for (size_t i = 0; i < users.size(); ++i)
+				{
+					std::cout << users[i]->get_nickname() << std::endl;
+				}
+			}
 			std::cout << "response: " << response << std::endl;
 			if (response == DISCONNECT)
 			{
@@ -442,15 +453,16 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 {
 	if (channels_.find(name) != channels_.end())
 	{
-		if (channels_[name]->get_flags() & USERLIMIT && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
+		if ((channels_[name]->get_flags() & USERLIMIT) && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
 		{
 			Response::reply(ERR_CHANNELISFULL);
 		}
-		else if (channels_[name]->get_flags() & INVITEONLY && !channels_[name]->is_operator(user))
+		else if ((channels_[name]->get_flags() & INVITEONLY) && !channels_[name]->is_invited(user.get_nickname()))
 		{
 			Response::reply(ERR_INVITEONLYCHAN);
 		}
-		else if (channels_[name]->get_flags() & CHANNELKEY && channels_[name]->get_password() != key)
+		else if ((channels_[name]->get_flags() & CHANNELKEY) && !channels_[name]->is_invited(user.get_nickname()) \
+			&& channels_[name]->get_password() != key)
 		{
 			Response::reply(ERR_BADCHANNELKEY);
 		}
@@ -458,6 +470,7 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		{
 			Response::set_channel(channels_[name]);
 			user.add_channel(*channels_[name]);
+			channels_[name]->remove_invite(user.get_nickname());
 			return channels_[name]->add_user(user); // review !
 		}
 	}

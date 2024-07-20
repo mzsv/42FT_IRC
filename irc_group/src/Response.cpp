@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/19 23:34:11 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/20 19:27:12 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_WHOISIDLE] = "{whois_mask} {idle_time} {signon_time} :seconds idle, signon time"; // implement !
 	messages[RPL_ENDOFWHOIS] = "{whois_mask} :End of /WHOIS list"; // implement !
 	messages[RPL_CHANNELMODEIS] = "{channel} {activated_modes} {mode_params}";
-	messages[RPL_CREATIONTIME] = "{channel} {ch_timestamp} :Channel created at {ch_timestamp}";
+	messages[RPL_CREATIONTIME] = "{channel} {ch_timestamp}";
 	messages[RPL_NOTOPIC] = "{channel} :No topic is set";
 	messages[RPL_TOPIC] = "{channel} :{topic}";
 	messages[RPL_TOPICWHOTIME] = "{channel} {nickname} {t_timestamp} :{topic}";
@@ -91,6 +91,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[ERR_INVALIDMODEPARAM] = "{channel} {mode} {value} :Invalid mode parameter";
 	messages[ERR_NOMOTD] = ":MOTD File is missing";
 	messages[ERR_NONICKNAMEGIVEN] = ":No nickname given";
+	messages[ERR_INVALIDKEY] = "{channel} :Key is not well-formed";
 	return messages;
 }
 
@@ -227,6 +228,7 @@ std::string Response::rpl_isupport(IrcCode code)
 	std::string tokens;
 
 	tokens += "CHANMODES=,ko,l,it";
+	// tokens += " ELIST=CTU";
 	tokens += " NICKLEN=10";
 	// tokens += " TOPICLEN=120"; // implement !
 	Response::add_param("tokens", tokens);
@@ -335,6 +337,10 @@ std::string Response::rpl_channelmodeis(IrcCode code)
 	std::string activated_modes = "+";
 	std::string mode_params;
 	
+	if (channel_->get_flags() & NOMSGOUT)
+	{
+		activated_modes += "n";
+	}
 	if (channel_->get_flags() & INVITEONLY)
 	{
 		activated_modes += "i";
