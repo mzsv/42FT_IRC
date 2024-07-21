@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 19:27:12 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 20:55:04 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,14 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[ERR_NOMOTD] = ":MOTD File is missing";
 	messages[ERR_NONICKNAMEGIVEN] = ":No nickname given";
 	messages[ERR_INVALIDKEY] = "{channel} :Key is not well-formed";
+	
+	// command messages
+	messages[CMD_JOIN] = "JOIN {channel}";
+	messages[CMD_INVITE] = "INVITE {nickname} {channel}";
+	messages[CMD_QUIT] = "QUIT {reason}";
+	messages[CMD_PART] = "PART {channel} {reason}";
+	messages[CMD_ERROR] = "ERROR {reason}";
+	messages[CMD_KICK] = "KICK {channel} {target_nickname} {reason}";
 	return messages;
 }
 
@@ -226,11 +234,17 @@ std::string Response::rpl_myinfo(IrcCode code)
 std::string Response::rpl_isupport(IrcCode code)
 {
 	std::string tokens;
+	const Server* server = user_->get_server();
+	std::map<std::string, std::string>::const_iterator it = server->get_isupport_params().begin();
 
-	tokens += "CHANMODES=,ko,l,it";
-	// tokens += " ELIST=CTU";
-	tokens += " NICKLEN=10";
-	// tokens += " TOPICLEN=120"; // implement !
+	for (; it != server->get_isupport_params().end(); ++it)
+	{
+		if (!tokens.empty())
+		{
+			tokens += " ";
+		}
+		tokens += it->first + "=" + it->second;
+	}
 	Response::add_param("tokens", tokens);
 	return Response::generate_message(code);
 }
@@ -505,6 +519,20 @@ void Response::reply(IrcCode code)
 		<< " " << user_->get_nickname() << " " \
 		<< message << "\r\n";
 	user_->send_message(oss.str());
+}
+
+const std::string Response::get_reply(IrcCode code)
+{
+	return ":" + user_->get_prefix() + " " + \
+		Response::generate_message(code) + "\r\n";
+}
+
+void Response::channel_reply(IrcCode code, const Channel& channel, bool include_user)
+{
+	std::string message = ":" + user_->get_prefix() + " " + \
+		Response::generate_message(code) + "\r\n";
+
+	channel.send_message(message, *user_, include_user);
 }
 
 void Response::reset()

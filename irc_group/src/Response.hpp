@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 21:41:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 20:15:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ class Response // should it really be static?
   // static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
   static void error_reply(IrcCode code);
   static void reply(IrcCode code);
+  static const std::string get_reply(IrcCode code);
+  static void channel_reply(IrcCode code, const Channel& channel, bool include_user);
   static void reset();
 };
 

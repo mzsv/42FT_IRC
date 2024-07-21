@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 19:06:54 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/14 16:43:32 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 17:53:14 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,25 @@ bool is_valid_key(const std::string& key) // add exceptions explaining reason !
     {
         char c = key[i];
         if (!is_valid_key_char(c))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_valid_username(const std::string &username)
+{
+    char c;
+
+    for (size_t i = 0; i < username.size(); ++i)
+    {
+        c = username[i];
+        if (!((c >= 0x01 && c <= 0x09) || 
+              (c >= 0x0B && c <= 0x0C) || 
+              (c >= 0x0E && c <= 0x1F) || 
+              (c >= 0x21 && c <= 0x3F) || 
+              (c >= 0x41)))
         {
             return false;
         }

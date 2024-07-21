@@ -1,10 +1,10 @@
 :- Welcome to ft_42 IRC Server -
  
- IIIII  RRRRRR   CCCCC
-   I    R     R C
-   I    RRRRRR  C
-   I    R  R    C
- IIIII  R   R    CCCCC
+                  IIIII  RRRRRR   CCCCC
+                     I    R     R C
+                     I    RRRRRR  C
+                     I    R  R    C
+                  IIIII  R   R    CCCCC
  
 :- Welcome to ft_42, the cutting-edge IRC server!
 :- We are thrilled to have you join our community. Here are a few guidelines and 

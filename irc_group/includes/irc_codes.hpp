@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/20 19:26:37 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 19:50:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,13 @@ enum IrcCode
     ERR_UMODEUNKNOWNFLAG = 501,
     ERR_INVALIDKEY = 525,
     ERR_INVALIDMODEPARAM = 696,
+    CMD_ERROR = 4242,
+    CMD_JOIN = 4243,
+    CMD_INVITE = 4244,
+    CMD_QUIT = 4245,
+    CMD_PART = 4246,
+    CMD_KICK = 4247,
+    
 };
 
 #endif // IRC_CODES_HPP

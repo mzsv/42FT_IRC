@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 23:14:07 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 20:54:51 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,19 @@ Server::Server(int port, const std::string& password) :
 	// should the listener socket be setup here?
 {
 	time(&start_time_);
+	isupport_params_["CASEMAPPING"] = "ascii";
+	isupport_params_["CHANLIMIT"] = "#:";
+	isupport_params_["CHANMODES"] = ",ko,l,it";
+	isupport_params_["CHANNELLEN"] = "42";
+	isupport_params_["ELIST"] = "CTU";
+	isupport_params_["HOSTLEN"] = "64";
+	isupport_params_["KICKLEN"] = "307";
+	isupport_params_["MODES"] = "42";
+	isupport_params_["NICKLEN"] = "9";
+	isupport_params_["PREFIX"] = "(o)@";
+	isupport_params_["STATUSMSG"] = "@";
+	isupport_params_["TOPICLEN"] = "307";
+	isupport_params_["USERLEN"] = "9";
 }
 
 Server::~Server()
@@ -130,22 +143,24 @@ void Server::delete_broken_connection()
 		{
 			continue;
 		}
-		// notify_users(*(users_[i]), ":" + users_[i]->get_prefix() + " QUIT :" + users_[i]->get_quit_message() + "\n"); //  ERROR !
-		if (users_[i]->get_flags() & TIMEDOUT)
+		if (users_[i]->get_flags() & TIMEOUT)
 		{
-			users_[i]->send_message(":" + users_[i]->get_prefix() + " ERROR :Ping timeout: " + to_string_(max_response_time_) + " seconds\r\n");
+			Response::add_param("reason", ":Ping timeout: " + to_string_(max_response_time_) + " seconds");
 		}
+		else if (users_[i]->get_flags() & UNPLUGGED)
+		{
+			Response::add_param("reason", ":Unplugged");
+		}
+		// Response::add_param("reason", "Ping timeout: " + to_string_(max_response_time_) + " seconds");
+		Response::reply(CMD_ERROR);
 		std::map<std::string, Channel*>::iterator begin = channels_.begin();
 		std::map<std::string, Channel*>::iterator end = channels_.end();
 		for (; begin != end; ++begin)
 		{
-			if ((*begin).second->contains_nickname(users_[i]->get_nickname()))
+			if (begin->second->contains_nickname(users_[i]->get_nickname()))
 			{
-				(*begin).second->disconnect(*(users_[i]));
-				if (users_[i]->get_flags() & TIMEDOUT)
-				{
-					begin->second->send_message(":" + users_[i]->get_prefix() + " QUIT :PING timeout: " + to_string_(max_response_time_) + " seconds\r\n", *users_[i], false);
-				}
+				Response::channel_reply(CMD_QUIT, *begin->second, true);
+				begin->second->disconnect(*(users_[i]));
 			}
 		}
 		close(users_[i]->get_socket_fd());
@@ -216,7 +231,7 @@ void Server::check_connection()
 				difftime(time(0), users_[i]->get_time_after_pinging()) > max_response_time_)
 			{
 				users_[i]->set_flag(BREAK);
-				users_[i]->set_flag(TIMEDOUT);
+				users_[i]->set_flag(TIMEOUT);
 			}
 		}
 	}
@@ -423,6 +438,7 @@ int Server::handle_message(User& user)
 void Server::notify_users(User& user, const std::string& message) // ?
 {
 	const std::vector<const Channel*> channels = user.get_channels();
+
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
 		for (size_t j = 0; j < channels.size(); ++j)
@@ -430,7 +446,7 @@ void Server::notify_users(User& user, const std::string& message) // ?
 			if (channels[j]->contains_nickname(users_[i]->get_nickname()))
 			{
 				users_[i]->send_message(message);
-				break;
+				break ;
 			}
 		}
 	}
@@ -482,7 +498,9 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		// Response::set_user(&user);
 		// user.send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n"); //  JOIN message
 		
-		channels_[name]->send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n", user, true);
+		// channels_[name]->send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n", user, true);
+		// channels_[name]->send_message(Response::get_reply(CMD_JOIN), user, true);
+		Response::channel_reply(CMD_JOIN, *channels_[name], true);
 		if (channels_[name]->get_topic().size())
 		{
 			Response::reply(RPL_TOPIC);
@@ -621,4 +639,18 @@ const std::vector<User*>& Server::get_users() const
 const size_t& Server::get_max_local_users() const
 {
 	return max_local_users_;
+}
+
+const std::map<std::string, std::string>& Server::get_isupport_params() const
+{
+	return isupport_params_;
+}
+
+const std::string& Server::get_isupport_param(const std::string& key) const
+{
+	if (isupport_params_.find(key) == isupport_params_.end())
+	{
+		return key;
+	}
+	return isupport_params_.at(key);
 }

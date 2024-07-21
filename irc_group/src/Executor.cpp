@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 00:08:09 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 21:01:22 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,19 +70,23 @@ int Executor::execute(const Message& message, User& user)
 
 int Executor::quit(const Message& message, User& user) // complete !
 {
-	std::string reason = "Quit: ";
+	std::string reason = ":Quit: ";
 	std::vector<const Channel*> channels = user.get_channels();
 
 	if (message.get_arguments().size() > 0)
 	{
 		reason += message.get_arguments()[0];
 	}
-	user.send_message(":" + user.get_prefix() + " ERROR :" + reason + "\r\n");
-	Logger::Log(DEBUG, "Quit - channel size: " + to_string_(channels.size()));
-	for (size_t i = 0; i < channels.size(); ++i)
-	{
-		channels[i]->send_message(":" + user.get_prefix() + " QUIT :" + reason + "\r\n", user, false);
-	}
+	// user.send_message(":" + user.get_prefix() + " ERROR :" + reason + "\r\n");
+	Response::add_param("reason", reason);
+	// Response::reply(CMD_ERROR);
+	// Logger::Log(DEBUG, "Quit - channel size: " + to_string_(channels.size()));
+	// for (size_t i = 0; i < channels.size(); ++i)
+	// {
+	// 	// channels[i]->send_message(":" + user.get_prefix() + " QUIT :" + reason + "\r\n", user, false);
+	// 	// channels[i]->send_message(Response::get_reply(CMD_QUIT), user, false);
+	// 	Response::channel_reply(CMD_QUIT, *channels[i], false);
+	// }
 	return DISCONNECT;
 }
 
@@ -125,10 +129,10 @@ int Executor::nick(const Message& message, User& user)
 	}
 	else
 	{
+		std::string new_nick = message.get_arguments()[0];
 		if (user.get_flags() & REGISTERED)
 		{
-			server_->notify_users(user, ":" + user.get_prefix() + " " + message.get_command() + " " + message.get_arguments()[0] + "\n");
-			// add to history
+			server_->notify_users(user, ":" + user.get_prefix() + " NICK " + new_nick + "\r\n");
 		}
 		user.set_nickname(message.get_arguments()[0]);
 	}
@@ -147,7 +151,27 @@ int Executor::user(const Message& message, User& user)
 	}
 	else
 	{
-		user.set_username(message.get_arguments()[0]);
+		std::string username = message.get_arguments()[0];
+		size_t max_len = ston<size_t>(server_->get_isupport_param("USERLEN"));
+		if (is_valid_username(username))
+		{
+			if (username.size() > max_len)
+			{
+				username = username.substr(0, max_len);
+			}
+		}
+		else
+		{
+			if (user.get_nickname().size())
+			{
+				username = user.get_nickname();
+			}
+			else
+			{
+				username = "default";
+			}
+		}
+		user.set_username(username);
 		user.set_realname(message.get_arguments()[3]); // or trailing?
 	}
 	return server_->check_connection(user); // necessary? or redundant?
@@ -216,20 +240,25 @@ int Executor::join(const Message& message, User& user)
 
 		for (; it != server_->get_channels().end(); ++it)
 		{
-			part(Message("PART " + it->first + "\n"), user);
+			Response::add_param("channel", it->first);
+			Response::add_param("reason", "");
+			Response::channel_reply(CMD_PART, *it->second, true);
+			// part(Message("PART " + it->first + "\n"), user);
 		}
 	}
 	else 
 	{
 		channel_names = split_arguments(message.get_arguments()[0]);
+		size_t max_len = ston<size_t>(server_->get_isupport_param("CHANNELLEN"));
+
 		if (message.get_arguments().size() > 1)
 		{
-			// keys = split_arguments(message.get_arguments()[1]);
+			keys = split_arguments(message.get_arguments()[1]);
 		}
 		for (size_t i = 0; i < channel_names.size(); ++i)
 		{
 			Response::add_param("channel", channel_names[i]);
-			if (!is_valid_channel(channel_names[i]))
+			if (channel_names[i].size() > max_len || !is_valid_channel(channel_names[i]))
 			{
 				Response::reply(ERR_BADCHANMASK);
 			}
@@ -288,7 +317,9 @@ int Executor::part(const Message& message, User& user)
 				{
 					reason = ":" + message.get_arguments()[1];
 				}
-				server_->get_channels().at(channel_names[i])->send_message(":" + user.get_prefix() + " PART " + channel_names[i] + " " + reason + "\r\n", user, true);
+				// server_->get_channels().at(channel_names[i])->send_message(":" + user.get_prefix() + " PART " + channel_names[i] + " " + reason + "\r\n", user, true);
+				Response::add_param("reason", reason);
+				Response::channel_reply(CMD_PART, *server_->get_channels().at(channel_names[i]), true);
 				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
 			}
 		}
@@ -366,15 +397,19 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assu
 		}
 		else
 		{
-			std::string comment = ":Kicked";
+			// std::string comment = ":Kicked";
 			User* target_user = server_->get_user(target);
 
+			Response::add_param("reason", ":Kicked");
 			if (message.get_arguments().size() > 2)
 			{
-				comment = ":" + message.get_arguments()[2];
+				// comment = ":" + message.get_arguments()[2];
+				Response::add_param("reason", ":" + message.get_arguments()[2]);
 			}
-			reply = " KICK " + channel + " " + target + " " + comment + "\r\n"; // confirm client prefix is appended
-			server_->get_channels().at(channel)->send_message(":" + user.get_prefix() + reply, user, true);
+			
+			// reply = " KICK " + channel + " " + target + " " + comment + "\r\n"; // confirm client prefix is appended
+			// server_->get_channels().at(channel)->send_message(":" + user.get_prefix() + reply, user, true);
+			Response::channel_reply(CMD_KICK, *server_->get_channels().at(channel), true);
 			server_->leave_channel(channel, *target_user);
 		}
 	}
@@ -423,7 +458,8 @@ int Executor::invite(const Message& message, User& user)
 			Response::set_channel(server_->get_channels().at(channel));
 			Response::set_target_user(server_->get_user(target));
 			Response::reply(RPL_INVITING);
-			server_->get_user(target)->send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel + "\r\n");
+			// server_->get_user(target)->send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel + "\r\n");
+			Response::reply(CMD_INVITE); // test !
 			server_->get_channels().at(channel)->add_invite(target);
 		}
 	}

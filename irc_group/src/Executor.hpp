@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/18 22:38:17 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 17:41:07 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ bool is_valid_nickname(const std::string& nick);
 bool is_valid_channel(const std::string& channel);
 
 bool is_valid_key(const std::string& key);
+
+bool is_valid_username(const std::string& username);
 
 typedef int (Executor::*FunctionPointer)(const Message&, User&);
 

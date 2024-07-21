@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 00:05:19 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 19:12:37 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,14 @@ class Channel;
 /*
   FLAGS
 */
-#define REGISTERED      0b00000001
-#define TIMEDOUT		    0b00000010
-#define RECEIVENOTICE	  0b00000100
-#define RECEIVEWALLOPS	0b00001000
-#define CHANOPERATOR		0b00010000
-#define AWAY            0b00100000
-#define PINGING         0b01000000
-#define BREAK           0b10000000
+#define REGISTERED    0b00000001
+#define TIMEOUT		    0b00000010
+#define QUIT      	  0b00000100
+#define UNPLUGGED   	0b00001000
+#define RECEIVENOTICE 0b00010000
+#define AWAY          0b00100000
+#define PINGING       0b01000000
+#define BREAK         0b10000000
 
 /**
  * Utils functions

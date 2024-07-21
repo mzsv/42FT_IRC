@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 00:48:10 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/21 16:45:10 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,10 @@ class Executor;
 #include "irc_err_codes.hpp"
 #include "irc_rpl_codes.hpp"
 #include "to_string_.hpp"
+#include "ston.hpp"
 
 #define DISCONNECT -2
 #define NR_OF_SERVERS 1
-
-#define CASEMAP "ascii"
-#define CHANLIMIT "#:"
-#define CHANMODES ",ko,l,it"
-#define CHANNELLEN 42
-#define NICKLEN 9
-#define PREFIX "(o)@"
-#define STATUSMSG="@"
-#define TOPICLEN 307
-#define USERLEN 9
 
 
 #ifdef __APPLE__
@@ -70,6 +61,8 @@ class Server
 	int port_;
 	sockaddr_in sockaddr_;
 	int socket_fd_;
+
+	std::map<std::string,std::string> isupport_params_;
 
 	std::vector<User*> users_; // map instead ? easier to find by nick, for the user actions
 	std::vector<struct pollfd> users_fds_;
@@ -97,6 +90,8 @@ class Server
 	/**
 	 * Getters
 	*/
+	const std::map<std::string, std::string>& get_isupport_params() const;
+	const std::string& get_isupport_param(const std::string& key) const;
 	int get_socket_fd() const;
 	const std::string& get_name() const;
 	const std::string& get_password() const;
