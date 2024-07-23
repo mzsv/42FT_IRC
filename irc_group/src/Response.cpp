@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 20:55:04 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:37:47 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[CMD_PART] = "PART {channel} {reason}";
 	messages[CMD_ERROR] = "ERROR {reason}";
 	messages[CMD_KICK] = "KICK {channel} {target_nickname} {reason}";
+	messages[CMD_MODE] = "MODE {channel} {mode_str}";
 	return messages;
 }
 
@@ -212,32 +213,36 @@ std::string Response::rpl_welcome(IrcCode code)
 
 std::string Response::rpl_yourhost(IrcCode code)
 {
-	Response::add_param("server_name", user_->get_server_name());
-	Response::add_param("server_version", user_->get_server()->get_version());
+	Response::add_param("server_name", server_->get_description());
 	return Response::generate_message(code);
 }
 
 std::string Response::rpl_created(IrcCode code)
 {
-	Response::add_param("server_date", to_string_(user_->get_server()->get_start_time()));
+	// date format: 21:15:05 Aug 22 2023
+	const char* date_format = "%H:%M:%S %b %d %Y";
+	const struct tm* timeptr = localtime(&server_->get_start_time());
+	char server_date[22];
+
+	strftime(server_date, sizeof(server_date), date_format, timeptr);
+	Response::add_param("server_date", server_date);
 	return Response::generate_message(code);
 }
 
 std::string Response::rpl_myinfo(IrcCode code)
 {
-	Response::add_param("server_name", user_->get_server_name());
-	Response::add_param("server_version", user_->get_server()->get_version());
-	Response::add_param("channel_modes", user_->get_server()->get_available_channel_modes());
+	Response::add_param("server_name", server_->get_name());
+	Response::add_param("server_version", server_->get_version());
+	Response::add_param("channel_modes", server_->get_available_channel_modes());
 	return Response::generate_message(code);
 }
 
 std::string Response::rpl_isupport(IrcCode code)
 {
 	std::string tokens;
-	const Server* server = user_->get_server();
-	std::map<std::string, std::string>::const_iterator it = server->get_isupport_params().begin();
+	std::map<std::string, std::string>::const_iterator it = server_->get_isupport_params().begin();
 
-	for (; it != server->get_isupport_params().end(); ++it)
+	for (; it != server_->get_isupport_params().end(); ++it)
 	{
 		if (!tokens.empty())
 		{
@@ -328,7 +333,6 @@ std::string Response::rpl_whoisserver(IrcCode code)
 
 std::string Response::rpl_endofwho(IrcCode code)
 {
-	Response::add_param("who_mask", params_["who_mask"]);
 	return Response::generate_message(code);
 }
 
@@ -418,7 +422,14 @@ std::string Response::rpl_inviting(IrcCode code)
 
 std::string Response::rpl_whoreply(IrcCode code)
 {
-	Response::add_param("channel", channel_->get_name());
+	if (channel_)
+	{
+		Response::add_param("channel", channel_->get_name());
+	}
+	else
+	{
+		Response::add_param("channel", "*");
+	}
 	Response::add_param("target_username", target_user_->get_username());
 	Response::add_param("target_hostname", target_user_->get_host());
 	Response::add_param("server_name", target_user_->get_server_name());
@@ -527,12 +538,19 @@ const std::string Response::get_reply(IrcCode code)
 		Response::generate_message(code) + "\r\n";
 }
 
-void Response::channel_reply(IrcCode code, const Channel& channel, bool include_user)
+void Response::channel_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
 {
-	std::string message = ":" + user_->get_prefix() + " " + \
+	std::string message = ":" + source.get_prefix() + " " \
+		+ Response::generate_message(code) + "\r\n";
+	target.send_message(message, source, include_source);
+}
+
+void Response::reply(IrcCode code, const User& source, const User& target)
+{
+	std::string message = ":" + source.get_prefix() + " " + \
 		Response::generate_message(code) + "\r\n";
 
-	channel.send_message(message, *user_, include_user);
+	target.send_message(message);
 }
 
 void Response::reset()

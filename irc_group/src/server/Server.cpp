@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 20:54:51 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 20:19:41 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ Server::Server(int port, const std::string& password) :
 	isupport_params_["NICKLEN"] = "9";
 	isupport_params_["PREFIX"] = "(o)@";
 	isupport_params_["STATUSMSG"] = "@";
+	isupport_params_["TARGMAX"] = "JOIN:,PART:,NAMES:,KICK:1,INVITE:,WHO:1,WHOIS:1,PRIVMSG:1";
 	isupport_params_["TOPICLEN"] = "307";
 	isupport_params_["USERLEN"] = "9";
 }
@@ -159,7 +160,7 @@ void Server::delete_broken_connection()
 		{
 			if (begin->second->contains_nickname(users_[i]->get_nickname()))
 			{
-				Response::channel_reply(CMD_QUIT, *begin->second, true);
+				Response::channel_reply(CMD_QUIT, *users_[i], *begin->second, false);
 				begin->second->disconnect(*(users_[i]));
 			}
 		}
@@ -264,6 +265,7 @@ int Server::check_connection(User& user)
 	}
 	else
 	{
+		Response::add_param("reason", ":Correct password required");
 		return DISCONNECT;
 	}
 	return 0;
@@ -500,7 +502,7 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		
 		// channels_[name]->send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n", user, true);
 		// channels_[name]->send_message(Response::get_reply(CMD_JOIN), user, true);
-		Response::channel_reply(CMD_JOIN, *channels_[name], true);
+		Response::channel_reply(CMD_JOIN, user, *channels_[name]);
 		if (channels_[name]->get_topic().size())
 		{
 			Response::reply(RPL_TOPIC);

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 20:20:59 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 16:37:47 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,7 @@ int Channel::add_user(const User& user) // redundant. also done in join_channel 
 		// user.send_message(":" + user.get_nickname() + " JOIN " + name_ + "\r\n");
 		// send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n", user, true);
 		// send_message(Response::get_reply(CMD_JOIN), user, true);
-		Response::channel_reply(CMD_JOIN, *this, true);
+		Response::channel_reply(CMD_JOIN, user, *this);
 		if (topic_.size())
 		{
 			Response::reply(RPL_TOPIC);

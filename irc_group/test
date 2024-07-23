@@ -1,6 +1,6 @@
 PASS 111
-NICK eee
-USER bbb 0 * :bbb
+NICK nick_1
+USER user_1 0 * :real_1
 JOIN #1
 JOIN #2
 JOIN #3

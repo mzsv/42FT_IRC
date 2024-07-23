@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 20:15:38 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 16:13:03 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ typedef std::string (*RplFunctionPointer)(IrcCode); // no this for static functi
 class Response // should it really be static?
 {
   private:
+  static const Server* server_; // use it instead of through user_
   static const User* user_;
   static const User* target_user_;
   static const Channel* channel_;
@@ -83,8 +84,9 @@ class Response // should it really be static?
   // static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
   static void error_reply(IrcCode code);
   static void reply(IrcCode code);
+  static void reply(IrcCode code, const User& source, const User& target);
   static const std::string get_reply(IrcCode code);
-  static void channel_reply(IrcCode code, const Channel& channel, bool include_user);
+  static void channel_reply(IrcCode code, const User& source, const Channel& target, bool include_source = true);
   static void reset();
 };
 

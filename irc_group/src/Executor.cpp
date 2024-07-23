@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 21:01:22 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 19:41:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,7 +242,7 @@ int Executor::join(const Message& message, User& user)
 		{
 			Response::add_param("channel", it->first);
 			Response::add_param("reason", "");
-			Response::channel_reply(CMD_PART, *it->second, true);
+			Response::channel_reply(CMD_PART, user, *it->second);
 			// part(Message("PART " + it->first + "\n"), user);
 		}
 	}
@@ -262,7 +262,8 @@ int Executor::join(const Message& message, User& user)
 			{
 				Response::reply(ERR_BADCHANMASK);
 			}
-			else
+			else if (!(server_->contains_channel(channel_names[i]) && \
+					server_->user_on_channel(channel_names[i], user))) // make one function to check ?
 			{
 				Logger::Log(DEBUG, "#Channel names: " + to_string_(channel_names.size()));
 				Logger::Log(DEBUG, "#Keys: " + to_string_(keys.size()));
@@ -319,7 +320,7 @@ int Executor::part(const Message& message, User& user)
 				}
 				// server_->get_channels().at(channel_names[i])->send_message(":" + user.get_prefix() + " PART " + channel_names[i] + " " + reason + "\r\n", user, true);
 				Response::add_param("reason", reason);
-				Response::channel_reply(CMD_PART, *server_->get_channels().at(channel_names[i]), true);
+				Response::channel_reply(CMD_PART, user, *server_->get_channels().at(channel_names[i]));
 				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
 			}
 		}
@@ -406,10 +407,9 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assu
 				// comment = ":" + message.get_arguments()[2];
 				Response::add_param("reason", ":" + message.get_arguments()[2]);
 			}
-			
 			// reply = " KICK " + channel + " " + target + " " + comment + "\r\n"; // confirm client prefix is appended
 			// server_->get_channels().at(channel)->send_message(":" + user.get_prefix() + reply, user, true);
-			Response::channel_reply(CMD_KICK, *server_->get_channels().at(channel), true);
+			Response::channel_reply(CMD_KICK, user, *server_->get_channels().at(channel));
 			server_->leave_channel(channel, *target_user);
 		}
 	}
@@ -459,7 +459,8 @@ int Executor::invite(const Message& message, User& user)
 			Response::set_target_user(server_->get_user(target));
 			Response::reply(RPL_INVITING);
 			// server_->get_user(target)->send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel + "\r\n");
-			Response::reply(CMD_INVITE); // test !
+			// Response::reply(CMD_INVITE); // test !
+			Response::reply(CMD_INVITE, user, *server_->get_user(target));
 			server_->get_channels().at(channel)->add_invite(target);
 		}
 	}
@@ -490,7 +491,6 @@ int Executor::topic(const Message& message, User& user)
 		}
 		else if (message.get_arguments().size() == 1)
 		{
-			// RPL_NOTOPIC (331) or RPL_TOPIC (332) !
 			if (server_->get_channel_topic(channel).empty())
 			{
 				Response::reply(RPL_NOTOPIC);
@@ -612,7 +612,10 @@ int Executor::invite_only(std::string channel, User& user, std::queue<std::strin
 	if (flag != (channel_ptr->get_flags() & INVITEONLY))
 	{
 		channel_ptr->clear_invites();
-		channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
+		// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
+		Response::add_param("mode", mode_str);
+		Response::channel_reply(CMD_MODE, user, *channel_ptr);
+		// replace with channel_reply !
 	}
 	return 0;
 }
@@ -635,7 +638,9 @@ int Executor::topic_mode(std::string channel, User& user, std::queue<std::string
 	}
 	if (flag != (channel_ptr->get_flags() & TOPICMODE))
 	{
-		channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
+		// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
+		Response::add_param("mode", mode_str);
+		Response::channel_reply(CMD_MODE, user, *channel_ptr);
 	}
 	return 0;
 }
@@ -655,9 +660,9 @@ int Executor::channel_key(std::string channel, User& user, std::queue<std::strin
 	{
 		key = q_values.front();
 		q_values.pop();
+		Response::add_param("value", key);
 		if (!is_valid_key(key))
 		{
-			Response::add_param("value", key);
 			Response::reply(ERR_INVALIDMODEPARAM);
 		}
 		else if (activate)
@@ -682,7 +687,9 @@ int Executor::channel_key(std::string channel, User& user, std::queue<std::strin
 		}
 		if (flag != (channel_ptr->get_flags() & CHANNELKEY))
 		{
-			channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + key + "\r\n", user, true);
+			// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + key + "\r\n", user, true);
+			Response::add_param("mode_str", mode_str + " " + key);
+			Response::channel_reply(CMD_MODE, user, *channel_ptr);
 		}
 	}
 	return 0;
@@ -709,7 +716,7 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 		if (iss.fail() || value == 0)
 		{
 			Response::reply(ERR_INVALIDMODEPARAM);
-			return -1;
+			return -1; // ?
 		}
 		channel_ptr->set_flag(USERLIMIT);
 		channel_ptr->set_user_limit(value);
@@ -719,7 +726,9 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 		channel_ptr->reset_flag(USERLIMIT);
 		channel_ptr->set_user_limit(0);
 	}
-	channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + to_string_(value) + "\r\n", user, true);
+	// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + to_string_(value) + "\r\n", user, true);
+	Response::add_param("mode_str", mode_str + " " + to_string_(value));
+	Response::channel_reply(CMD_MODE, user, *channel_ptr);
 	return 0;
 }
 
@@ -762,7 +771,9 @@ int Executor::channel_operator(std::string channel, User& user, std::queue<std::
 		}
 		if (is_operator != channel_ptr->is_operator(target_nick))
 		{
-			channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + target_nick + "\r\n", user, true);
+			// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + target_nick + "\r\n", user, true);
+			Response::add_param("mode_str", mode_str + " " + target_nick);
+			Response::channel_reply(CMD_MODE, user, *channel_ptr);
 		}
 	}
 	return 0;
@@ -895,6 +906,12 @@ int Executor::who(const Message& message, User& user)
 		}
 		else if (server_->contains_nickname(mask))
 		{
+			const User* target = server_->get_user(mask);
+			Response::set_target_user(target);
+			if (target->get_channels().size())
+			{
+				Response::set_channel(target->get_channels()[0]);
+			}
 			Response::reply(RPL_WHOREPLY);
 		}
 		Response::reply(RPL_ENDOFWHO);

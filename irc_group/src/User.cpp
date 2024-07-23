@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/19 21:34:59 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/23 19:20:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,15 +198,7 @@ int User::read_message()
 	}
 	if (bytes < 0)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-		{
-        	Logger::Log(ERROR, "No data available to read, non-blocking operation.");
-		}
-		else
-		{
-			// Handle other errors
-			Logger::Log(ERROR, "Error reading from socket.");
-		}
+		Response::add_param("reason", ":recv error: " + to_string_(errno));
 		Logger::Log(ERROR, "Error: " + to_string_(errno));
 	}
 	Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
@@ -217,6 +209,7 @@ int User::read_message()
 	if (bytes == 0)
 	{
 		Logger::Log(DEBUG, "EOF: Client disconnected");
+		this->set_flag(UNPLUGGED);
 		return DISCONNECT;
 	}
 	while (msg.find("\r\n") != std::string::npos)
