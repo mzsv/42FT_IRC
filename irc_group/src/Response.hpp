@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 13:06:12 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:56:49 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,14 @@ class Response // should it really be static?
   static std::string rpl_whoishost(IrcCode code);
   static std::string rpl_whoismodes(IrcCode code);
 
-
+  /**
+  * Forbidden APIs
+  */
+  Response();
+  Response(const Response& obj);
+  Response& operator=(const Response& obj);
+  ~Response();
+  
   public:
   static void set_targets(const User* user, const Channel* channel); //  still needed ?
   static void set_server(const Server* server);

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:47:27 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 14:47:17 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:51:10 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,13 @@ class Message
 	std::vector<std::string> arguments_;
 	bool trailing_flag_;
 	// std::string trailing_;
+
+	/**
+     * Forbidden APIs
+    */
+   	Message();
+	Message(const Message& obj);
+	Message& operator=(const Message& obj);
 
   public:
 	Message(const std::string& message);

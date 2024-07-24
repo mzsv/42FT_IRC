@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/20 23:00:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:52:44 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,17 @@ class Channel
 	std::vector<const User*> operators_;
 	std::vector<const User*> users_; // not efficient for insertion/deletion of elements; set instead?
 	// std::vector<const User*> speakers_;
-	std::set<std::string> invites_; // invited users
+	// std::set<std::string> invites_; // invited users
+	std::set<const User*> invites_; // invited users
 	time_t topic_time_; // needed for TOPIC
 	time_t start_time_;
 
+	/**
+     * Forbidden APIs
+    */
 	Channel();
-	Channel(const Channel& channel);
-	Channel& operator=(const Channel& channel);
+	Channel(const Channel& obj);
+	Channel& operator=(const Channel& obj);
 
   public:
   // password not required at creation, only set after key mode is set. right?
@@ -87,9 +91,12 @@ class Channel
 	void add_operator(std::string nickname);
 	void remove_operator(std::string nickname);
 	void reset_flag(unsigned char flag);
-	bool is_invited(const std::string& nickname) const;
-	void add_invite(const std::string& nickname);
-	void remove_invite(const std::string& nickname);
+	// bool is_invited(const std::string& nickname) const;
+	bool is_invited(const User* user) const;
+	// void add_invite(const std::string& nickname);
+	void add_invite(const User* user);
+	// void remove_invite(const std::string& nickname);
+	void remove_invite(const User* user);
 	void clear_invites();
 };
 

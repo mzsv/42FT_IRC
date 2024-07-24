@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 13:05:52 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:29:40 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_ENDOFMOTD] = ":End of /MOTD command";
 	messages[RPL_WHOISHOST] = "{whois_mask} :is connecting from {whois_client_prefix} {whois_hostname}"; // implement !
 	messages[RPL_WHOISMODES] = "{whois_mask} :is using modes +{activated_umodes}"; // implement !
-	
+
 	// Error Responses
 	messages[ERR_NOSUCHNICK] = "{nickname} :No such nick/channel";
 	messages[ERR_NOSUCHCHANNEL] = "{channel} :No such channel";
@@ -94,7 +94,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[ERR_NOMOTD] = ":MOTD File is missing";
 	messages[ERR_NONICKNAMEGIVEN] = ":No nickname given";
 	messages[ERR_INVALIDKEY] = "{channel} :Key is not well-formed";
-	
+
 	// command messages
 	messages[CMD_JOIN] = "JOIN {channel}";
 	messages[CMD_INVITE] = "INVITE {nickname} {channel}";
@@ -103,6 +103,8 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[CMD_ERROR] = "ERROR {reason}";
 	messages[CMD_KICK] = "KICK {channel} {target_nickname} {reason}";
 	messages[CMD_MODE] = "MODE {channel} {mode_str}";
+	messages[CMD_PRIVMSG] = "PRIVMSG {target} :{message}";
+	messages[CMD_NOTICE] = "NOTICE {target} :{message}";
 	return messages;
 }
 
@@ -220,7 +222,8 @@ std::string Response::rpl_welcome(IrcCode code)
 
 std::string Response::rpl_yourhost(IrcCode code)
 {
-	Response::add_param("server_name", server_->get_description());
+	Response::add_param("server_name", server_->get_name());
+	Response::add_param("server_version", server_->get_version());
 	return Response::generate_message(code);
 }
 

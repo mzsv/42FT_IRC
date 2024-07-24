@@ -1,48 +1,26 @@
 # ISSUES
 
-- broadcast in channel: KICK, JOIN, PART and MODE. also PRIVMSG to channel and QUIT. TOPIC set/changed/cleared
 
-- 2 ways to add user: channel->add_user and server->join_channel : choose one, Channel!
-- INVITES: to be implemented
-- JOIN: bradcast JOIN message
-- JOIN 0: implement
-- JOIN multiple: /JOIN #channel-one,#channel-two ,hunter2 (https://docs.inspircd.org/4/commands/#example-usage_7)
-- JOIN check: Clients joining the channel in the future will receive a RPL_TOPIC numeric (or lack thereof) accordingly. (horse)
-- PRIVMSG: sending mssgs to channels im not in. it doesnt show tho, check
-- implement WHO: sent by hexchat when there are channels
-- Registration: RPL_YOURESERVICE as per IRC protocol?
-- Makefile: compilation flags
-- add NULL check for every user/channel pointer access
-- fix: empty params, generate message with empty value
-- handle leaks
-- repeated USER command is setting duplicated username (but not nick)
-- add USERLEN limit to ISUPPORT and implement it. silently truncates username (horse)
-- handle QUIT (from a QUIT message; EOF; other reason for having BREAK flag active)
-- SEGFAULT: Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated.
-- MOTD: server should make sure each line has max 80 (detail...)
-- UNIX times are not being formatted by hexchat
-- test MODE
-- TARGMAX: check which commands take several target (except JOIN and PART, by default to take several)
-pfd.events = POLLIN;
-	pfd.events |= POLLRDHUP;
-	pfd.events |= POLLERR;
-	pfd.events |= POLLHUP;
-	pfd.events |= POLLNVAL;
-	pfd.events |= POLLOUT;
-	POLLWRBAND
-	POLLWRNORM
-	POLLPRI
 
 
 # SUGGESTIONS
 
 
+- 2 ways to add user: channel->add_user and server->join_channel : choose one, Channel!
+- add NULL check for every user/channel pointer access
+- template function to get info from user/target/channel
 - reply function with custom message (to send join message reply e.g)
+- response: leave empty param when no value
 - rethink params vs pointers
 - throw errors and try catch them in the main
 - add limit to number of targets on join and other who allow multiple
 - replace \r\n with CRLF macro
-- add join_message, part_message, error message as replies
+- add return int to reply, easier to exit functions
+- find or get pointer to find channel and user -> check for it.end() or NULL instead of always checking contains_ch/nick?
+- LIST: implement
+- store pointers instead of strings > add function to check for null pointers where needed
+- PRIVMSG to several targets
+- use references instead of pointers
 
 # SOLVED/TAKEAWAYS
 
@@ -54,3 +32,21 @@ pfd.events = POLLIN;
 
 # REMEMBER
 - Response needs a user and channel not null
+-pfd.events = POLLIN;
+	pfd.events |= POLLRDHUP;
+	pfd.events |= POLLERR;
+	pfd.events |= POLLHUP;
+	pfd.events |= POLLNVAL;
+	pfd.events |= POLLOUT;
+	POLLWRBAND
+	POLLWRNORM
+	POLLPRI
+- Singleton:
+	Server& Server::get_instance()
+	{
+		static Server instance;
+		return instance;
+	}
+   - Static Local Variable: static Server instance; - Inside the method, a static local variable named instance of type Server is declared and initialized. Because it's static, this variable is initialized only once, the first time the get_instance method is called. On subsequent calls, the same instance of Server is returned. The static local variable has a lifetime that extends across the entire runtime of the program, but its scope is limited to the get_instance method, making it accessible only through this method. [copilot]
+   
+   

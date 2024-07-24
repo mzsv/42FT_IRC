@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/23 16:14:47 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 20:03:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ enum IrcCode
     CMD_PART = 4246,
     CMD_KICK = 4247,
     CMD_MODE = 4248,
+    CMD_PRIVMSG = 4249,
+    CMD_NOTICE = 4250,
     
 };
 

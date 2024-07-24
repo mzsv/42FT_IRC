@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 14:46:14 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 19:12:15 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,10 @@ void User::send_message(const std::string& message) const
 {
 	if (message.size() > 0)
 	{
-		send(socket_fd_, message.c_str(), message.size(), IRC_NOSIGNAL);
+		if (send(socket_fd_, message.c_str(), message.size(), IRC_NOSIGNAL) < 0)
+		{
+			Logger::Log(ERROR, "Error: " + to_string_(errno));
+		}
 	}
 	Logger::Log(DEBUG, "Sent message: " + message + " to " + nickname_);
 }
@@ -200,8 +203,9 @@ int User::read_message()
 	}
 	if (bytes < 0)
 	{
-		Response::add_param("reason", ":recv error: " + to_string_(errno));
 		Logger::Log(ERROR, "Error: " + to_string_(errno));
+		this->set_flag(UNPLUGGED);
+		return DISCONNECT;
 	}
 	Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
 	if (msg.size() > 512)

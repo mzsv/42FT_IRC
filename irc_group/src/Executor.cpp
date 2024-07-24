@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 14:46:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:38:57 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["TOPIC"] = &Executor::topic;
 	functions_["MODE"] = &Executor::mode;
 	functions_["PRIVMSG"] = &Executor::privmsg;
+	functions_["NOTICE"] = &Executor::notice;
 	functions_["MOTD"] = &Executor::motd;
 	functions_["LUSERS"] = &Executor::lusers;
 	functions_["WHO"] = &Executor::who;
@@ -456,13 +457,15 @@ int Executor::invite(const Message& message, User& user)
 		}
 		else
 		{
+			const User* target_ptr = server_->get_user(target);
+			
 			Response::set_channel(server_->get_channels().at(channel));
-			Response::set_target_user(server_->get_user(target));
+			Response::set_target_user(target_ptr);
 			Response::reply(RPL_INVITING);
 			// server_->get_user(target)->send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel + "\r\n");
 			// Response::reply(CMD_INVITE); // test !
-			Response::reply(CMD_INVITE, user, *server_->get_user(target));
-			server_->get_channels().at(channel)->add_invite(target);
+			Response::reply(CMD_INVITE, user, *target_ptr);
+			server_->get_channels().at(channel)->add_invite(target_ptr);
 		}
 	}
 	return 0;
@@ -784,14 +787,18 @@ int Executor::privmsg(const Message& message, User& user)
 {
 	std::string target;
 	std::string message_text;
+	std::string command = message.get_command();
 
 	if (message.get_arguments().size() < 2)
 	{
 		if (message.get_arguments().size() == 1 && !message.get_trailing_flag())
 		{
-			Response::reply(ERR_NOTEXTTOSEND);
+			if (command != "NOTICE")
+			{
+				Response::reply(ERR_NOTEXTTOSEND);
+			}
 		}
-		else
+		else if (command != "NOTICE")
 		{
 			Response::reply(ERR_NORECIPIENT);
 		}
@@ -800,20 +807,36 @@ int Executor::privmsg(const Message& message, User& user)
 	{
 		target = message.get_arguments()[0];
 		message_text = message.get_arguments()[1];
+		Response::add_param("target", target);
+		Response::add_param("message", message_text); // test !
 		if (target[0] == '#') // channel
 		{
 			Response::add_param("channel", target);
 			if (!server_->contains_channel(target))
 			{
-				Response::reply(ERR_NOSUCHCHANNEL);
+				if (command != "NOTICE")
+				{
+					Response::reply(ERR_NOSUCHCHANNEL);
+				}
 			}
 			else if (!server_->user_on_channel(target, user))
 			{
-				Response::reply(ERR_CANNOTSENDTOCHAN);
+				if (command != "NOTICE")
+				{
+					Response::reply(ERR_CANNOTSENDTOCHAN);
+				}
 			}
 			else
 			{
-				server_->get_channels().at(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n", user, false);
+				if (command == "PRIVMSG")
+				{
+					// server_->get_channels().at(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n", user, false);
+					Response::channel_reply(CMD_PRIVMSG, user, *server_->get_channels().at(target), false);
+				}
+				else
+				{
+					Response::channel_reply(CMD_NOTICE, user, *server_->get_channels().at(target), false);
+				}
 			}
 		}
 		else // user
@@ -821,15 +844,31 @@ int Executor::privmsg(const Message& message, User& user)
 			Response::add_param("nickname", target);
 			if (!server_->contains_nickname(target))
 			{
-				Response::reply(ERR_NOSUCHNICK);
+				if (command != "NOTICE")
+				{
+					Response::reply(ERR_NOSUCHNICK);
+				}
 			}
 			else
 			{
-				server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n");
+				if (command == "PRIVMSG")
+				{
+					// server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n");
+					Response::reply(CMD_PRIVMSG, user, *server_->get_user(target));
+				}
+				else
+				{
+					Response::reply(CMD_NOTICE, user, *server_->get_user(target));
+				}
 			}
 		}
 	}
 	return 0;
+}
+
+int Executor::notice(const Message& message, User& user)
+{
+	return privmsg(message, user);
 }
 
 int Executor::motd(const Message& message, User& user)

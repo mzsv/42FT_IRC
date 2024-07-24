@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 17:41:07 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:50:22 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ private:
 	int names(const Message& message, User& user); // list users in channel NOT REQUIRED !
 	// int authenticate(const Message& message, User& user); // authenticate user
 	int privmsg(const Message& message, User& user); // message user to user/channel
+	int notice(const Message& message, User& user); // send notice to user/channel
 	// int list(const Message& message, User& user); // list channels
 	int motd(const Message& message, User& user); // message of the day
 	int lusers(const Message& message, User& user); // list users
@@ -83,6 +84,13 @@ private:
 	int user_limit(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
 	int channel_operator(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
 	
+	/**
+     * Forbidden APIs
+    */
+   	Executor();
+	Executor(const Executor& obj);
+	Executor& operator=(const Executor& obj);
+
 public:
 	Executor(Server* server);
 	~Executor();

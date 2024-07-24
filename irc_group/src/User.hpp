@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 19:07:02 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:53:54 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ class User
      * Forbidden APIs
     */
     User();
-    User(const User& user);
-    User& operator=(const User& oth);
+    User(const User& obj);
+    User& operator=(const User& obj);
 
   public:
     User(int socket_fd, const std::string& host, const Server* server, std::string& server_name);

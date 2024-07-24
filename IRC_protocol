@@ -61,11 +61,26 @@ RFC 1459
 -The user creating a channel automatically becomes channel operator with the notable exception of channels which name is prefixed by the character '+'
 
 4. CHANNEL MODES
--i - toggle the invite-only channel flag;
--t - toggle the topic settable by channel operator only flag;
--k - set/remove the channel key (password);
--o - give/take channel operator privilege;
--l - set/remove the user limit to channel;
+-O - give "channel creator" status;
+-o - give/take channel operator privilege; (required)
+-v - give/take the voice privilege;
+
+-a - toggle the anonymous channel flag;
+-i - toggle the invite-only channel flag; (required)
+-m - toggle the moderated channel;
+-n - toggle the no messages to channel from clients on the outside;
+-q - toggle the quiet channel flag;
+-p - toggle the private channel flag;
+-s - toggle the secret channel flag;
+-r - toggle the server reop channel flag;
+-t - toggle the topic settable by channel operator only flag; (required)
+
+-k - set/remove the channel key (password); (required)
+-l - set/remove the user limit to channel; (required)
+
+-b - set/remove ban mask to keep users out;
+-e - set/remove an exception mask to override a ban mask;
+-I - set/remove an invitation mask to automatically override the invite-only flag;
 - (!) When using the 'o' and 'b' options, a restriction on a total of three per mode command has been imposed.
 
 4.2.2. INVITE ONLY FLAG

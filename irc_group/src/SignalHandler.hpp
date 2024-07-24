@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 15:45:16 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/24 15:55:07 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 17:48:54 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class SignalHandler
 {
     private:
         Server& server_;
+        static SignalHandler* instance_;
 
         SignalHandler();
         SignalHandler(const SignalHandler& obj);
@@ -29,8 +30,8 @@ class SignalHandler
         SignalHandler(Server& server_);
         ~SignalHandler();
         
-        void sigint_handler(int signum);
-        int config();
+        static void sigint_handler(int signum);
+        void config();
 };
 
 #endif // SIGNALHANDLER_HPP

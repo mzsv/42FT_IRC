@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 14:46:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:40:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,19 +267,19 @@ const std::vector<const User*>& Channel::get_operators() const
 	return operators_;
 }
 
-bool Channel::is_invited(const std::string& nickname) const
+bool Channel::is_invited(const User* user) const
 {
-	return invites_.find(nickname) != invites_.end();
+	return invites_.find(user) != invites_.end();
 }
 
-void Channel::add_invite(const std::string& nickname)
+void Channel::add_invite(const User* user)
 {
-	invites_.insert(nickname);
+	invites_.insert(user);
 }
 
-void Channel::remove_invite(const std::string& nickname)
+void Channel::remove_invite(const User* user)
 {
-	invites_.erase(nickname);
+	invites_.erase(user);
 }
 
 void Channel::clear_invites()

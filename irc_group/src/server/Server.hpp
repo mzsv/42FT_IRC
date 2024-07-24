@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 16:04:21 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:58:59 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <cstring>
-#include <cerrno>
+// #include <cerrno>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -33,7 +33,7 @@ class User;
 class Channel;
 class Executor;
 
-#include <cerrno>
+// #include <cerrno>
 #include "User.hpp"
 #include "Channel.hpp"
 #include "Message.hpp"
@@ -82,7 +82,14 @@ class Server
 	std::string available_channel_modes;
 	size_t max_local_users_;
 
-	bool running_;
+	static bool running_;
+
+	/**
+     * Forbidden APIs
+    */
+   	Server();
+	Server(const Server& obj);
+	Server& operator=(const Server& obj);
 
   public:
 	Server(int port, const std::string& password);
@@ -127,6 +134,7 @@ class Server
     int handle_message(User& user);
 	void notify_users(User& user, const std::string& message);
 	bool contains_nickname(const std::string& nickname) const;
+	const bool& is_running() const;
 	void stop();
 
 	// void ping_users() const; // already at server::check_connection()

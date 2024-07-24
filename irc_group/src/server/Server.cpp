@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 15:23:06 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 21:59:26 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,14 @@
 
 /* ========================================================================== */
 
+bool Server::running_ = true;
+
 Server::Server(int port, const std::string& password) :
 	port_(port), password_(password), timeout_(1),
 	max_inactive_time_(120), max_response_time_(60),
 	description("42 IRC Server"), version("1.0"),
-	available_channel_modes("itkol"), max_local_users_(0),
-	running_(true)
+	available_channel_modes("itkol"), max_local_users_(0)
+	// running_(true)
 	// should the listener socket be setup here?
 {
 	time(&start_time_);
@@ -42,7 +44,7 @@ Server::Server(int port, const std::string& password) :
 
 Server::~Server()
 {
-	Logger::Log(INFO, "Server shutting down.");
+	Logger::Log(INFO, "Server destructor");
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
 		delete users_[i];
@@ -90,7 +92,8 @@ void Server::create_socket()
 	if (socket_fd_ == -1)
 	{
 		Logger::Log(FATAL, "Failed to create socket.");
-		exit(errno);
+		// exit(errno);
+		stop();
 	}
 }
 
@@ -331,10 +334,10 @@ void print_poll_revents(const struct pollfd& pfd) // DEBUG !
 	{
 		Logger::Log(DEBUG, "------------->POLLRDHUP");
 	}
-	// if (pfd.revents & POLLWRBAND)
-	// {
-	// 	Logger::Log(DEBUG, "------------->POLLWRBAND");
-	// }
+	if (pfd.revents & POLLWRBAND)
+	{
+		Logger::Log(DEBUG, "------------->POLLWRBAND");
+	}
 	// if (pfd.revents & POLLWRNORM)
 	// {
 	// 	Logger::Log(DEBUG, "------------->POLLWRNORM");
@@ -475,11 +478,11 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		{
 			Response::reply(ERR_CHANNELISFULL);
 		}
-		else if ((channels_[name]->get_flags() & INVITEONLY) && !channels_[name]->is_invited(user.get_nickname()))
+		else if ((channels_[name]->get_flags() & INVITEONLY) && !channels_[name]->is_invited(&user))
 		{
 			Response::reply(ERR_INVITEONLYCHAN);
 		}
-		else if ((channels_[name]->get_flags() & CHANNELKEY) && !channels_[name]->is_invited(user.get_nickname()) \
+		else if ((channels_[name]->get_flags() & CHANNELKEY) && !channels_[name]->is_invited(&user) \
 			&& channels_[name]->get_password() != key)
 		{
 			Response::reply(ERR_BADCHANNELKEY);
@@ -488,7 +491,7 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		{
 			Response::set_channel(channels_[name]);
 			user.add_channel(*channels_[name]);
-			channels_[name]->remove_invite(user.get_nickname());
+			channels_[name]->remove_invite(&user);
 			return channels_[name]->add_user(user); // review !
 		}
 	}
@@ -660,4 +663,9 @@ const std::string& Server::get_isupport_param(const std::string& key) const
 void Server::stop()
 {
 	running_ = false;
+}
+
+const bool& Server::is_running() const
+{
+	return running_;
 }

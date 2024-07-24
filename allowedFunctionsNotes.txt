@@ -12,6 +12,7 @@
 
 -spotchat server
 -https://modern.ircdocs.horse/
+-https://www.linuxhowtos.org/C_C++/socket.htm
 
 man tcp(7)
 A  newly created TCP socket has no remote or local address and is not fully specified.  To create an outgoing TCP connection use connect(2) to establish a connection to another TCP  socket.
