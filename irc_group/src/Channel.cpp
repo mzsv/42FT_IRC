@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 16:37:47 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 14:46:25 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Channel::Channel(const std::string& name, const std::string& password, const Use
 
 Channel::~Channel()
 {
+	Logger::Log(INFO, "Channel destructor");
 }
 
 /**

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 19:20:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 14:46:14 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ User::User(int socket_fd, const std::string& host, const Server* server, std::st
 
 User::~User()
 {
+	Logger::Log(INFO, "User destructor");
+	close(socket_fd_);
 }
 
 /**

@@ -6,11 +6,13 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 20:37:47 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 13:05:52 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+
+const Server* Response::server_ = NULL;
 
 const User* Response::user_ = NULL;
 
@@ -146,6 +148,11 @@ void Response::set_targets(const User* user, const Channel* channel) //  still n
 {
 	user_ = const_cast<User*>(user);
 	channel_ = const_cast<Channel*>(channel);
+}
+
+void Response::set_server(const Server* server)
+{
+	server_ = server;
 }
 
 void Response::set_user(const User* user)

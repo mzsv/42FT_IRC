@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 20:19:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 15:23:06 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ Server::Server(int port, const std::string& password) :
 	port_(port), password_(password), timeout_(1),
 	max_inactive_time_(120), max_response_time_(60),
 	description("42 IRC Server"), version("1.0"),
-	available_channel_modes("itkol"), max_local_users_(0)
+	available_channel_modes("itkol"), max_local_users_(0),
+	running_(true)
 	// should the listener socket be setup here?
 {
 	time(&start_time_);
@@ -41,16 +42,15 @@ Server::Server(int port, const std::string& password) :
 
 Server::~Server()
 {
+	Logger::Log(INFO, "Server shutting down.");
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
-		close(users_[i]->get_socket_fd());
 		delete users_[i];
 	}
-	std::map<std::string, Channel*>::const_iterator begin = channels_.begin();
-	std::map<std::string, Channel*>::const_iterator end = channels_.end();
-	for (; begin != end; ++begin)
+	std::map<std::string, Channel*>::const_iterator it = channels_.begin();
+	for (; it != channels_.end(); ++it)
 	{
-		delete (*begin).second;
+		delete it->second;
 	}
 	close(socket_fd_);
 }
@@ -655,4 +655,9 @@ const std::string& Server::get_isupport_param(const std::string& key) const
 		return key;
 	}
 	return isupport_params_.at(key);
+}
+
+void Server::stop()
+{
+	running_ = false;
 }

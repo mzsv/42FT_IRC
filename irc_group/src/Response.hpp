@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 16:13:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 13:06:12 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ class Response // should it really be static?
 
   public:
   static void set_targets(const User* user, const Channel* channel); //  still needed ?
+  static void set_server(const Server* server);
   static void set_user(const User* user);
   static void set_target_user(const User* user);
   static void set_channel(const Channel* channel);

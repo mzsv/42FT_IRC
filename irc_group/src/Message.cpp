@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/06/14 19:34:23 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 14:46:48 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,11 @@ Message::Message(const std::string& message)
 		}
 	}
 
+}
+
+Message::~Message()
+{
+	Logger::Log(INFO, "Message destructor");
 }
 
 const std::string& Message::get_message() const

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/23 19:41:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 14:46:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ Executor::Executor(Server* server) : server_(server)
 
 Executor::~Executor()
 {
+	Logger::Log(INFO, "Executor destructor");
 }
 
 int Executor::execute(const Message& message, User& user)

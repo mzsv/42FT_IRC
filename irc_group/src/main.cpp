@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/17 17:00:00 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 16:04:34 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,23 +38,23 @@ int main(int argc, char **argv)
     }
     uint16_t port = static_cast<uint16_t>(atol(argv[1]));
     std::string password = std::string(argv[2]);
-    Server server = Server(port, password);
-    server.create_socket(); //maybe do the listening socket set up altogether
-    server.bind_socket();
-    server.listen_socket();
+    Server* server = new Server(port, password);
+    server->create_socket(); //maybe do the listening socket set up altogether
+    server->bind_socket();
+    server->listen_socket();
+    Response::set_server(server);
     Logger::Log(INFO, "Hm...");
     // print server timeout members
 
     while (true)
     {
-        server.get_connection();
-        server.process_message();
-        server.check_connection();
-        server.delete_broken_connection();
-        server.delete_empty_channels();
+        server->get_connection();
+        server->process_message();
+        server->check_connection();
+        server->delete_broken_connection();
+        server->delete_empty_channels();
         // Logger::Log(DEBUG, "Server is running...");
         // server.ping_users();
     }
-
     return EXIT_SUCCESS;
 }

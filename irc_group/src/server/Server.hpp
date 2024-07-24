@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 16:45:10 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/24 16:04:21 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ class Executor;
 #define IRC_NOSIGNAL MSG_NOSIGNAL
 #endif
 
-
 class Server
 {
   private:
@@ -82,6 +81,8 @@ class Server
 	std::string version;
 	std::string available_channel_modes;
 	size_t max_local_users_;
+
+	bool running_;
 
   public:
 	Server(int port, const std::string& password);
@@ -126,6 +127,7 @@ class Server
     int handle_message(User& user);
 	void notify_users(User& user, const std::string& message);
 	bool contains_nickname(const std::string& nickname) const;
+	void stop();
 
 	// void ping_users() const; // already at server::check_connection()
 
