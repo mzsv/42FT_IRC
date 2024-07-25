@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 19:47:48 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 20:19:51 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ std::string to_string_(T value)
 }
 
 Bot::Bot(int port, std::string password) :
-    port_(port), password_(password),
-    server_("0.0.0.0"), socket_fd_(-1), nickname_("bot")
+    port_(port), password_(password), nickname_("bot"),
+    server_("0.0.0.0"), socket_fd_(-1)
 {
 }
 
@@ -42,8 +42,8 @@ void Bot::connect_to_server()
     
     if (getaddrinfo(server_.c_str(), to_string_(port_).c_str(), &hints, &res) != 0)
     {
-        std::cerr << "Failed to get address info." << std::endl;
-        exit(1);
+        Logger::Log(ERROR, "Failed to get address info");
+        return ;
     }
     socket_fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if (socket_fd_ < 0)

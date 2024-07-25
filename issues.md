@@ -108,3 +108,67 @@ re : fclean
 
 .PHONY: all clean fclean re
 
+_______
+
+
+NAME	=	ft_irc
+BOT		=	bot	# Bot
+
+CXX		=	c++
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g #-fsanitize=address
+RM		=	rm -rf
+
+INCLUDES = ./includes
+SERVER = ./src/server/
+LOGGER = ./src/logger/
+USER = ./src/
+SRC = ./src
+
+vpath %.cpp src/
+vpath %.cpp src/server/
+vpath %.cpp src/utils/
+vpath %.cpp src/logger/
+
+SRCS = main.cpp check_argv.cpp split2queue.cpp Server.cpp Logger.cpp User.cpp Channel.cpp Message.cpp \
+	Executor.cpp Response.cpp is_valid_nickname.cpp SignalHandler.cpp tolower_str.cpp
+BOT_SRCS = Message.cpp Logger.cpp Bot.cpp split2queue.cpp tolower_str.cpp bot_main.cpp # Bot
+
+OBJ_DIR = ./obj/
+
+OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(SRCS))
+BOT_OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(BOT_SRCS)) # Bot
+
+all: $(NAME) $(BOT)
+
+$(OBJS): $(OBJ_DIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $@ -fPIE
+
+$(BOT_OBJS): $(OBJ_DIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $@ -fPIE
+
+$(NAME): $(OBJ_DIR) $(OBJS)
+	@echo $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $(NAME) -fPIE
+
+$(BOT) : $(OBJ_DIR) $(BOT_OBJS) # Bot
+	@echo $(BOT_OBJS)
+	$(CXX) $(CXXFLAGS) $(BOT_OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $(BOT) -fPIE
+
+$(OBJ_DIR):
+	mkdir $@
+
+fclean : clean
+	$(RM) $(NAME)
+	$(RM) $(BOT)
+	$(RM) -R $(OBJ_DIR)
+	$(RM) *.a
+
+clean :
+	$(RM) $(NAME)*
+	$(RM) $(BOT)*
+
+re : fclean
+	$(MAKE)
+
+.PHONY: all clean fclean re
+
