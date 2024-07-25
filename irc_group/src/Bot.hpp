@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:13 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 18:16:23 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:47:36 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <cstring>
 #include "Logger.hpp"
 #include "Message.hpp"
+#include "ston.hpp"
 
 class Bot
 {
@@ -32,11 +33,13 @@ class Bot
         Bot(const Bot& obj);
         Bot& operator=(const Bot& obj);
 
-        std::string nickname_;
         int port_;
-        int socket_fd_;
+        std::string password_;
+        const std::string nickname_;
         std::string server_;
+        int socket_fd_;
         sockaddr_in sockaddr_;
+        std::queue<std::string> messages_;
         
         void connect_to_server();
         void send_message(const std::string& message);
@@ -51,8 +54,6 @@ class Bot
         ~Bot();
 
         void run();
-        
-
 };
 
 #endif // BOT_HPP

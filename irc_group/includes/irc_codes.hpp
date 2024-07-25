@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 18:39:46 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:31:48 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ enum IrcCode
     CMD_PRIVMSG = 4249,
     CMD_NOTICE = 4250,
     CMD_PONG = 4251,
+    CMD_PING = 4252,
 };
 
 #endif // IRC_CODES_HPP

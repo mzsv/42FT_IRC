@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 18:38:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:32:21 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,9 @@ void Server::check_connection()
 			// if (time(0) - users_[i]->get_time_of_last_action() > max_inactive_time_)
 			if (difftime(time(0), users_[i]->get_time_of_last_action()) > max_inactive_time_)
 			{
-				users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n"); // ping message !
+				// users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n"); // ping message !
+				Response::add_param("server", name_);
+				Response::cmd_reply(CMD_PING, NULL, *users_[i]);
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
 				users_[i]->set_flag(PINGING);

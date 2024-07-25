@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 18:39:37 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 19:31:16 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[CMD_PRIVMSG] = "PRIVMSG {target} :{message}";
 	messages[CMD_NOTICE] = "NOTICE {target} :{message}";
 	messages[CMD_PONG] = "PONG {server} :{ping_token}";
+	messages[CMD_PING] = "PING {server} :{ping_token}";
 	return messages;
 }
 

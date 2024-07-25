@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tolower_str.cpp                                    :+:      :+:    :+:   */
+/*   bot_main.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/25 18:16:48 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 19:35:05 by amenses-         ###   ########.fr       */
+/*   Created: 2024/07/25 19:19:38 by amenses-          #+#    #+#             */
+/*   Updated: 2024/07/25 19:43:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <string>
-#include <cctype>
+#include "Bot.hpp"
 
-std::string& tolower_str(std::string& str)
+int main(int argc, char** argv)
 {
-    for (size_t i = 0; i < str.length(); i++)
+    if (argc != 3)
     {
-        str[i] = std::tolower(str[i]);
+        Logger::Log(ERROR, "Usage: ./bot <port> <password>");
+        return 1;
     }
-    return str;
+    Bot bot(ston<int>(argv[1]), argv[2]);
+    bot.run();
+    return 0;
 }
