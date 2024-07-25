@@ -1,11 +1,12 @@
 # ISSUES
 
 
-
+- review Makefile
 
 # SUGGESTIONS
 
 
+- send_message: add final \r\n, instead of doing when building the message?
 - 2 ways to add user: channel->add_user and server->join_channel : choose one, Channel!
 - add NULL check for every user/channel pointer access
 - template function to get info from user/target/channel
@@ -49,4 +50,61 @@
 	}
    - Static Local Variable: static Server instance; - Inside the method, a static local variable named instance of type Server is declared and initialized. Because it's static, this variable is initialized only once, the first time the get_instance method is called. On subsequent calls, the same instance of Server is returned. The static local variable has a lifetime that extends across the entire runtime of the program, but its scope is limited to the get_instance method, making it accessible only through this method. [copilot]
    
-   
+
+NAME	=	ft_irc
+BOT		=	bot	# Bot
+
+CXX		=	c++
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g #-fsanitize=address
+RM		=	rm -rf
+
+INCLUDES = ./includes
+SERVER = ./src/server/
+LOGGER = ./src/logger/
+USER = ./src/
+SRC = ./src
+
+vpath %.cpp src/
+vpath %.cpp src/server/
+vpath %.cpp src/utils/
+vpath %.cpp src/logger/
+
+SRCS = main.cpp check_argv.cpp split2queue.cpp Server.cpp Logger.cpp User.cpp Channel.cpp Message.cpp \
+	Executor.cpp Response.cpp is_valid_nickname.cpp SignalHandler.cpp tolower_str.cpp
+BOT_SRCS = Bot.cpp bot_main.cpp # Bot
+
+OBJ_DIR = ./obj/
+
+OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(SRCS))
+BOT_OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(BOT_SRCS)) # Bot
+
+
+all: $(NAME) $(BOT) # Bot
+
+$(OBJS): $(OBJ_DIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $@ -fPIE
+
+$(NAME): $(OBJ_DIR) $(OBJS)
+	@echo $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $(NAME) -fPIE
+
+$(BOT): $(OBJ_DIR) $(BOT_OBJS) # Bot
+	$(CXX) $(CXXFLAGS) $(BOT_OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -o $(BOT) -fPIE
+
+$(OBJ_DIR):
+	mkdir $@
+
+fclean : clean 
+	$(RM) $(NAME)
+	$(RM) $(BOT)
+	$(RM) -R $(OBJ_DIR)
+	$(RM) *.a
+
+clean : # Bot
+	$(RM) $(NAME)* $(BOT)*
+
+re : fclean
+	$(MAKE)
+
+.PHONY: all clean fclean re
+

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:40:34 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:34:21 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void Channel::set_topic(const User& user, std::string topic)
 {
 	if ((flags_ & TOPICMODE) && !is_operator(user))
 	{
-		Response::reply(ERR_CHANOPRIVSNEEDED);
+		Response::num_reply(ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
@@ -96,7 +96,7 @@ void Channel::set_password(const User& user, std::string password) // review !
 {
 	if (!is_operator(user))
 	{
-		Response::reply(ERR_CHANOPRIVSNEEDED);
+		Response::num_reply(ERR_CHANOPRIVSNEEDED);
 	}
 	else
 	{
@@ -200,20 +200,20 @@ int Channel::add_user(const User& user) // redundant. also done in join_channel 
 		// user.send_message(":" + user.get_nickname() + " JOIN " + name_ + "\r\n");
 		// send_message(":" + user.get_prefix() + " JOIN " + name_ + "\r\n", user, true);
 		// send_message(Response::get_reply(CMD_JOIN), user, true);
-		Response::channel_reply(CMD_JOIN, user, *this);
+		Response::cmd_reply(CMD_JOIN, user, *this);
 		if (topic_.size())
 		{
-			Response::reply(RPL_TOPIC);
-			Response::reply(RPL_TOPICWHOTIME);
+			Response::num_reply(RPL_TOPIC);
+			Response::num_reply(RPL_TOPICWHOTIME);
 		}
-		Response::reply(RPL_NAMREPLY);
-		Response::reply(RPL_ENDOFNAMES);
+		Response::num_reply(RPL_NAMREPLY);
+		Response::num_reply(RPL_ENDOFNAMES);
 		// needs to also broadcast to all users in channel (privmsg to all, i guess)
 		return 0; // not needed if messaging client and channel here !
 	}
 	else
 	{
-		Response::reply(ERR_CHANNELISFULL);
+		Response::num_reply(ERR_CHANNELISFULL);
 	}
 	return -1;
 }

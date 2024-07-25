@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:59:26 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:38:16 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,14 +156,14 @@ void Server::delete_broken_connection()
 			Response::add_param("reason", ":Unplugged");
 		}
 		// Response::add_param("reason", "Ping timeout: " + to_string_(max_response_time_) + " seconds");
-		Response::reply(CMD_ERROR);
+		Response::cmd_reply(CMD_ERROR, NULL, *users_[i]);
 		std::map<std::string, Channel*>::iterator begin = channels_.begin();
 		std::map<std::string, Channel*>::iterator end = channels_.end();
 		for (; begin != end; ++begin)
 		{
 			if (begin->second->contains_nickname(users_[i]->get_nickname()))
 			{
-				Response::channel_reply(CMD_QUIT, *users_[i], *begin->second, false);
+				Response::cmd_reply(CMD_QUIT, *users_[i], *begin->second, false);
 				begin->second->disconnect(*(users_[i]));
 			}
 		}
@@ -255,11 +255,11 @@ int Server::check_connection(User& user)
 		{
 			user.set_flag(REGISTERED); //  Registration
 			user.set_time_of_registrations(); // singular !
-			Response::reply(RPL_WELCOME);
-			Response::reply(RPL_YOURHOST);
-			Response::reply(RPL_CREATED);
-			Response::reply(RPL_MYINFO);
-			Response::reply(RPL_ISUPPORT);
+			Response::num_reply(RPL_WELCOME);
+			Response::num_reply(RPL_YOURHOST);
+			Response::num_reply(RPL_CREATED);
+			Response::num_reply(RPL_MYINFO);
+			Response::num_reply(RPL_ISUPPORT);
 			Executor executor(this); // redundant !
 			executor.execute(Message("LUSERS\n"), user);
 			executor.execute(Message("MOTD\n"), user);
@@ -398,7 +398,7 @@ int Server::handle_message(User& user)
 			&& message.get_command() != "USER" && message.get_command() != "NICK" \
 			&& message.get_command() != "CAP") // shorter way?
 		{
-			Response::reply(ERR_NOTREGISTERED);
+			Response::num_reply(ERR_NOTREGISTERED);
 		}
 		else
 		{
@@ -476,16 +476,16 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 	{
 		if ((channels_[name]->get_flags() & USERLIMIT) && channels_[name]->get_users().size() >= channels_[name]->get_user_limit())
 		{
-			Response::reply(ERR_CHANNELISFULL);
+			Response::num_reply(ERR_CHANNELISFULL);
 		}
 		else if ((channels_[name]->get_flags() & INVITEONLY) && !channels_[name]->is_invited(&user))
 		{
-			Response::reply(ERR_INVITEONLYCHAN);
+			Response::num_reply(ERR_INVITEONLYCHAN);
 		}
 		else if ((channels_[name]->get_flags() & CHANNELKEY) && !channels_[name]->is_invited(&user) \
 			&& channels_[name]->get_password() != key)
 		{
-			Response::reply(ERR_BADCHANNELKEY);
+			Response::num_reply(ERR_BADCHANNELKEY);
 		}
 		else if (!channels_[name]->contains_nickname(user.get_nickname()))
 		{
@@ -505,14 +505,14 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 		
 		// channels_[name]->send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n", user, true);
 		// channels_[name]->send_message(Response::get_reply(CMD_JOIN), user, true);
-		Response::channel_reply(CMD_JOIN, user, *channels_[name]);
+		Response::cmd_reply(CMD_JOIN, user, *channels_[name]);
 		if (channels_[name]->get_topic().size())
 		{
-			Response::reply(RPL_TOPIC);
-			Response::reply(RPL_TOPICWHOTIME);
+			Response::num_reply(RPL_TOPIC);
+			Response::num_reply(RPL_TOPICWHOTIME);
 		}
-		Response::reply(RPL_NAMREPLY);
-		Response::reply(RPL_ENDOFNAMES);
+		Response::num_reply(RPL_NAMREPLY);
+		Response::num_reply(RPL_ENDOFNAMES);
 		return 0;
 	}
 	return -1;

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:29:40 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:39:37 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[CMD_MODE] = "MODE {channel} {mode_str}";
 	messages[CMD_PRIVMSG] = "PRIVMSG {target} :{message}";
 	messages[CMD_NOTICE] = "NOTICE {target} :{message}";
+	messages[CMD_PONG] = "PONG {server} :{ping_token}";
 	return messages;
 }
 
@@ -520,7 +521,7 @@ std::string Response::rpl_whoismodes(IrcCode code)
 	return Response::generate_message(code);
 }
 
-void Response::reply(IrcCode code)
+void Response::num_reply(IrcCode code)
 {
 	std::string message;
 	std::ostringstream oss;
@@ -548,17 +549,20 @@ const std::string Response::get_reply(IrcCode code)
 		Response::generate_message(code) + "\r\n";
 }
 
-void Response::channel_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
+void Response::cmd_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
 {
-	std::string message = ":" + source.get_prefix() + " " \
+	std::string prefix = server_->get_name();
+	std::string message = ":" + prefix + " " \
 		+ Response::generate_message(code) + "\r\n";
+
 	target.send_message(message, source, include_source);
 }
 
-void Response::reply(IrcCode code, const User& source, const User& target)
+void Response::cmd_reply(IrcCode code, const User* source, const User& target)
 {
-	std::string message = ":" + source.get_prefix() + " " + \
-		Response::generate_message(code) + "\r\n";
+	std::string prefix = source ? source->get_prefix() : server_->get_name();
+	std::string message = ":" + prefix + " " \
+		+ Response::generate_message(code) + "\r\n";
 
 	target.send_message(message);
 }

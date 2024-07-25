@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 00:32:38 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:15:11 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ std::string to_string_(T value)
     return os.str();
 }
 
-Bot::Bot(const std::string& server, const std::string& channel, const std::string& nickname, int port) :
-    nickname_(nickname), port_(port), channel_(channel), server_(server)
+Bot::Bot(int port, std::string password) :
+    port_(port), password_(password)
 {
     // struct sockaddr_in serv_addr;
     // struct hostent *server;
@@ -69,6 +69,20 @@ void Bot::connect_to_server()
         exit(1);
     }
     socket_fd_ = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (socket_fd_ < 0)
+    {
+        Logger::Log(ERROR, "Failed to create socket");
+        socket_fd_ = -1;
+        return ;
+    }
+    if (connect(socket_fd_, res->ai_addr, res->ai_addrlen) < 0)
+    {
+        Logger::Log(ERROR, "Failed to connect to server");
+        socket_fd_ = -1;
+        freeaddrinfo(res);
+        return ;
+    }
+    freeaddrinfo(res);
     // socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     // if (socket_fd_ < 0)
     // {

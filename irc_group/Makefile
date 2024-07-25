@@ -17,7 +17,7 @@ vpath %.cpp src/utils/
 vpath %.cpp src/logger/
 
 SRCS = main.cpp check_argv.cpp split2queue.cpp Server.cpp Logger.cpp User.cpp Channel.cpp Message.cpp \
-	Executor.cpp Response.cpp is_valid_nickname.cpp SignalHandler.cpp
+	Executor.cpp Response.cpp is_valid_nickname.cpp SignalHandler.cpp tolower_str.cpp
 
 OBJ_DIR = ./obj/
 

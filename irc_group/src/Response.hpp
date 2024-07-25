@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:54:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:56:49 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:33:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,13 @@ class Response // should it really be static?
 	// static void error(const User& user, int error, const std::string& arg1 = "", const std::string& arg2 = "");
   // static void reply(const User& user, int reply, const std::string& arg1 = "", const std::string& arg2 = "");
   static void error_reply(IrcCode code);
-  static void reply(IrcCode code);
-  static void reply(IrcCode code, const User& source, const User& target);
+  // static void reply(IrcCode code);
+  static void num_reply(IrcCode code);
+  // static void reply(IrcCode code, const User& source, const User& target);
+  static void cmd_reply(IrcCode code, const User* source, const User& target);
   static const std::string get_reply(IrcCode code);
-  static void channel_reply(IrcCode code, const User& source, const Channel& target, bool include_source = true);
+  // static void channel_reply(IrcCode code, const User& source, const Channel& target, bool include_source = true);
+  static void cmd_reply(IrcCode code, const User& source, const Channel& target, bool include_source = true);
   static void reset();
 };
 

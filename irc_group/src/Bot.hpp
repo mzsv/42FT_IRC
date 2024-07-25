@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:13 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 00:26:21 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 18:16:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <cstring>
+#include "Logger.hpp"
+#include "Message.hpp"
 
 class Bot
 {
@@ -33,19 +35,24 @@ class Bot
         std::string nickname_;
         int port_;
         int socket_fd_;
-        std::string channel_;
         std::string server_;
         sockaddr_in sockaddr_;
         
-
-    public:
-        Bot(const std::string& server, const std::string& channel, const std::string& nickname, int port);
-        ~Bot();
-
         void connect_to_server();
-        
+        void send_message(const std::string& message);
+        void receive_message();
+        void handle_message(const Message& message);
+        void reply(const Message& message);
 
         void say_hello();
+        
+    public:
+        Bot(int port, std::string password);
+        ~Bot();
+
+        void run();
+        
+
 };
 
 #endif // BOT_HPP
