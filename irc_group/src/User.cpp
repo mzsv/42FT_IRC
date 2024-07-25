@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 19:12:15 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 21:18:04 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,14 +103,14 @@ void User::set_nickname(const std::string& nickname)
 {
 	// std::cout << "Setting nickname to: " << nickname << std::endl;
 	nickname_ = nickname;
-	Logger::Log(DEBUG, "Setting nickname to: " + nickname);
+	// Logger::Log(DEBUG, "Setting nickname to: " + nickname);
 }
 
 void User::set_username(const std::string& username)
 {
 	// std::cout << "Setting username to: " << username << std::endl;
 	username_ = username;
-	Logger::Log(DEBUG, "Setting username to: " + username);
+	// Logger::Log(DEBUG, "Setting username to: " + username);
 }
 
 void User::set_realname(const std::string& realname)
@@ -165,10 +165,10 @@ void User::send_message(const std::string& message) const
 	{
 		if (send(socket_fd_, message.c_str(), message.size(), IRC_NOSIGNAL) < 0)
 		{
-			Logger::Log(ERROR, "Error: " + to_string_(errno));
+			Logger::Log(ERROR, "Failed to send message");
 		}
 	}
-	Logger::Log(DEBUG, "Sent message: " + message + " to " + nickname_);
+	Logger::Log(INFO, "Sent message: " + message + " to " + nickname_);
 }
 
 int User::read_message()
@@ -188,12 +188,12 @@ int User::read_message()
 		temp.pop();
 	}
 	int bytes;
-	Logger::Log(DEBUG, "Reading message");
+	// Logger::Log(DEBUG, "Reading message");
 	while ((bytes = recv(socket_fd_, bf, 99, 0)) > 0)
 	{
-		Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
+		// Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
 		bf[bytes] = 0;
-		std::cout << "Received: " << bf << std::endl;
+		// std::cout << "Received: " << bf << std::endl;
 		msg += bf;
 		memset(bf, 0, sizeof(bf));
 		if (msg.find('\n') != std::string::npos)
@@ -203,18 +203,18 @@ int User::read_message()
 	}
 	if (bytes < 0)
 	{
-		Logger::Log(ERROR, "Error: " + to_string_(errno));
+		Logger::Log(ERROR, "Failed to receive message");
 		this->set_flag(UNPLUGGED);
 		return DISCONNECT;
 	}
-	Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
+	// Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
 	if (msg.size() > 512)
 	{
 		msg = msg.substr(0, 510) + "\r\n";
 	}
 	if (bytes == 0)
 	{
-		Logger::Log(DEBUG, "EOF: Client disconnected");
+		Logger::Log(ERROR, "EOF: Client disconnected");
 		this->set_flag(UNPLUGGED);
 		return DISCONNECT;
 	}

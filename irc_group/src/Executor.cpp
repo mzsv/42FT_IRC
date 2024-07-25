@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 18:40:30 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 22:02:58 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,17 @@ Executor::~Executor()
 int Executor::execute(const Message& message, User& user)
 {
 	FunctionPointer fp;
-	Logger::Log(DEBUG, message.get_command());
-	Response::params_clear(); // maybe new instance of Response?
-	Response::reset();
+	Logger::Log(INFO, "Message from: " + user.get_nickname());
+	Logger::Log(DEBUG, "prefix: " + message.get_prefix());
+	Logger::Log(DEBUG, "command: " + message.get_command());
+	// print message arguments
+	for (size_t i = 0; i != message.get_arguments().size(); ++i)
+	{
+		Logger::Log(DEBUG, "arg[" + to_string_(i) + "]: " + message.get_arguments()[i]);
+	}
+	Logger::Log(DEBUG, "trailing: " + message.get_trailing());
+	// Response::params_clear(); // maybe new instance of Response?
+	// Response::reset();
 	Response::add_param("command", message.get_command()); // !
 	Response::set_command(message.get_command());
 	Response::set_user(&user);
@@ -226,7 +234,7 @@ std::vector<std::string> split_arguments(const std::string& arguments) // util !
 
 int Executor::join(const Message& message, User& user)
 {
-	Logger::Log(DEBUG, "Joining channel");
+	// Logger::Log(DEBUG, "Joining channel");
 
 	std::vector<std::string> channel_names;
 	std::vector<std::string> keys;
@@ -270,19 +278,19 @@ int Executor::join(const Message& message, User& user)
 			else if (!(server_->contains_channel(channel_names[i]) && \
 					server_->user_on_channel(channel_names[i], user))) // make one function to check ?
 			{
-				Logger::Log(DEBUG, "#Channel names: " + to_string_(channel_names.size()));
-				Logger::Log(DEBUG, "#Keys: " + to_string_(keys.size()));
+				// Logger::Log(DEBUG, "#Channel names: " + to_string_(channel_names.size()));
+				// Logger::Log(DEBUG, "#Keys: " + to_string_(keys.size()));
 				if (keys.size() > i) // test this and confirm !
 				{
 					server_->join_channel(channel_names[i], keys[i], user);
 				}
 				else
 				{
-					Logger::Log(DEBUG, "Joining channel without key");
+					// Logger::Log(DEBUG, "Joining channel without key");
 					server_->join_channel(channel_names[i], "", user);
 				}
 				Response::set_channel(user.get_server()->get_channels().at(channel_names[i]));
-				Logger::Log(INFO, "Channel joined: " + channel_names[i]);
+				// Logger::Log(INFO, "Channel joined: " + channel_names[i]);
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 
 
 - review Makefile
+- review lowercase
 
 # SUGGESTIONS
 

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 19:31:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 21:31:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_NOTOPIC] = "{channel} :No topic is set";
 	messages[RPL_TOPIC] = "{channel} :{topic}";
 	messages[RPL_TOPICWHOTIME] = "{channel} {nickname} {t_timestamp} :{topic}";
-	messages[RPL_INVITING] = "{nickname} {channel} :Inviting {target_nickname} to {channel}";
+	messages[RPL_INVITING] = "{target_nickname} {channel} :Inviting {target_nickname} to {channel}";
 	messages[RPL_WHOREPLY] = "{channel} {target_username} {target_hostname} {server_name} {target_nickname} {who_flags} :{hopcount} {target_realname}"; // implement !
 	messages[RPL_NAMREPLY] = "= {channel} :{nicknames}"; // NOT REQUIRED ! nicknames = "@nickname1 +nickname2 nickname3" @ for op, + for voice
 	messages[RPL_ENDOFNAMES] = "{channel} :End of /NAMES list";
@@ -97,7 +97,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 
 	// command messages
 	messages[CMD_JOIN] = "JOIN {channel}";
-	messages[CMD_INVITE] = "INVITE {nickname} {channel}";
+	messages[CMD_INVITE] = "INVITE {target_nickname} {channel}";
 	messages[CMD_QUIT] = "QUIT {reason}";
 	messages[CMD_PART] = "PART {channel} {reason}";
 	messages[CMD_ERROR] = "ERROR {reason}";
@@ -552,7 +552,7 @@ const std::string Response::get_reply(IrcCode code)
 
 void Response::cmd_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
 {
-	std::string prefix = server_->get_name();
+	std::string prefix = source.get_prefix();
 	std::string message = ":" + prefix + " " \
 		+ Response::generate_message(code) + "\r\n";
 
@@ -573,4 +573,5 @@ void Response::reset()
 	user_ = NULL;
 	channel_ = NULL;
 	params_.clear();
+	// Logger::Log(DEBUG, "Response reset");
 }

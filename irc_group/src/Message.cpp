@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 18:20:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 21:02:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,13 @@ Message::Message(const std::string& message)
 	{
 		prefix_ = std::string(q.front().begin() + 1, q.front().end());
 		prefix_ = tolower_str(prefix_);
+		q.pop();
 	}
 	if (q.size())
 	{
 		command_ = q.front(); // what if there is no command? what if starts with ':'?
+		q.pop();
 	}
-	q.pop();
 	while (q.size())
 	{
 		if (q.front()[0] == ':')

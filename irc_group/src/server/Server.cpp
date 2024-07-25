@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 19:32:21 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/25 22:02:02 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,9 @@ void Server::check_connection()
 			{
 				// users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n"); // ping message !
 				Response::add_param("server", name_);
+				Response::add_param("ping_token", name_);
 				Response::cmd_reply(CMD_PING, NULL, *users_[i]);
+				Logger::Log(ERROR, "Pinging user: " + users_[i]->get_nickname());
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
 				users_[i]->set_flag(PINGING);
@@ -365,23 +367,23 @@ void Server::process_message()
 	for (size_t i = 0; i < users_fds_.size(); ++i)
 	{
 		// Logger::Log(DEBUG, "POLLED " + users_[i]->get_nickname());
-		print_poll_revents(users_fds_[i]);
+		// print_poll_revents(users_fds_[i]);
 		// users_[i]->send_message("you been POLLED :42\r\n");
 		if (users_fds_[i].revents & POLLIN)
 		{
-			Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " POLLIN.");
+			// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " POLLIN.");
 			Response::set_user(users_[i]); // !
 			if (users_[i]->read_message() == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
-				Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated (read).");
+				// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated (read).");
 			}
 			else if (handle_message(*(users_[i])) == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
-				Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated.");
+				// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated.");
 			}
-			Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " message processed.");
+			// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " message processed.");
 			users_fds_[i].revents = 0;
 		}
 		// users_[i]->send_message("POLL flags checked\r\n");
@@ -395,7 +397,7 @@ int Server::handle_message(User& user)
 	{
 		Message message(user.get_message().front());
 		user.pop_message();
-		Logger::Log(INFO, message.get_message() + " from " + user.get_nickname());
+		// Logger::Log(INFO, message.get_message() + " from " + user.get_nickname());
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK" \
 			&& message.get_command() != "CAP") // shorter way?
@@ -404,31 +406,31 @@ int Server::handle_message(User& user)
 		}
 		else
 		{
-			std::cout << "executing..." << std::endl;
+			// std::cout << "executing..." << std::endl;
 			// print message members
-			std::cout << "Message: " << message.get_message() << std::endl;
-			std::cout << "Command: " << message.get_command() << std::endl;
-			std::cout << "Prefix: " << message.get_prefix() << std::endl;
-			for (size_t i = 0; i < message.get_arguments().size(); ++i)
-			{
-				std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
-			}
-			std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
-			std::cout << "Trailing: " << message.get_trailing() << std::endl;
+			// std::cout << "Message: " << message.get_message() << std::endl;
+			// std::cout << "Command: " << message.get_command() << std::endl;
+			// std::cout << "Prefix: " << message.get_prefix() << std::endl;
+			// for (size_t i = 0; i < message.get_arguments().size(); ++i)
+			// {
+			// 	std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
+			// }
+			// std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
+			// std::cout << "Trailing: " << message.get_trailing() << std::endl;
 			
 			Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
 			int response = executor.execute(message, user); // response confusion with Response !
-			// print all users per channel
-			std::map<std::string, Channel*>::const_iterator it = channels_.begin();
-			for (; it != channels_.end(); ++it)
-			{
-				std::vector<const User*> users = it->second->get_operators();
-				std::cout << ">>>>>>>>>>Channel: " << it->first << std::endl;
-				for (size_t i = 0; i < users.size(); ++i)
-				{
-					std::cout << users[i]->get_nickname() << std::endl;
-				}
-			}
+			// // print all users per channel
+			// std::map<std::string, Channel*>::const_iterator it = channels_.begin();
+			// for (; it != channels_.end(); ++it)
+			// {
+			// 	std::vector<const User*> users = it->second->get_operators();
+			// 	std::cout << ">>>>>>>>>>Channel: " << it->first << std::endl;
+			// 	for (size_t i = 0; i < users.size(); ++i)
+			// 	{
+			// 		std::cout << users[i]->get_nickname() << std::endl;
+			// 	}
+			// }
 			std::cout << "response: " << response << std::endl;
 			if (response == DISCONNECT)
 			{
@@ -463,7 +465,7 @@ bool Server::contains_nickname(const std::string& nickname) const
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
-		Logger::Log(DEBUG, "Checking nickname: " + users_[i]->get_nickname() + " against: " + nickname);
+		// Logger::Log(DEBUG, "Checking nickname: " + users_[i]->get_nickname() + " against: " + nickname);
 		if (users_[i]->get_nickname() == nickname)
 		{
 			return true;
