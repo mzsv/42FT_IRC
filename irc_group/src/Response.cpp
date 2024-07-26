@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:38:33 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:55:20 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -511,7 +511,6 @@ void Response::num_reply(IrcCode code)
 	if (rpl_functions_.find(code) != rpl_functions_.end())
 	{
 		message = rpl_functions_[code](code);
-		Logger::Log(DEBUG, "(" + user_->get_prefix() + ")" + message);
 	}
 	else
 	{

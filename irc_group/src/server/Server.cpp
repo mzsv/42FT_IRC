@@ -6,12 +6,11 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:11:24 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 20:09:29 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "Logger.hpp"
 
 bool Server::running_ = true;
 
@@ -219,7 +218,7 @@ int Server::check_connection(User& user)
 			Executor executor(this);
 			executor.execute(Message("LUSERS\n"), user);
 			executor.execute(Message("MOTD\n"), user);
-			Logger::Log(INFO, "New client registration complete: " + user.get_prefix());
+			Logger::Log(INFO, "New client registered: " + user.get_prefix());
 		}
 	}
 	else
@@ -245,14 +244,6 @@ void Server::get_connection()
 	struct pollfd pfd;
 	pfd.fd = connection;
 	pfd.events = POLLIN;
-	pfd.events |= POLLRDHUP;
-	pfd.events |= POLLERR;
-	pfd.events |= POLLHUP;
-	pfd.events |= POLLNVAL;
-	pfd.events |= POLLOUT;
-	pfd.events |= POLLPRI;
-	pfd.events |= POLLWRBAND;
-	pfd.events |= POLLWRNORM;
 	pfd.revents = 0;
 	users_fds_.push_back(pfd);
 	users_.push_back(new User(connection, host, this, name_));
@@ -262,15 +253,15 @@ void Server::get_connection()
 void Server::process_message()
 {
 	int p = poll(users_fds_.data(), users_fds_.size(), timeout_);
-	if (p == 0)
+	if (p <= 0)
 	{
-		return;
+		return ;
 	}
 	for (size_t i = 0; i < users_fds_.size(); ++i)
 	{
 		if (users_fds_[i].revents & POLLIN)
 		{
-			Response::set_user(users_[i]); // !
+			Response::set_user(users_[i]);
 			if (users_[i]->read_message() == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);

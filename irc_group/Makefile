@@ -1,5 +1,5 @@
 
-NAME	=	ft_irc
+NAME	=	ircserv
 BOT_NAME = bot
 
 CXX		=	c++
