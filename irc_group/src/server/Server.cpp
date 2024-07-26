@@ -6,14 +6,12 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 22:02:02 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:11:24 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Logger.hpp"
-
-/* ========================================================================== */
 
 bool Server::running_ = true;
 
@@ -22,8 +20,6 @@ Server::Server(int port, const std::string& password) :
 	max_inactive_time_(120), max_response_time_(60),
 	description("42 IRC Server"), version("1.0"),
 	available_channel_modes("itkol"), max_local_users_(0)
-	// running_(true)
-	// should the listener socket be setup here?
 {
 	time(&start_time_);
 	isupport_params_["CASEMAPPING"] = "ascii";
@@ -44,7 +40,6 @@ Server::Server(int port, const std::string& password) :
 
 Server::~Server()
 {
-	Logger::Log(INFO, "Server destructor");
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
 		delete users_[i];
@@ -79,20 +74,16 @@ const std::map<std::string, Channel*>& Server::get_channels() const
 {
 	return channels_;
 }
-/**
- * Setters
-*/
 
 /**
  * Funcs
 */
 void Server::create_socket()
 {
-	socket_fd_ = socket(AF_INET, SOCK_STREAM, 0); // protocol = 0 leaves it up to the OS to choose the correct protocol
+	socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd_ == -1)
 	{
-		Logger::Log(FATAL, "Failed to create socket.");
-		// exit(errno);
+		Logger::Log(FATAL, "Server::Failed to create socket");
 		stop();
 	}
 }
@@ -102,16 +93,16 @@ void Server::bind_socket()
 	int idk = 1;
 	if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &idk, sizeof(int)) < 0)
 	{
-		Logger::Log(FATAL, "Setsocket failed.");
-		exit(EXIT_FAILURE);
+		Logger::Log(FATAL, "Server::Setsocketopt failed");
+		return stop();
 	}
 	sockaddr_.sin_family = AF_INET;
 	sockaddr_.sin_addr.s_addr = INADDR_ANY;
 	sockaddr_.sin_port = htons(port_);
 	if (bind(socket_fd_, (struct sockaddr*)&sockaddr_, sizeof(sockaddr_)) < 0)
 	{
-		Logger::Log(FATAL, "Failure to bind to port.");
-		exit(EXIT_FAILURE);
+		Logger::Log(FATAL, "Server::Failure to bind to port");
+		stop();
 	}
 }
 
@@ -119,26 +110,16 @@ void Server::listen_socket()
 {
 	if (listen(socket_fd_, 128) < 0)
 	{
-		Logger::Log(FATAL, "Failed to listen on socket.");
-		exit(EXIT_FAILURE);
+		Logger::Log(FATAL, "Server::Failed to listen on socket");
+		return stop();
 	}
 	fcntl(socket_fd_, F_SETFL, O_NONBLOCK);
 	name_ = inet_ntoa(sockaddr_.sin_addr);
 
-	// print address and port
-	std::cout << "Server is running on "
-		<< inet_ntoa(sockaddr_.sin_addr) << ":"
-		<< ntohs(sockaddr_.sin_port) << std::endl;
-	// print times
-	std::cout << "max_inactive_time_: " << max_inactive_time_ << std::endl;
-	std::cout << "max_response_time_: " << max_response_time_ << std::endl;
-	std::cout << "timeout_: " << timeout_ << std::endl;
+	Logger::Log(INFO, "Server running on " + std::string(inet_ntoa(sockaddr_.sin_addr)) + 
+		":" + to_string_(ntohs(sockaddr_.sin_port)));
 }
 
-/*
-	Надо заменить итерацию по индексам на итерации по итераторам.
-	Причем надо обратить внимание на инвалидацию итераторов при удалении элемента
-*/
 void Server::delete_broken_connection()
 {
 	for (size_t i = 0; i < users_.size(); ++i)
@@ -155,7 +136,6 @@ void Server::delete_broken_connection()
 		{
 			Response::add_param("reason", ":Unplugged");
 		}
-		// Response::add_param("reason", "Ping timeout: " + to_string_(max_response_time_) + " seconds");
 		Response::cmd_reply(CMD_ERROR, NULL, *users_[i]);
 		std::map<std::string, Channel*>::iterator begin = channels_.begin();
 		std::map<std::string, Channel*>::iterator end = channels_.end();
@@ -168,17 +148,14 @@ void Server::delete_broken_connection()
 			}
 		}
 		close(users_[i]->get_socket_fd());
-		Logger::Log(INFO, "User " + users_[i]->get_nickname() + " disconnected.");
+		Logger::Log(INFO, users_[i]->get_prefix() + " disconnected.");
 		delete users_[i];
-		users_.erase(users_.begin() + i); // ?
+		users_.erase(users_.begin() + i);
 		users_fds_.erase(users_fds_.begin() + i);
 		--i;
 	}
 }
 
-/*
-	Та же проблема с инвалидацией итераторов...
-*/
 void Server::delete_empty_channels()
 {
 	std::map<std::string, Channel*>::iterator it = channels_.begin();
@@ -195,25 +172,6 @@ void Server::delete_empty_channels()
 			++it;
 		}
 	}
-	// print channels
-	// for (it = channels_.begin(); it != channels_.end(); ++it)
-	// {
-	// 	std::cout << it->first << std::endl;
-	
-	// }
-	// std::map<std::string, Channel*>::iterator begin = channels_.begin();
-	// std::map<std::string, Channel*>::iterator end = channels_.end();
-	// for (; begin != end; ++begin)
-	// {
-	// 	if ((*begin).second->is_empty())
-	// 	{
-	// 		delete (*begin).second;
-	// 		channels_.erase((*begin).first);
-	// 		begin = channels_.begin();
-	// 		continue;
-	// 	}
-	// 	++begin;
-	// }
 }
 
 void Server::check_connection()
@@ -222,19 +180,15 @@ void Server::check_connection()
 	{
 		if (users_[i]->get_flags() & REGISTERED)
 		{
-			// if (time(0) - users_[i]->get_time_of_last_action() > max_inactive_time_)
 			if (difftime(time(0), users_[i]->get_time_of_last_action()) > max_inactive_time_)
 			{
-				// users_[i]->send_message(":" + name_ + " PING :" + name_ + "\r\n"); // ping message !
 				Response::add_param("server", name_);
 				Response::add_param("ping_token", name_);
 				Response::cmd_reply(CMD_PING, NULL, *users_[i]);
-				Logger::Log(ERROR, "Pinging user: " + users_[i]->get_nickname());
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
 				users_[i]->set_flag(PINGING);
 			}
-			// if ((users_[i]->get_flags() & PINGING) && time(0) - users_[i]->get_time_after_pinging() > max_response_time_)
 			if ((users_[i]->get_flags() & PINGING) && \
 				difftime(time(0), users_[i]->get_time_after_pinging()) > max_response_time_)
 			{
@@ -245,10 +199,8 @@ void Server::check_connection()
 	}
 }
 
-//! Refactor this method
 int Server::check_connection(User& user)
 {
-	// separate function for registration? ! no need to check this all the time
 	if (!user.get_nickname().size() || !user.get_username().size())
 	{
 		return 0;
@@ -257,17 +209,17 @@ int Server::check_connection(User& user)
 	{
 		if (!(user.get_flags() & REGISTERED))
 		{
-			user.set_flag(REGISTERED); //  Registration
-			user.set_time_of_registrations(); // singular !
+			user.set_flag(REGISTERED);
+			user.set_time_of_registrations();
 			Response::num_reply(RPL_WELCOME);
 			Response::num_reply(RPL_YOURHOST);
 			Response::num_reply(RPL_CREATED);
 			Response::num_reply(RPL_MYINFO);
 			Response::num_reply(RPL_ISUPPORT);
-			Executor executor(this); // redundant !
+			Executor executor(this);
 			executor.execute(Message("LUSERS\n"), user);
 			executor.execute(Message("MOTD\n"), user);
-			Logger::Log(INFO, "User " + user.get_nickname() + " registered.");
+			Logger::Log(INFO, "New client registration complete: " + user.get_prefix());
 		}
 	}
 	else
@@ -305,88 +257,30 @@ void Server::get_connection()
 	users_fds_.push_back(pfd);
 	users_.push_back(new User(connection, host, this, name_));
 	max_local_users_ = std::max(max_local_users_, users_.size());
-	Logger::Log(INFO, "User connected from " + std::string(host) + "to " + name_);
-	Logger::Log(DEBUG, "users_ size: " + to_string_(users_.size()));
-	Logger::Log(DEBUG, "user->server_name: " + users_.back()->get_server_name());
-	// + missing protocol registration message; do I need it for this project?
-	// I think we should, to confirm it responds to the correct protocol
-}
-
-void print_poll_revents(const struct pollfd& pfd) // DEBUG !
-{
-	if (pfd.revents & POLLIN)
-	{
-		Logger::Log(DEBUG, "------------->POLLIN");
-	}
-	// if (pfd.revents & POLLOUT)
-	// {
-	// 	Logger::Log(DEBUG, "------------->POLLOUT");
-	// }
-	if (pfd.revents & POLLERR)
-	{
-		Logger::Log(DEBUG, "------------->POLLERR");
-	}
-	if (pfd.revents & POLLHUP)
-	{
-		Logger::Log(DEBUG, "------------->POLLHUP");
-	}
-	if (pfd.revents & POLLNVAL)
-	{
-		Logger::Log(DEBUG, "------------->POLLNVAL");
-	}
-	if (pfd.revents & POLLRDHUP)
-	{
-		Logger::Log(DEBUG, "------------->POLLRDHUP");
-	}
-	if (pfd.revents & POLLWRBAND)
-	{
-		Logger::Log(DEBUG, "------------->POLLWRBAND");
-	}
-	// if (pfd.revents & POLLWRNORM)
-	// {
-	// 	Logger::Log(DEBUG, "------------->POLLWRNORM");
-	// }
-	if (pfd.revents & POLLPRI)
-	{
-		Logger::Log(DEBUG, "------------->POLLPRI");
-	}
 }
 
 void Server::process_message()
 {
-	// print users_fds_ size
-	// Logger::Log(DEBUG, "users_fds_ size: " + to_string_(users_fds_.size()));
-	
 	int p = poll(users_fds_.data(), users_fds_.size(), timeout_);
-	// std::vector<int> to_erase;
-	// Logger::Log(DEBUG, "Polling: " + to_string_(p));
 	if (p == 0)
 	{
 		return;
 	}
 	for (size_t i = 0; i < users_fds_.size(); ++i)
 	{
-		// Logger::Log(DEBUG, "POLLED " + users_[i]->get_nickname());
-		// print_poll_revents(users_fds_[i]);
-		// users_[i]->send_message("you been POLLED :42\r\n");
 		if (users_fds_[i].revents & POLLIN)
 		{
-			// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " POLLIN.");
 			Response::set_user(users_[i]); // !
 			if (users_[i]->read_message() == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
-				// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated (read).");
 			}
 			else if (handle_message(*(users_[i])) == DISCONNECT)
 			{
 				users_[i]->set_flag(BREAK);
-				// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " BREAK flag activated.");
 			}
-			// Logger::Log(DEBUG, "User " + users_[i]->get_nickname() + " message processed.");
 			users_fds_[i].revents = 0;
 		}
-		// users_[i]->send_message("POLL flags checked\r\n");
 	}
 }
 
@@ -397,54 +291,27 @@ int Server::handle_message(User& user)
 	{
 		Message message(user.get_message().front());
 		user.pop_message();
-		// Logger::Log(INFO, message.get_message() + " from " + user.get_nickname());
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK" \
-			&& message.get_command() != "CAP") // shorter way?
+			&& message.get_command() != "CAP")
 		{
 			Response::num_reply(ERR_NOTREGISTERED);
 		}
 		else
-		{
-			// std::cout << "executing..." << std::endl;
-			// print message members
-			// std::cout << "Message: " << message.get_message() << std::endl;
-			// std::cout << "Command: " << message.get_command() << std::endl;
-			// std::cout << "Prefix: " << message.get_prefix() << std::endl;
-			// for (size_t i = 0; i < message.get_arguments().size(); ++i)
-			// {
-			// 	std::cout << "Arg " << i << ": " << message.get_arguments()[i] << std::endl;
-			// }
-			// std::cout << "contains_trailing: " << message.get_trailing_flag() << std::endl;
-			// std::cout << "Trailing: " << message.get_trailing() << std::endl;
-			
-			Executor executor(this); // efficient to create an instance every time? static-ify? or make it a member?
-			int response = executor.execute(message, user); // response confusion with Response !
-			// // print all users per channel
-			// std::map<std::string, Channel*>::const_iterator it = channels_.begin();
-			// for (; it != channels_.end(); ++it)
-			// {
-			// 	std::vector<const User*> users = it->second->get_operators();
-			// 	std::cout << ">>>>>>>>>>Channel: " << it->first << std::endl;
-			// 	for (size_t i = 0; i < users.size(); ++i)
-			// 	{
-			// 		std::cout << users[i]->get_nickname() << std::endl;
-			// 	}
-			// }
-			std::cout << "response: " << response << std::endl;
+		{			
+			Executor executor(this);
+			int response = executor.execute(message, user);
 			if (response == DISCONNECT)
 			{
 				return DISCONNECT;
 			}
 		}
 	}
-	// print user info
-	// std::cout << "nick: " << user.get_nickname() << " username: " << user.get_username() << " host: " << user.get_host() << std::endl;
 	user.set_time_of_last_action();
 	return 0;
 }
 
-void Server::notify_users(User& user, const std::string& message) // ?
+void Server::notify_users(User& user, const std::string& message)
 {
 	const std::vector<const Channel*> channels = user.get_channels();
 
@@ -465,7 +332,6 @@ bool Server::contains_nickname(const std::string& nickname) const
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
-		// Logger::Log(DEBUG, "Checking nickname: " + users_[i]->get_nickname() + " against: " + nickname);
 		if (users_[i]->get_nickname() == nickname)
 		{
 			return true;
@@ -474,7 +340,7 @@ bool Server::contains_nickname(const std::string& nickname) const
 	return false;
 }
 
-int Server::join_channel(const std::string& name, const std::string& key, User& user) // review with modes
+int Server::join_channel(const std::string& name, const std::string& key, User& user)
 {
 	if (channels_.find(name) != channels_.end())
 	{
@@ -496,19 +362,14 @@ int Server::join_channel(const std::string& name, const std::string& key, User& 
 			Response::set_channel(channels_[name]);
 			user.add_channel(*channels_[name]);
 			channels_[name]->remove_invite(&user);
-			return channels_[name]->add_user(user); // review !
+			return channels_[name]->add_user(user);
 		}
 	}
 	else
 	{
-		channels_[name] = new Channel(name, "", user); // already adds user
+		channels_[name] = new Channel(name, "", user);
 		user.add_channel(*channels_[name]);
-		Response::set_channel(channels_[name]); // or use the one from params_, already set
-		// Response::set_user(&user);
-		// user.send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n"); //  JOIN message
-		
-		// channels_[name]->send_message(":" + user.get_prefix() + " JOIN " + name + "\r\n", user, true);
-		// channels_[name]->send_message(Response::get_reply(CMD_JOIN), user, true);
+		Response::set_channel(channels_[name]);
 		Response::cmd_reply(CMD_JOIN, user, *channels_[name]);
 		if (channels_[name]->get_topic().size())
 		{
@@ -529,22 +390,8 @@ bool Server::contains_channel(const std::string& name) const
 
 bool Server::user_on_channel(const std::string& channel, const User& user) const
 {
-	// print all channels
-	// std::map<std::string, Channel*>::const_iterator begin = channels_.begin();
-	// std::map<std::string, Channel*>::const_iterator end = channels_.end();
-	// for (; begin != end; ++begin)
-	// {
-	// 	std::cout << begin->first << std::endl;
-	// }
 	if (channels_.find(channel) != channels_.end())
 	{
-		// print users
-		// std::vector<const User*> users = channels_.at(channel)->get_users();
-		// Logger::Log(DEBUG, "Users on channel " + channel);
-		// for (size_t i = 0; i < users.size(); ++i)
-		// {
-		// 	std::cout << users[i]->get_nickname() << std::endl;
-		// }
 		return channels_.at(channel)->contains_nickname(user.get_nickname());
 	}
 	return false;
@@ -667,6 +514,7 @@ const std::string& Server::get_isupport_param(const std::string& key) const
 void Server::stop()
 {
 	running_ = false;
+	Logger::Log(INFO, "Server shutting down");
 }
 
 const bool& Server::is_running() const

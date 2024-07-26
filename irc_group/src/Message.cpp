@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 15:19:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:15:55 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,11 @@ Message::Message(const std::string& message)
 	if (q.size() > 0 && q.front()[0] == ':')
 	{
 		prefix_ = std::string(q.front().begin() + 1, q.front().end());
-		// prefix_ = tolower_str(prefix_);
 		q.pop();
 	}
 	if (q.size())
 	{
-		command_ = q.front(); // what if there is no command? what if starts with ':'?
+		command_ = q.front();
 		q.pop();
 	}
 	while (q.size())
@@ -34,16 +33,14 @@ Message::Message(const std::string& message)
 		if (q.front()[0] == ':')
 		{
 			std::string s(q.front().begin() + 1, q.front().end());
-			q.pop(); // keeping the ":" so we know it was a trailing argument, needed for certain actions?
+			q.pop();
 			while (q.size())
 			{
 				s.append(" ");
 				s.append(q.front());
 				q.pop();
 			}
-			// arguments_.push_back(tolower_str(s));
 			arguments_.push_back(s);
-			// trailing_ = s;
 			trailing_flag_ = true;
 		}
 		else
@@ -56,7 +53,6 @@ Message::Message(const std::string& message)
 
 Message::~Message()
 {
-	Logger::Log(INFO, "Message destructor");
 }
 
 const std::string& Message::get_message() const
@@ -88,8 +84,3 @@ const std::string Message::get_trailing() const
 {
 	return trailing_flag_ ? arguments_[arguments_.size() - 1] : "";
 }
-
-// bool Message::contains_trailing() const
-// {
-// 	return arguments_[arguments_.size() - 1][0] == ':'; // trailing arguments start with ':'
-// }

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 14:06:20 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:38:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,12 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 {
 	std::map<IrcCode, std::string> messages;
 
-	// Command Responses
-	messages[RPL_WELCOME] = ":Welcome to the {server_nick} Network, {client_prefix}"; // client_prefix = nickname!username@hostname
+	/* Numeric Replies - Command Responses */
+	messages[RPL_WELCOME] = ":Welcome to the {server_nick} Network, {client_prefix}";
 	messages[RPL_YOURHOST] = ":Your host is {server_name}, running version {server_version}";
 	messages[RPL_CREATED] = ":This server was created {server_date}";
-	messages[RPL_MYINFO] = "{server_name} {server_version} {channel_modes}"; // no user modes
-	messages[RPL_ISUPPORT] = "{tokens} :are supported by this server"; // tokens = "CHANTYPES=# PREFIX=(ov)@+ MODES=3 CHANLIMIT=#:10 NICKLEN=9 TOPICLEN=120 KICKLEN=120 CHANNELLEN=50 CHANMODES=beI,k,l,imnpstz";
+	messages[RPL_MYINFO] = "{server_name} {server_version} {channel_modes}";
+	messages[RPL_ISUPPORT] = "{tokens} :are supported by this server";
 	messages[RPL_LUSERCLIENT] = ":There are {n_clients} users and {n_servers} servers";
 	messages[RPL_LUSEROP] = "{n_operators} :operator(s) online";
 	messages[RPL_LUSERUNKNOWN] = "{n_unknown} :unknown connection(s)";
@@ -45,27 +45,27 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_LUSERME] = ":I have {n_clients} clients and {n_servers} servers";
 	messages[RPL_LOCALUSERS] = "{n_local} {n_local_max} :Current local users {n_local}, max {n_local_max}";
 	messages[RPL_GLOBALUSERS] = "{n_global} {n_global_max} :Current global users {n_global}, max {n_global_max}";
-	messages[RPL_WHOISUSER] = "{whois_mask} {whois_username} {whois_hostname} * :{whois_realname}"; // implement !
-	messages[RPL_WHOISSERVER] = "{whois_mask} {server_name} :{server_info}"; // implement !
-	messages[RPL_ENDOFWHO] = "{who_mask} :End of /WHO list"; // implement !
-	messages[RPL_WHOISIDLE] = "{whois_mask} {idle_time} {signon_time} :seconds idle, signon time"; // implement !
-	messages[RPL_ENDOFWHOIS] = "{whois_mask} :End of /WHOIS list"; // implement !
+	messages[RPL_WHOISUSER] = "{whois_mask} {whois_username} {whois_hostname} * :{whois_realname}";
+	messages[RPL_WHOISSERVER] = "{whois_mask} {server_name} :{server_info}";
+	messages[RPL_ENDOFWHO] = "{who_mask} :End of /WHO list";
+	messages[RPL_WHOISIDLE] = "{whois_mask} {idle_time} {signon_time} :seconds idle, signon time";
+	messages[RPL_ENDOFWHOIS] = "{whois_mask} :End of /WHOIS list";
 	messages[RPL_CHANNELMODEIS] = "{channel} {activated_modes} {mode_params}";
 	messages[RPL_CREATIONTIME] = "{channel} {ch_timestamp}";
 	messages[RPL_NOTOPIC] = "{channel} :No topic is set";
 	messages[RPL_TOPIC] = "{channel} :{topic}";
 	messages[RPL_TOPICWHOTIME] = "{channel} {nickname} {t_timestamp} :{topic}";
 	messages[RPL_INVITING] = "{target_nickname} {channel} :Inviting {target_nickname} to {channel}";
-	messages[RPL_WHOREPLY] = "{channel} {target_username} {target_hostname} {server_name} {target_nickname} {who_flags} :{hopcount} {target_realname}"; // implement !
-	messages[RPL_NAMREPLY] = "= {channel} :{nicknames}"; // NOT REQUIRED ! nicknames = "@nickname1 +nickname2 nickname3" @ for op, + for voice
+	messages[RPL_WHOREPLY] = "{channel} {target_username} {target_hostname} {server_name} {target_nickname} {who_flags} :{hopcount} {target_realname}";
+	messages[RPL_NAMREPLY] = "= {channel} :{nicknames}";
 	messages[RPL_ENDOFNAMES] = "{channel} :End of /NAMES list";
 	messages[RPL_MOTD] = ":- {message_of_the_day}";
 	messages[RPL_MOTDSTART] = ":- {server_name} Message of the Day - ";
 	messages[RPL_ENDOFMOTD] = ":End of /MOTD command";
-	messages[RPL_WHOISHOST] = "{whois_mask} :is connecting from {whois_client_prefix} {whois_hostname}"; // implement !
-	messages[RPL_WHOISMODES] = "{whois_mask} :is using modes +{activated_umodes}"; // implement !
+	messages[RPL_WHOISHOST] = "{whois_mask} :is connecting from {whois_client_prefix} {whois_hostname}";
+	messages[RPL_WHOISMODES] = "{whois_mask} :is using modes +{activated_umodes}";
 
-	// Error Responses
+	/* Numeric Replies - Error Responses */
 	messages[ERR_NOSUCHNICK] = "{nickname} :No such nick/channel";
 	messages[ERR_NOSUCHCHANNEL] = "{channel} :No such channel";
 	messages[ERR_CANNOTSENDTOCHAN] = "{channel} :Cannot send to channel";
@@ -95,7 +95,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[ERR_NONICKNAMEGIVEN] = ":No nickname given";
 	messages[ERR_INVALIDKEY] = "{channel} :Key is not well-formed";
 
-	// command messages
+	/* Command Replies - Command Messages */
 	messages[CMD_JOIN] = "JOIN {channel}";
 	messages[CMD_INVITE] = "INVITE {target_nickname} :{channel}";
 	messages[CMD_QUIT] = "QUIT {reason}";
@@ -107,6 +107,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[CMD_NOTICE] = "NOTICE {target} :{message}";
 	messages[CMD_PONG] = "PONG {server} :{ping_token}";
 	messages[CMD_PING] = "PING {server} :{ping_token}";
+	messages[CMD_TOPIC] = "TOPIC {channel} :{topic}";
 	return messages;
 }
 
@@ -148,7 +149,7 @@ std::map<IrcCode, RplFunctionPointer> Response::initialize_rpl_functions()
 	return functions;
 }
 
-void Response::set_targets(const User* user, const Channel* channel) //  still needed ?
+void Response::set_targets(const User* user, const Channel* channel)
 {
 	user_ = const_cast<User*>(user);
 	channel_ = const_cast<Channel*>(channel);
@@ -182,19 +183,6 @@ void Response::set_command(const std::string& command)
 void Response::add_param(const std::string& key, const std::string& value)
 {
 	params_[key] = value;
-}
-
-std::map<std::string, std::string>& Response::get_params()
-{
-	return params_;
-}
-
-void Response::params_clear()
-{
-	if (!params_.empty())
-	{
-		params_.clear();
-	}
 }
 
 std::string Response::generate_message(IrcCode code)
@@ -231,7 +219,6 @@ std::string Response::rpl_yourhost(IrcCode code)
 
 std::string Response::rpl_created(IrcCode code)
 {
-	// date format: 21:15:05 Aug 22 2023
 	const char* date_format = "%H:%M:%S %b %d %Y";
 	const struct tm* timeptr = localtime(&server_->get_start_time());
 	char server_date[22];
@@ -382,14 +369,13 @@ std::string Response::rpl_channelmodeis(IrcCode code)
 	if (channel_->get_flags() & CHANNELKEY)
 	{
 		activated_modes += "k";
-		mode_params += channel_->get_password(); // key !
+		mode_params += channel_->get_password();
 	}
 	if (channel_->get_flags() & USERLIMIT)
 	{
 		activated_modes += "l";
 		mode_params += to_string_(channel_->get_user_limit());
 	}
-	Response::add_param("channel", channel_->get_name()); // redundant ?
 	Response::add_param("activated_modes", activated_modes);
 	Response::add_param("mode_params", mode_params);
 	return Response::generate_message(code);
@@ -404,21 +390,17 @@ std::string Response::rpl_creationtime(IrcCode code)
 
 std::string Response::rpl_notopic(IrcCode code)
 {
-	Response::add_param("channel", channel_->get_name());
 	return Response::generate_message(code);
 }
 
 std::string Response::rpl_topic(IrcCode code)
 {
-	Response::add_param("channel", channel_->get_name());
 	Response::add_param("topic", channel_->get_topic());
 	return Response::generate_message(code);
 }
 
 std::string Response::rpl_topicwhotime(IrcCode code)
 {
-	Response::add_param("channel", channel_->get_name());
-	Response::add_param("nickname", user_->get_nickname());
 	Response::add_param("t_timestamp", to_string_(channel_->get_topic_time()));
 	Response::add_param("topic", channel_->get_topic());
 	return Response::generate_message(code);
@@ -428,7 +410,6 @@ std::string Response::rpl_inviting(IrcCode code)
 {
 	Response::add_param("nickname", user_->get_nickname());
 	Response::add_param("channel", channel_->get_name());
-	Response::add_param("target_nickname", params_["target_nickname"]); // !
 	return Response::generate_message(code);
 }
 
@@ -445,7 +426,7 @@ std::string Response::rpl_whoreply(IrcCode code)
 	Response::add_param("target_username", target_user_->get_username());
 	Response::add_param("target_hostname", target_user_->get_host());
 	Response::add_param("server_name", target_user_->get_server_name());
-	Response::add_param("target_nickname", target_user_->get_nickname()); // redundant ?
+	Response::add_param("target_nickname", target_user_->get_nickname());
 	if (channel_->is_operator(target_user_->get_nickname()))
 	{
 		Response::add_param("who_flags", "H@");
@@ -455,7 +436,7 @@ std::string Response::rpl_whoreply(IrcCode code)
 		Response::add_param("who_flags", "H");
 	}
 	Response::add_param("hopcount", "0");
-	Response::add_param("target_realname", target_user_->get_realname()); // redundant ?
+	Response::add_param("target_realname", target_user_->get_realname());
 	return Response::generate_message(code);
 }
 
@@ -477,7 +458,7 @@ std::string Response::rpl_namreply(IrcCode code)
 			nicknames += " ";
 		}
 	}
-	Response::add_param("channel", channel_->get_name()); // redundant ?
+	Response::add_param("channel", channel_->get_name());
 	Response::add_param("nicknames", nicknames);
 	return Response::generate_message(code);
 }
@@ -486,7 +467,7 @@ std::string Response::rpl_endofnames(IrcCode code)
 {
 	if (channel_)
 	{
-		Response::add_param("channel", channel_->get_name()); // fails when for an invalid channel !
+		Response::add_param("channel", channel_->get_name());
 	}
 	return Response::generate_message(code);
 }
@@ -518,7 +499,7 @@ std::string Response::rpl_whoishost(IrcCode code)
 
 std::string Response::rpl_whoismodes(IrcCode code)
 {
-	Response::add_param("activated_umodes", ""); // no user modes supported
+	Response::add_param("activated_umodes", "");
 	return Response::generate_message(code);
 }
 
@@ -530,42 +511,38 @@ void Response::num_reply(IrcCode code)
 	if (rpl_functions_.find(code) != rpl_functions_.end())
 	{
 		message = rpl_functions_[code](code);
-		Logger::Log(INFO, message);
+		Logger::Log(DEBUG, "(" + user_->get_prefix() + ")" + message);
 	}
 	else
 	{
 		message = Response::generate_message(code);
-		Logger::Log(ERROR, message);
 	}
 	oss << ":" << user_->get_server_name() << " " \
 		<< std::setw(3) << std::setfill('0') << code \
 		<< " " << user_->get_nickname() << " " \
 		<< message << "\r\n";
 	user_->send_message(oss.str());
-}
-
-const std::string Response::get_reply(IrcCode code)
-{
-	return ":" + user_->get_prefix() + " " + \
-		Response::generate_message(code) + "\r\n";
+	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + message);
 }
 
 void Response::cmd_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
 {
 	std::string prefix = source.get_prefix();
 	std::string message = ":" + prefix + " " \
-		+ Response::generate_message(code) + "\r\n";
+		+ Response::generate_message(code);
 
-	target.send_message(message, source, include_source);
+	target.send_message(message + "\r\n", source, include_source);
+	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + message);
 }
 
 void Response::cmd_reply(IrcCode code, const User* source, const User& target)
 {
 	std::string prefix = source ? source->get_prefix() : server_->get_name();
 	std::string message = ":" + prefix + " " \
-		+ Response::generate_message(code) + "\r\n";
+		+ Response::generate_message(code);
 
-	target.send_message(message);
+	target.send_message(message  + "\r\n");
+	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + message);
 }
 
 void Response::reset()
@@ -573,5 +550,4 @@ void Response::reset()
 	user_ = NULL;
 	channel_ = NULL;
 	params_.clear();
-	// Logger::Log(DEBUG, "Response reset");
 }

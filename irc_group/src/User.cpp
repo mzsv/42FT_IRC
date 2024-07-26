@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 17:34:50 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:16:36 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ User::User(int socket_fd, const std::string& host, const Server* server, std::st
 
 User::~User()
 {
-	Logger::Log(INFO, "User destructor");
 	close(socket_fd_);
 }
 
@@ -165,7 +164,6 @@ void User::send_message(const std::string& message) const
 			Logger::Log(ERROR, "Failed to send message");
 		}
 	}
-	Logger::Log(INFO, "Sent message: " + message + " to " + nickname_);
 }
 
 int User::read_message()

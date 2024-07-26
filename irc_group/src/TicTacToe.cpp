@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 22:41:31 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 17:28:06 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:25:30 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@ TicTacToe::~TicTacToe()
 {
 }
 
+/**
+ * Funcs
+*/ 
 std::string TicTacToe::get_target() const
 {
     return target_;

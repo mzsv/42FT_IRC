@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 17:29:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:23:25 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ Bot::~Bot()
     }
 }
 
+/**
+ * Funcs
+*/
 void Bot::connect_to_server()
 {
     struct addrinfo hints, *res;
@@ -145,7 +148,7 @@ void Bot::reply(const Message& message)
         {
             if (!game_)
             {
-                Logger::Log(INFO, "Bot::Creating new game...");
+                Logger::Log(INFO, "Bot::Starting new game");
                 game_ = new TicTacToe(this, target);
             }
             else
@@ -213,5 +216,6 @@ void Bot::end_game()
         send_to(game_->get_target(), "Game over! Type 'play game' to start a new one!\n");
         delete game_;
         game_ = NULL;
+        Logger::Log(INFO, "Bot::Game ended");
     }
 }

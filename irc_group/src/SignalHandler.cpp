@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 15:52:12 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/24 18:00:37 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:10:21 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void SignalHandler::sigint_handler(int signum)
 {
     if (signum == SIGINT)
     {
-        Logger::Log(INFO, "SIGINT received. Exiting...");
         SignalHandler::instance_->server_.stop();
     }
 }

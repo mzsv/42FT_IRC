@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/11 16:58:54 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/25 19:31:48 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:14:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 enum IrcCode
 {
+    /* Numeric Replies - Command Responses */
     RPL_WELCOME = 1,
     RPL_YOURHOST = 2,
     RPL_CREATED = 3,
@@ -28,7 +29,7 @@ enum IrcCode
     RPL_LUSERCHANNELS = 254,
     RPL_LUSERME = 255,
     RPL_LOCALUSERS = 265,
-    RPL_GLOBALUSERS = 266, // redundant (same as LOCALUSERS) because it's only one server
+    RPL_GLOBALUSERS = 266,
     RPL_WHOISUSER = 311,
     RPL_WHOISSERVER = 312,
     RPL_ENDOFWHO = 315,
@@ -48,6 +49,8 @@ enum IrcCode
     RPL_ENDOFMOTD = 376,
     RPL_WHOISHOST = 378,
     RPL_WHOISMODES = 379,
+
+    /* Numeric Replies - Errors */
     ERR_NOSUCHNICK = 401,
     ERR_NOSUCHCHANNEL = 403,
     ERR_CANNOTSENDTOCHAN = 404,
@@ -76,6 +79,8 @@ enum IrcCode
     ERR_UMODEUNKNOWNFLAG = 501,
     ERR_INVALIDKEY = 525,
     ERR_INVALIDMODEPARAM = 696,
+
+    /* Command Replies */
     CMD_ERROR = 4242,
     CMD_JOIN = 4243,
     CMD_INVITE = 4244,
@@ -87,6 +92,7 @@ enum IrcCode
     CMD_NOTICE = 4250,
     CMD_PONG = 4251,
     CMD_PING = 4252,
+    CMD_TOPIC = 4253,
 };
 
 #endif // IRC_CODES_HPP

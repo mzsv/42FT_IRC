@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:13 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 17:06:35 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:23:03 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,6 @@ class TicTacToe;
 class Bot
 {
     private:
-        Bot();
-        Bot(const Bot& obj);
-        Bot& operator=(const Bot& obj);
 
         int port_;
         std::string password_;
@@ -44,6 +41,9 @@ class Bot
         std::queue<std::string> messages_;
         TicTacToe* game_;
         
+        /**
+         * Funcs
+        */
         void connect_to_server();
         void receive_message();
         void handle_message(const Message& message);
@@ -52,11 +52,21 @@ class Bot
         void stop();
         void say_hello(const std::string& target);
         void end_game();
+
+        /**
+         * Forbidden APIs
+        */
+        Bot();
+        Bot(const Bot& obj);
+        Bot& operator=(const Bot& obj);
         
     public:
         Bot(int port, std::string password);
         ~Bot();
 
+        /**
+         * Funcs
+        */
         void run();
         void send_to(const std::string& target, const std::string& message) const;
 };

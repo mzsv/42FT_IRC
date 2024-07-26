@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 22:02:58 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:15:45 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 Executor::Executor(Server* server) : server_(server)
 {
+	/* Command Handlers */
 	functions_["CAP"] = &Executor::ignore;
 	functions_["PASS"] = &Executor::pass;
 	functions_["NICK"] = &Executor::nick;
@@ -32,10 +33,10 @@ Executor::Executor(Server* server) : server_(server)
 	functions_["MOTD"] = &Executor::motd;
 	functions_["LUSERS"] = &Executor::lusers;
 	functions_["WHO"] = &Executor::who;
-	functions_["WHOIS"] = &Executor::whois; // implement !
-
+	functions_["WHOIS"] = &Executor::whois;
 	functions_["QUIT"] = &Executor::quit;
 
+	/* Mode Handlers */
 	mode_functions_['i'] = &Executor::invite_only;
 	mode_functions_['t'] = &Executor::topic_mode;
 	mode_functions_['k'] = &Executor::channel_key;
@@ -45,23 +46,11 @@ Executor::Executor(Server* server) : server_(server)
 
 Executor::~Executor()
 {
-	Logger::Log(INFO, "Executor destructor");
 }
 
 int Executor::execute(const Message& message, User& user)
 {
 	FunctionPointer fp;
-	Logger::Log(INFO, "Message from: " + user.get_nickname());
-	Logger::Log(DEBUG, "prefix: " + message.get_prefix());
-	Logger::Log(DEBUG, "command: " + message.get_command());
-	// print message arguments
-	for (size_t i = 0; i != message.get_arguments().size(); ++i)
-	{
-		Logger::Log(DEBUG, "arg[" + to_string_(i) + "]: " + message.get_arguments()[i]);
-	}
-	Logger::Log(DEBUG, "trailing: " + message.get_trailing());
-	// Response::params_clear(); // maybe new instance of Response?
-	// Response::reset();
 	Response::add_param("command", message.get_command()); // !
 	Response::set_command(message.get_command());
 	Response::set_user(&user);
@@ -78,7 +67,7 @@ int Executor::execute(const Message& message, User& user)
 	return 0;
 }
 
-int Executor::quit(const Message& message, User& user) // complete !
+int Executor::quit(const Message& message, User& user)
 {
 	std::string reason = ":Quit: ";
 	std::vector<const Channel*> channels = user.get_channels();
@@ -87,16 +76,7 @@ int Executor::quit(const Message& message, User& user) // complete !
 	{
 		reason += message.get_arguments()[0];
 	}
-	// user.send_message(":" + user.get_prefix() + " ERROR :" + reason + "\r\n");
 	Response::add_param("reason", reason);
-	// Response::cmd_reply(CMD_ERROR);
-	// Logger::Log(DEBUG, "Quit - channel size: " + to_string_(channels.size()));
-	// for (size_t i = 0; i < channels.size(); ++i)
-	// {
-	// 	// channels[i]->send_message(":" + user.get_prefix() + " QUIT :" + reason + "\r\n", user, false);
-	// 	// channels[i]->send_message(Response::get_reply(CMD_QUIT), user, false);
-	// 	Response::cmd_reply(CMD_QUIT, *channels[i], false);
-	// }
 	return DISCONNECT;
 }
 
@@ -116,9 +96,9 @@ int Executor::pass(const Message& message, User& user)
 	}
 	else
 	{
-		user.set_password(message.get_arguments()[0]); // ! maybe not necessary
+		user.set_password(message.get_arguments()[0]);
 	}
-	return server_->check_connection(user); // necessary? or redundant?
+	return server_->check_connection(user);
 }
 
 int Executor::nick(const Message& message, User& user)
@@ -182,9 +162,9 @@ int Executor::user(const Message& message, User& user)
 			}
 		}
 		user.set_username(username);
-		user.set_realname(message.get_arguments()[3]); // or trailing?
+		user.set_realname(message.get_arguments()[3]);
 	}
-	return server_->check_connection(user); // necessary? or redundant?
+	return server_->check_connection(user);
 }
 
 int Executor::ping(const Message& message, User& user)
@@ -195,7 +175,6 @@ int Executor::ping(const Message& message, User& user)
 	}
 	else
 	{
-		// user.send_message(":" + server_->get_name() + " PONG " + server_->get_name() + " " + message.get_arguments()[0] + "\r\n"); //  ! manage the addition of \n here or in the send_message? function
 		Response::add_param("server", server_->get_name());
 		Response::add_param("ping_token", message.get_arguments()[0]);
 		Response::cmd_reply(CMD_PONG, NULL, user);
@@ -211,7 +190,6 @@ int Executor::pong(const Message& message, User& user)
 	}
 	else
 	{
-		// should we confirm the pong message? maybe not, for flexibility?
 		user.set_time_after_pinging();
 		user.set_time_of_last_action();
 		user.reset_flag(PINGING);
@@ -219,7 +197,7 @@ int Executor::pong(const Message& message, User& user)
 	return 0;
 }
 
-std::vector<std::string> split_arguments(const std::string& arguments) // util !
+std::vector<std::string> split_arguments(const std::string& arguments)
 {
 	std::vector<std::string> result;
 	std::istringstream iss(arguments);
@@ -230,12 +208,10 @@ std::vector<std::string> split_arguments(const std::string& arguments) // util !
 		result.push_back(token);
 	}
 	return result;
-} // maybe usen umap for join? channel,key
+}
 
 int Executor::join(const Message& message, User& user)
 {
-	// Logger::Log(DEBUG, "Joining channel");
-
 	std::vector<std::string> channel_names;
 	std::vector<std::string> keys;
 
@@ -256,7 +232,6 @@ int Executor::join(const Message& message, User& user)
 			Response::add_param("channel", it->first);
 			Response::add_param("reason", "");
 			Response::cmd_reply(CMD_PART, user, *it->second);
-			// part(Message("PART " + it->first + "\n"), user);
 		}
 	}
 	else 
@@ -276,29 +251,20 @@ int Executor::join(const Message& message, User& user)
 				Response::num_reply(ERR_BADCHANMASK);
 			}
 			else if (!(server_->contains_channel(channel_names[i]) && \
-					server_->user_on_channel(channel_names[i], user))) // make one function to check ?
+					server_->user_on_channel(channel_names[i], user)))
 			{
-				// Logger::Log(DEBUG, "#Channel names: " + to_string_(channel_names.size()));
-				// Logger::Log(DEBUG, "#Keys: " + to_string_(keys.size()));
-				if (keys.size() > i) // test this and confirm !
+				if (keys.size() > i)
 				{
 					server_->join_channel(channel_names[i], keys[i], user);
 				}
 				else
 				{
-					// Logger::Log(DEBUG, "Joining channel without key");
 					server_->join_channel(channel_names[i], "", user);
 				}
 				Response::set_channel(user.get_server()->get_channels().at(channel_names[i]));
-				// Logger::Log(INFO, "Channel joined: " + channel_names[i]);
 			}
 		}
 	}
-	// Logger::Log(INFO, "Total channels joined: " + to_string_(channel_names.size()));
-	// for (size_t i = 0; i < channel_names.size(); ++i)
-	// {
-	// 	Logger::Log(INFO, "Channel: " + channel_names[i]);
-	// }
 	return 0;
 }
 
@@ -312,7 +278,7 @@ int Executor::part(const Message& message, User& user)
 	}
 	else 
 	{
-		channel_names = split_arguments(message.get_arguments()[0]); // maybe just call it channels?
+		channel_names = split_arguments(message.get_arguments()[0]);
 		for (size_t i = 0; i < channel_names.size(); ++i)
 		{
 			Response::add_param("channel", channel_names[i]);
@@ -331,7 +297,6 @@ int Executor::part(const Message& message, User& user)
 				{
 					reason = ":" + message.get_arguments()[1];
 				}
-				// server_->get_channels().at(channel_names[i])->send_message(":" + user.get_prefix() + " PART " + channel_names[i] + " " + reason + "\r\n", user, true);
 				Response::add_param("reason", reason);
 				Response::cmd_reply(CMD_PART, user, *server_->get_channels().at(channel_names[i]));
 				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
@@ -341,14 +306,14 @@ int Executor::part(const Message& message, User& user)
 	return 0;
 }
 
-int Executor::names(const Message& message, User& user) //  Not required !
+int Executor::names(const Message& message, User& user)
 {
 	std::vector<std::string> channel_names;
 
-	Response::add_param("channel", ""); // redundant ? better way to handle this ?
+	Response::add_param("channel", "");
 	if (message.get_arguments().size() == 0)
 	{
-		std::vector<const Channel*> channels = user.get_channels(); // const on every !
+		std::vector<const Channel*> channels = user.get_channels();
 		for (size_t i = 0; i < channels.size(); ++i)
 		{
 			Response::num_reply(RPL_NAMREPLY);
@@ -375,8 +340,7 @@ int Executor::names(const Message& message, User& user) //  Not required !
 /**
  * Operator functions
 */
-
-int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assumed by default if no TARGMAX ad)
+int Executor::kick(const Message& message, User& user)
 {
 	std::string channel;
 	std::string target;
@@ -391,7 +355,7 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assu
 		channel = message.get_arguments()[0];
 		target = message.get_arguments()[1];
 		Response::add_param("channel", channel);
-		Response::add_param("nickname", user.get_nickname()); // redundant !
+		Response::add_param("nickname", user.get_nickname());
 		Response::add_param("target_nickname", target);
 		if (!server_->contains_channel(channel))
 		{
@@ -411,17 +375,12 @@ int Executor::kick(const Message& message, User& user) // TARGMAX=KICK:1 ! (assu
 		}
 		else
 		{
-			// std::string comment = ":Kicked";
 			User* target_user = server_->get_user(target);
-
 			Response::add_param("reason", ":Kicked");
 			if (message.get_arguments().size() > 2)
 			{
-				// comment = ":" + message.get_arguments()[2];
 				Response::add_param("reason", ":" + message.get_arguments()[2]);
 			}
-			// reply = " KICK " + channel + " " + target + " " + comment + "\r\n"; // confirm client prefix is appended
-			// server_->get_channels().at(channel)->send_message(":" + user.get_prefix() + reply, user, true);
 			Response::cmd_reply(CMD_KICK, user, *server_->get_channels().at(channel));
 			server_->leave_channel(channel, *target_user);
 		}
@@ -445,7 +404,6 @@ int Executor::invite(const Message& message, User& user)
 		Response::add_param("nickname", user.get_nickname());
 		Response::add_param("channel", channel);
 		Response::add_param("target_nickname", target);
-		// maybe group all these check in a function that can be used in all exec actions?
 		if (!server_->contains_channel(channel))
 		{
 			Response::num_reply(ERR_NOSUCHCHANNEL);
@@ -473,8 +431,6 @@ int Executor::invite(const Message& message, User& user)
 			Response::set_channel(server_->get_channels().at(channel));
 			Response::set_target_user(target_ptr);
 			Response::num_reply(RPL_INVITING);
-			// server_->get_user(target)->send_message(":" + user.get_prefix() + " INVITE " + target + " " + channel + "\r\n");
-			// Response::cmd_reply(CMD_INVITE); // test !
 			Response::cmd_reply(CMD_INVITE, &user, *target_ptr);
 			server_->get_channels().at(channel)->add_invite(target_ptr);
 		}
@@ -512,32 +468,37 @@ int Executor::topic(const Message& message, User& user)
 			}
 			else
 			{
+				Response::set_channel(server_->get_channels().at(channel));
 				Response::num_reply(RPL_TOPIC);
 				Response::num_reply(RPL_TOPICWHOTIME);
 			}
 		}
 		else
 		{
+			Channel* channel_ptr = server_->get_channels().at(channel);
 			topic = message.get_arguments()[1];
-			if (server_->check_channel_mode(channel, TOPICMODE) && !server_->is_operator(channel, user))
+			Response::add_param("topic", topic);
+			if (server_->check_channel_mode(channel, TOPICMODE) && !channel_ptr->is_operator(user))
 			{
 				Response::num_reply(ERR_CHANOPRIVSNEEDED);
+				return 0;
 			}
 			else if (topic.empty())
 			{
-				server_->get_channels().at(channel)->set_topic(user, "");
+				channel_ptr->set_topic(user, "");
 			}
 			else
 			{
-				server_->get_channels().at(channel)->set_topic(user, topic);
-				server_->get_channels().at(channel)->set_topic_time();
+				channel_ptr->set_topic(user, topic);
+				channel_ptr->set_topic_time();
 			}
+			Response::cmd_reply(CMD_TOPIC, user, *channel_ptr);
 		}
 	}
 	return 0;
 }
 
-std::queue<std::string> vector_to_queue(const std::vector<std::string>& v, size_t i = 0) // UTIL
+std::queue<std::string> vector_to_queue(const std::vector<std::string>& v, size_t i = 0)
 {
 	std::queue<std::string> q;
 
@@ -557,7 +518,7 @@ int Executor::mode(const Message& message, User& user)
 
 	if (message.get_arguments().size() == 0)
 	{
-		Response::num_reply(ERR_NEEDMOREPARAMS); // confirm !
+		Response::num_reply(ERR_NEEDMOREPARAMS);
 	}
 	else
 	{
@@ -575,8 +536,8 @@ int Executor::mode(const Message& message, User& user)
 		else if (message.get_arguments().size() == 1)
 		{
 			Response::set_channel(server_->get_channels().at(channel));
-			Response::num_reply(RPL_CHANNELMODEIS); // !
-			Response::num_reply(RPL_CREATIONTIME); // !
+			Response::num_reply(RPL_CHANNELMODEIS);
+			Response::num_reply(RPL_CREATIONTIME);
 		}
 		else
 		{
@@ -627,10 +588,8 @@ int Executor::invite_only(std::string channel, User& user, std::queue<std::strin
 	if (flag != (channel_ptr->get_flags() & INVITEONLY))
 	{
 		channel_ptr->clear_invites();
-		// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
 		Response::add_param("mode", mode_str);
 		Response::cmd_reply(CMD_MODE, user, *channel_ptr);
-		// replace with channel_reply !
 	}
 	return 0;
 }
@@ -653,7 +612,6 @@ int Executor::topic_mode(std::string channel, User& user, std::queue<std::string
 	}
 	if (flag != (channel_ptr->get_flags() & TOPICMODE))
 	{
-		// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + "\r\n", user, true);
 		Response::add_param("mode", mode_str);
 		Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 	}
@@ -702,7 +660,6 @@ int Executor::channel_key(std::string channel, User& user, std::queue<std::strin
 		}
 		if (flag != (channel_ptr->get_flags() & CHANNELKEY))
 		{
-			// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + key + "\r\n", user, true);
 			Response::add_param("mode_str", mode_str + " " + key);
 			Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 		}
@@ -721,7 +678,7 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 	{
 		if (q_values.size() == 0)
 		{
-			Response::num_reply(ERR_NEEDMOREPARAMS); // maybe add return to reply?
+			Response::num_reply(ERR_NEEDMOREPARAMS);
 			return -1;
 		}
 		std::istringstream iss(q_values.front());
@@ -741,14 +698,12 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 		channel_ptr->reset_flag(USERLIMIT);
 		channel_ptr->set_user_limit(0);
 	}
-	// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + to_string_(value) + "\r\n", user, true);
 	Response::add_param("mode_str", mode_str + " " + to_string_(value));
 	Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 	return 0;
 }
 
 int Executor::channel_operator(std::string channel, User& user, std::queue<std::string>& q_values, bool activate)
-// need to set flag? what if there are many operators, when to reset?
 {
 	Channel* channel_ptr = server_->get_channels().at(channel);
 	std::string target_nick;
@@ -786,7 +741,6 @@ int Executor::channel_operator(std::string channel, User& user, std::queue<std::
 		}
 		if (is_operator != channel_ptr->is_operator(target_nick))
 		{
-			// channel_ptr->send_message(":" + user.get_prefix() + " MODE " + channel + " " + mode_str + " " + target_nick + "\r\n", user, true);
 			Response::add_param("mode_str", mode_str + " " + target_nick);
 			Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 		}
@@ -819,8 +773,8 @@ int Executor::privmsg(const Message& message, User& user)
 		target = message.get_arguments()[0];
 		message_text = message.get_arguments()[1];
 		Response::add_param("target", target);
-		Response::add_param("message", message_text); // test !
-		if (target[0] == '#') // channel
+		Response::add_param("message", message_text);
+		if (target[0] == '#')
 		{
 			Response::add_param("channel", target);
 			if (!server_->contains_channel(target))
@@ -841,7 +795,6 @@ int Executor::privmsg(const Message& message, User& user)
 			{
 				if (command == "PRIVMSG")
 				{
-					// server_->get_channels().at(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n", user, false);
 					Response::cmd_reply(CMD_PRIVMSG, user, *server_->get_channels().at(target), false);
 				}
 				else
@@ -850,7 +803,7 @@ int Executor::privmsg(const Message& message, User& user)
 				}
 			}
 		}
-		else // user
+		else
 		{
 			Response::add_param("nickname", target);
 			if (!server_->contains_nickname(target))
@@ -864,7 +817,6 @@ int Executor::privmsg(const Message& message, User& user)
 			{
 				if (command == "PRIVMSG")
 				{
-					// server_->get_user(target)->send_message(":" + user.get_prefix() + " PRIVMSG " + target + " :" + message_text + "\r\n");
 					Response::cmd_reply(CMD_PRIVMSG, &user, *server_->get_user(target));
 				}
 				else

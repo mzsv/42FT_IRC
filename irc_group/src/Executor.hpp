@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:21:04 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:50:22 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 19:06:47 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,6 @@
 #include "Logger.hpp"
 #include "Server.hpp"
 #include "irc_err_codes.hpp"
-// #include "irc_codes.hpp"
-
-/**
- * Probably the better solution here would be to transform that class to Singleton,
- * to not create an instance on every execution
-*/
 
 bool is_valid_nickname(const std::string& nick);
 
@@ -50,34 +44,31 @@ private:
 	/**
 	 * Funcs
 	*/
-	int pass(const Message& message, User& user); // D
-	int nick(const Message& message, User& user); // D
-	int user(const Message& message, User& user); // D
-	int quit(const Message& message, User& user); // remove user from server NOT IMPLEMENTED YET !
-	int ping(const Message& message, User& user); // D : respond to ping
-	int pong(const Message& message, User& user); // D : handle incoming pong
-	int join(const Message& message, User& user); // add user to channel
-	int part(const Message& message, User& user); // remove user from channel
-	int names(const Message& message, User& user); // list users in channel NOT REQUIRED !
-	// int authenticate(const Message& message, User& user); // authenticate user
-	int privmsg(const Message& message, User& user); // message user to user/channel
-	int notice(const Message& message, User& user); // send notice to user/channel
-	// int list(const Message& message, User& user); // list channels
-	int motd(const Message& message, User& user); // message of the day
-	int lusers(const Message& message, User& user); // list users
-	int ignore(const Message& message, User& user); // implement !
-	int who(const Message& message, User& user); // implement !
-	int whois(const Message& message, User& user); // implement !
+	/* IRC Commands */
+	int pass(const Message& message, User& user);
+	int nick(const Message& message, User& user);
+	int user(const Message& message, User& user);
+	int quit(const Message& message, User& user);
+	int ping(const Message& message, User& user);
+	int pong(const Message& message, User& user);
+	int join(const Message& message, User& user);
+	int part(const Message& message, User& user);
+	int names(const Message& message, User& user);
+	int privmsg(const Message& message, User& user);
+	int notice(const Message& message, User& user);
+	int motd(const Message& message, User& user);
+	int lusers(const Message& message, User& user);
+	int ignore(const Message& message, User& user);
+	int who(const Message& message, User& user);
+	int whois(const Message& message, User& user);
 	
-	// // operators
+	/* IRC Channel Operator Commands */
 	int kick(const Message& message, User& user);
 	int invite(const Message& message, User& user);
 	int topic(const Message& message, User& user);
 	int mode(const Message& message, User& user);
 
-	/**
-	 * Mode Funcs
-	*/
+	/* IRC Channel Modes */
 	int invite_only(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
 	int topic_mode(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);
 	int channel_key(std::string channel, User& user, std::queue<std::string>& q_values, bool activate);

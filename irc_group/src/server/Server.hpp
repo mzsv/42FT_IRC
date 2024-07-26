@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:58:59 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:48:30 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ class Executor;
 #define DISCONNECT -2
 #define NR_OF_SERVERS 1
 
-
 #ifdef __APPLE__
 #define IRC_NOSIGNAL SO_NOSIGPIPE
 #else
@@ -60,20 +59,14 @@ class Server
 	int port_;
 	sockaddr_in sockaddr_;
 	int socket_fd_;
-
 	std::map<std::string,std::string> isupport_params_;
-
-	std::vector<User*> users_; // map instead ? easier to find by nick, for the user actions
+	std::vector<User*> users_;
 	std::vector<struct pollfd> users_fds_;
 	std::map<std::string, Channel*> channels_;
-	std::vector<std::string> invited_users_; // !
-	// std::map<Channel*, std::set<User*>> operators;
+	std::vector<std::string> invited_users_;
 	std::string name_;
 	std::string password_;
-
-	// time_t max_inactive_time_;
-	// time_t max_response_time_;
-	const id_t timeout_; // used for poll(); shoudnt it be 0? check man
+	const id_t timeout_;
 	double max_inactive_time_;
 	double max_response_time_;
 	time_t start_time_;
@@ -81,7 +74,6 @@ class Server
 	std::string version;
 	std::string available_channel_modes;
 	size_t max_local_users_;
-
 	static bool running_;
 
 	/**
@@ -103,21 +95,14 @@ class Server
 	int get_socket_fd() const;
 	const std::string& get_name() const;
 	const std::string& get_password() const;
-
 	const std::map<std::string, Channel*>& get_channels() const;
-	
-	// this could replace contains_nickname(), check for nullptr
-	User* get_user(const std::string& nickname) const; // get one user from the vector
+	User* get_user(const std::string& nickname) const;
 	const time_t& get_start_time() const;
 	const std::string& get_description() const;
 	const std::string& get_version() const;
 	const std::string& get_available_channel_modes() const;
 	const std::vector<User*>& get_users() const;
 	const size_t& get_max_local_users() const;
-	/**
-	 * Setters
-	*/
-	//
 
 	/**
 	 * Funcs
@@ -135,11 +120,6 @@ class Server
 	void notify_users(User& user, const std::string& message);
 	bool contains_nickname(const std::string& nickname) const;
 	const bool& is_running() const;
-	void stop();
-
-	// void ping_users() const; // already at server::check_connection()
-
-	// maybe just get_channels_() and use the channel object to get info for the executor?
 	int join_channel(const std::string& name, const std::string& key, User& creator);
 	bool contains_channel(const std::string& name) const;
 	bool user_on_channel(const std::string& channel, const User& user) const;
@@ -149,6 +129,7 @@ class Server
 	void channel_broadcast(const std::string& channel_name, const User& user, const std::string& message) const; // !
 	bool check_channel_mode(const std::string& channel_name, const unsigned char& mode) const;
 	const std::string get_channel_topic(const std::string& channel_name) const;
+	void stop();
 };
 
 #endif // SERVER_HPP

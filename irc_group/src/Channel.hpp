@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:52:44 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 18:36:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #define INVITEONLY	0b000001 // 'i' flag in RFC 2811, default: OFF
 #define TOPICMODE	0b000010 // 't' flag in RFC 2811, default: ON
 #define CHANNELKEY	0b000100 // 'k' flag in RFC 2811, default: off
-#define CHANNELOP	0b001000 // 'o' flag in RFC 2811, really needed as a flag? maybe just a vector of operators or map?
+#define CHANNELOP	0b001000
 #define USERLIMIT	0b010000 // 'l' flag in RFC 2811, default: ON
 #define NOMSGOUT	0b100000 // 'n' flag in RFC 2811, default: ON
 
@@ -27,17 +27,15 @@ class Channel
 {
   private:
 	std::string name_;
-	std::string password_; // key !
+	std::string password_;
 	std::string topic_;
-	unsigned short user_limit_; // safer with int ?! also protocol mentions int
+	unsigned short user_limit_;
 	unsigned char flags_;
 
 	std::vector<const User*> operators_;
-	std::vector<const User*> users_; // not efficient for insertion/deletion of elements; set instead?
-	// std::vector<const User*> speakers_;
-	// std::set<std::string> invites_; // invited users
-	std::set<const User*> invites_; // invited users
-	time_t topic_time_; // needed for TOPIC
+	std::vector<const User*> users_;
+	std::set<const User*> invites_;
+	time_t topic_time_;
 	time_t start_time_;
 
 	/**
@@ -48,7 +46,6 @@ class Channel
 	Channel& operator=(const Channel& obj);
 
   public:
-  // password not required at creation, only set after key mode is set. right?
 	Channel(const std::string& name, const std::string& pass, const User& creator);
 	~Channel();
 
@@ -60,7 +57,6 @@ class Channel
 	const std::string& get_topic() const;
 	unsigned char get_flags() const;
 	const unsigned short& get_user_limit() const;
-
 	const time_t& get_topic_time() const;
 	const std::vector<const User*>& get_users() const;
 	const std::vector<const User*>& get_operators() const;
@@ -86,16 +82,12 @@ class Channel
 	bool is_operator(const User& user) const;
 	bool is_operator(const std::string& nickname) const;
 	void send_message(const std::string& message, const User& user, bool include_user) const;
-
-	int add_user(const User& user); // !
+	int add_user(const User& user);
 	void add_operator(std::string nickname);
 	void remove_operator(std::string nickname);
 	void reset_flag(unsigned char flag);
-	// bool is_invited(const std::string& nickname) const;
 	bool is_invited(const User* user) const;
-	// void add_invite(const std::string& nickname);
 	void add_invite(const User* user);
-	// void remove_invite(const std::string& nickname);
 	void remove_invite(const User* user);
 	void clear_invites();
 };
