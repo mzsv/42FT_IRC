@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:45:02 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 21:18:04 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:34:50 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,11 @@ time_t User::get_time_after_pinging() const
 	return time_after_pinging_;
 }
 
+const std::vector<const Channel*>& User::get_channels() const
+{
+	return channels_;
+}
+
 /**
  * Setters
 */
@@ -101,16 +106,12 @@ void User::set_password(const std::string& password)
 
 void User::set_nickname(const std::string& nickname)
 {
-	// std::cout << "Setting nickname to: " << nickname << std::endl;
 	nickname_ = nickname;
-	// Logger::Log(DEBUG, "Setting nickname to: " + nickname);
 }
 
 void User::set_username(const std::string& username)
 {
-	// std::cout << "Setting username to: " << username << std::endl;
 	username_ = username;
-	// Logger::Log(DEBUG, "Setting username to: " + username);
 }
 
 void User::set_realname(const std::string& realname)
@@ -138,10 +139,6 @@ void User::set_time_of_last_action()
 	time_of_last_action_ = time(0);
 }
 
-const std::vector<const Channel*>& User::get_channels() const
-{
-	return channels_;
-}
 
 /**
  * Funcs
@@ -179,21 +176,15 @@ int User::read_message()
 	{
 		msg = messages_.front();
 	}
-	// iterate over the messages and print content
-	std::cout << "--Messages--: " << messages_.size() << std::endl;
 	std::queue<std::string> temp = messages_;
 	while (temp.size() > 0)
 	{
-		std::cout << "Message: " << temp.front() << std::endl;
 		temp.pop();
 	}
 	int bytes;
-	// Logger::Log(DEBUG, "Reading message");
 	while ((bytes = recv(socket_fd_, bf, 99, 0)) > 0)
 	{
-		// Logger::Log(DEBUG, "Received bytes: " + to_string_(bytes));
 		bf[bytes] = 0;
-		// std::cout << "Received: " << bf << std::endl;
 		msg += bf;
 		memset(bf, 0, sizeof(bf));
 		if (msg.find('\n') != std::string::npos)
@@ -203,11 +194,10 @@ int User::read_message()
 	}
 	if (bytes < 0)
 	{
-		Logger::Log(ERROR, "Failed to receive message");
+		Logger::Log(ERROR, "Failed to receive message (recv)");
 		this->set_flag(UNPLUGGED);
 		return DISCONNECT;
 	}
-	// Logger::Log(DEBUG, "recv returned: " + to_string_(bytes));
 	if (msg.size() > 512)
 	{
 		msg = msg.substr(0, 510) + "\r\n";
@@ -226,8 +216,6 @@ int User::read_message()
 	{
 		messages_ = split2queue(msg, '\n', true);
 	}
-	// print message
-	std::cout << "Message: " << msg << std::endl;
 	return 0;
 }
 
@@ -239,12 +227,6 @@ void User::reset_flag(unsigned char flag)
 std::string User::get_prefix() const
 {
 	return std::string(nickname_ + "!" + username_ + "@" + host_);
-}
-
-//!
-std::string User::get_quit_message() const
-{
-	return "Quit message template";
 }
 
 void User::add_channel(const Channel& channel)

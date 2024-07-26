@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:44:34 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/24 21:53:54 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:34:57 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,6 @@ class User
     int read_message();
     void reset_flag(unsigned char flag);
     std::string get_prefix() const;
-    std::string get_quit_message() const;
     void add_channel(const Channel& channel);
     void remove_channel(const Channel& channel);
     time_t get_idle_time() const;

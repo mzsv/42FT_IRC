@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 14:13:07 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:29:25 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@ Bot::Bot(int port, std::string password) :
 
 Bot::~Bot()
 {
+    if (game_)
+    {
+        delete game_;
+    }
 }
 
 void Bot::connect_to_server()
@@ -51,7 +55,7 @@ void Bot::connect_to_server()
     send_message("USER " + nickname_ + " 0 * :" + nickname_ + "\r\n");
 }
 
-void Bot::send_message(const std::string& message)
+void Bot::send_message(const std::string& message) const
 {
     if (message.size() > 0)
     {
@@ -59,7 +63,6 @@ void Bot::send_message(const std::string& message)
         {
             Logger::Log(ERROR, "Bot::Failed to send message: " + message);
         }
-        Logger::Log(INFO, "Bot::Sent message: " + message);
     }
 }
 
@@ -95,7 +98,6 @@ void Bot::receive_message()
 	{
 		messages_ = split2queue(msg, '\n', true);
 	}
-    Logger::Log(DEBUG, "Bot::Received message: " + msg);
 }
 
 void Bot::handle_message(const Message& message)
@@ -109,44 +111,67 @@ void Bot::handle_message(const Message& message)
     {
         std::string channel = message.get_trailing();
         send_message("JOIN " + channel + "\r\n");
-        say_hello(channel);
+    }
+    else if (command == "JOIN")
+    {
+        say_hello(message.get_arguments()[0]);
     }
     else if (command == "PRIVMSG" || command == "NOTICE")
     {
         reply(message);
     }
+    else if (command == "PART" || command == "QUIT")
+    {
+        send_to(message.get_arguments()[0], "One human less... This is getting cute!\n");
+    }
 }
 
 void Bot::say_hello(const std::string& target)
 {
-    send_to(target, "Hello! I'm da Bot in da place. Let's play a game of TicTacToe! Type 'play game' to start!\n");
+    send_to(target, "Hello! I'm da Bot in da place. Let's play a game of TicTacToe? Type 'play game' to start!\n");
 }
 
 void Bot::reply(const Message& message)
 {
     std::string target = message.get_arguments()[0];
-    std::string reply;
+    std::string text = message.get_trailing();
     if (target[0] != '#')
     {
         target = message.get_prefix().substr(0, message.get_prefix().find('!'));
     }
-    Logger::Log(DEBUG, "Bot::trailing: " + message.get_trailing() + to_string_(message.get_trailing().find("play")));
-    if (message.get_trailing().find("play") == 0)
+    if (text.find("play") == 0)
     {
-        if (!game_)
+        if (text.find("play game") == 0)
         {
-            Logger::Log(INFO, "Bot::Creating new game...");
-            game_ = new TicTacToe(this, target); // memory leak
+            if (!game_)
+            {
+                Logger::Log(INFO, "Bot::Creating new game...");
+                game_ = new TicTacToe(this, target);
+            }
+            else
+            {
+                send_to(target, "Game already in progress... Hold your horses :)\n");
+            }
+        }
+        else if (game_ && target == game_->get_target() && game_->play_round(text))
+        {
+            end_game();
+        }
+    }
+    else if (text.find("stop game") == 0)
+    {
+        if (game_)
+        {
+            end_game();
         }
         else
         {
-            game_->play_round(message.get_trailing());
+            send_to(target, "No game in progress... What are you talking about?\n");
         }
     }
-    else
+    else if (text.find("bot") == 0)
     {
-        std::string response = "PRIVMSG " + target + " :" + reply + "\r\n";
-        send_message(response);
+        send_to(target, "What's up? If you wanna play, you already know what to do. Otherwise, I'll be sunbathing, so don't bother me, thank you!\n");
     }
 }
 
@@ -176,7 +201,17 @@ void Bot::stop()
     Logger::Log(INFO, "Bot::Disconnecting from server...");
 }
 
-void Bot::send_to(const std::string& target, const std::string& message)
+void Bot::send_to(const std::string& target, const std::string& message) const
 {
     send_message("PRIVMSG " + target + " :" + message);
+}
+
+void Bot::end_game()
+{
+    if (game_)
+    {
+        send_to(game_->get_target(), "Game over! Type 'play game' to start a new one!\n");
+        delete game_;
+        game_ = NULL;
+    }
 }

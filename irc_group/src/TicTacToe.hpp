@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 22:41:52 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 00:49:39 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:27:19 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,6 @@ class TicTacToe {
         std::vector<std::string > board_;
         char currentPlayer_;
         
-    public:
-        TicTacToe(Bot* bot, std::string target);
-        ~TicTacToe();
-
         void display_board() const;
         bool make_move(int row, int col);
         bool check_win() const;
@@ -40,6 +36,12 @@ class TicTacToe {
         void switch_player();
         char get_current_player() const;
         void output(std::string line) const;
+
+    public:
+        TicTacToe(Bot* bot, std::string target);
+        ~TicTacToe();
+
+        std::string get_target() const;
         int play_round(std::string arg);
 };
 

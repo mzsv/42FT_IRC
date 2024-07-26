@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 22:41:31 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 14:20:36 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:28:06 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,27 +24,30 @@ TicTacToe::~TicTacToe()
 {
 }
 
+std::string TicTacToe::get_target() const
+{
+    return target_;
+}
+
 void TicTacToe::display_board() const
 {
-    output("  1 2 3\n");
+    output("\n");
+    output(" .1.2.3.\n");
     for (size_t i = 0; i < board_.size(); ++i)
     {
-        output(to_string_(i + 1) + " ");
+        std::string line = to_string_(i + 1) + "|";
         for (size_t j = 0; j < board_[i].size(); ++j)
         {
-            output(std::string(1, board_[i][j]));
-            if (j < board_[i].size() - 1)
-            {
-                output("|");
-            }
+            line += board_[i][j];
+            line += "|";
         }
-        output("\n");
+        output(line + "\n");
         if (i < board_.size() - 1)
         {
-            output("  -----\n");
+            output(" |-----|\n");
         }
     }
-    // output("what is the next move? (play <row> <col>)\n"); // !
+    output("\n");
 }
 
 bool TicTacToe::make_move(int row, int col)
@@ -113,49 +116,31 @@ void TicTacToe::output(std::string line) const
 
 int TicTacToe::play_round(std::string arg)
 {
-    int row;
-    int col;
+    int row = 0;
+    int col = 0;
 
-    // while (true)
-    // {
-        // bot_->receive_message();
-        // if (messages_.size() > 0)
-        // {
-        //     Message message = messages_.front();
-        //     messages_.pop();
-        //     if (message.get_command() == "PRIVMSG")
-        //     {
-        //         std::string msg = message.get_trailing();
-        //         if (msg.find("play ") == 0)
-        //         {
-    std::string play = arg.substr(6);
+    std::string play = arg.substr(5);
     std::istringstream iss(play);
     iss >> row >> col;
-    if (make_move(row, col))
+    if (!iss.fail() && make_move(row, col))
     {
         display_board();
         if (check_win())
         {
             output("Player " + std::string(1, currentPlayer_) + " wins!\n");
             return 1;
-            // break ;
         }
         if (check_draw())
         {
             output("It's a draw!\n");
             return 1;
-            // break ;
         }
         switch_player();
     }
     else
     {
-        output("Invalid move!\n");
+        output("Invalid move! Try again.\n");
     }
-    output("Player " + std::string(1, currentPlayer_) + "'s turn. Make a move! (play <row> <col>)\n");
-    //             }
-    //         }
-    //     }
-    // }
+    output("Player " + std::string(1, currentPlayer_) + "'s turn. Type 'play <row> <col>' (or 'stop game')\n");
     return 0;
 }

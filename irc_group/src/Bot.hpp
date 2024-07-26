@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:13 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 14:00:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:06:35 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@
 #include "Message.hpp"
 #include "ston.hpp"
 #include "../includes/to_string_.hpp"
-// #include "TicTacToe.hpp"
 
 class TicTacToe;
 
@@ -42,7 +41,6 @@ class Bot
         const std::string nickname_;
         std::string server_;
         int socket_fd_;
-        sockaddr_in sockaddr_;
         std::queue<std::string> messages_;
         TicTacToe* game_;
         
@@ -50,17 +48,17 @@ class Bot
         void receive_message();
         void handle_message(const Message& message);
         void reply(const Message& message);
-        void send_message(const std::string& message);
+        void send_message(const std::string& message) const;
         void stop();
-
         void say_hello(const std::string& target);
+        void end_game();
         
     public:
         Bot(int port, std::string password);
         ~Bot();
 
         void run();
-        void send_to(const std::string& target, const std::string& message);
+        void send_to(const std::string& target, const std::string& message) const;
 };
 
 #endif // BOT_HPP

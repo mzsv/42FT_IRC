@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:49:09 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 21:02:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 15:19:41 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Message::Message(const std::string& message)
 	if (q.size() > 0 && q.front()[0] == ':')
 	{
 		prefix_ = std::string(q.front().begin() + 1, q.front().end());
-		prefix_ = tolower_str(prefix_);
+		// prefix_ = tolower_str(prefix_);
 		q.pop();
 	}
 	if (q.size())
@@ -41,7 +41,8 @@ Message::Message(const std::string& message)
 				s.append(q.front());
 				q.pop();
 			}
-			arguments_.push_back(tolower_str(s));
+			// arguments_.push_back(tolower_str(s));
+			arguments_.push_back(s);
 			// trailing_ = s;
 			trailing_flag_ = true;
 		}
