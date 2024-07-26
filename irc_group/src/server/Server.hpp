@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:53:32 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 23:05:58 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ class Server
 	void create_socket();
 	void bind_socket();
 	void listen_socket();
+	void add_listener();
     void delete_broken_connection();
     void delete_empty_channels();
     void check_connection();

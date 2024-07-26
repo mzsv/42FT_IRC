@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 17:59:56 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 23:05:03 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,11 @@ int main(int argc, char **argv)
     server.create_socket();
     server.bind_socket();
     server.listen_socket();
+    server.add_listener();
     Response::set_server(&server);
 
     while (server.is_running())
     {
-        server.get_connection();
         server.process_message();
         server.check_connection();
         server.delete_broken_connection();

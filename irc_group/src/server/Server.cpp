@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 20:09:29 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 22:45:16 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,15 @@ void Server::listen_socket()
 
 	Logger::Log(INFO, "Server running on " + std::string(inet_ntoa(sockaddr_.sin_addr)) + 
 		":" + to_string_(ntohs(sockaddr_.sin_port)));
+}
+
+void Server::add_listener()
+{
+	struct pollfd pfd;
+	pfd.fd = socket_fd_;
+	pfd.events = POLLIN;
+	pfd.revents = 0;
+	users_fds_.push_back(pfd);
 }
 
 void Server::delete_broken_connection()
@@ -261,14 +270,22 @@ void Server::process_message()
 	{
 		if (users_fds_[i].revents & POLLIN)
 		{
-			Response::set_user(users_[i]);
-			if (users_[i]->read_message() == DISCONNECT)
+			if (users_fds_[i].fd == socket_fd_)
 			{
-				users_[i]->set_flag(BREAK);
+				get_connection();
 			}
-			else if (handle_message(*(users_[i])) == DISCONNECT)
+			else
 			{
-				users_[i]->set_flag(BREAK);
+				size_t j = i - 1;
+				Response::set_user(users_[j]);
+				if (users_[j]->read_message() == DISCONNECT)
+				{
+					users_[j]->set_flag(BREAK);
+				}
+				else if (handle_message(*(users_[j])) == DISCONNECT)
+				{
+					users_[j]->set_flag(BREAK);
+				}
 			}
 			users_fds_[i].revents = 0;
 		}
