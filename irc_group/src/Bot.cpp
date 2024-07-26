@@ -6,15 +6,16 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 00:46:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 14:13:07 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Bot.hpp"
+#include "TicTacToe.hpp"
 
 Bot::Bot(int port, std::string password) :
     port_(port), password_(password), nickname_("bot"),
-    server_("0.0.0.0"), socket_fd_(-1)
+    server_("0.0.0.0"), socket_fd_(-1), game_(NULL)
 {
 }
 
@@ -118,7 +119,7 @@ void Bot::handle_message(const Message& message)
 
 void Bot::say_hello(const std::string& target)
 {
-    send_to(target, " :Hello! I'm da Bot in da place. Let's play a game of TicTacToe! Type 'play game' to start!\n");
+    send_to(target, "Hello! I'm da Bot in da place. Let's play a game of TicTacToe! Type 'play game' to start!\n");
 }
 
 void Bot::reply(const Message& message)
@@ -129,10 +130,12 @@ void Bot::reply(const Message& message)
     {
         target = message.get_prefix().substr(0, message.get_prefix().find('!'));
     }
+    Logger::Log(DEBUG, "Bot::trailing: " + message.get_trailing() + to_string_(message.get_trailing().find("play")));
     if (message.get_trailing().find("play") == 0)
     {
         if (!game_)
         {
+            Logger::Log(INFO, "Bot::Creating new game...");
             game_ = new TicTacToe(this, target); // memory leak
         }
         else
@@ -140,8 +143,11 @@ void Bot::reply(const Message& message)
             game_->play_round(message.get_trailing());
         }
     }
-    std::string response = "PRIVMSG " + target + " :" + reply + "\r\n";
-    send_message(response);
+    else
+    {
+        std::string response = "PRIVMSG " + target + " :" + reply + "\r\n";
+        send_message(response);
+    }
 }
 
 void Bot::run()

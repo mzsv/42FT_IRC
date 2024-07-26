@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:13 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 00:51:55 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 14:00:03 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@
 #include "Message.hpp"
 #include "ston.hpp"
 #include "../includes/to_string_.hpp"
-#include "TicTacToe.hpp"
+// #include "TicTacToe.hpp"
 
-// class TicTacToe;
+class TicTacToe;
 
 class Bot
 {

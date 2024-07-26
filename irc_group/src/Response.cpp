@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/25 21:31:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/26 14:06:20 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 
 	// command messages
 	messages[CMD_JOIN] = "JOIN {channel}";
-	messages[CMD_INVITE] = "INVITE {target_nickname} {channel}";
+	messages[CMD_INVITE] = "INVITE {target_nickname} :{channel}";
 	messages[CMD_QUIT] = "QUIT {reason}";
 	messages[CMD_PART] = "PART {channel} {reason}";
 	messages[CMD_ERROR] = "ERROR {reason}";
