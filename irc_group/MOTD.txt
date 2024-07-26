@@ -1,39 +1,51 @@
 :- Welcome to ft_42 IRC Server -
- 
+   
                   IIIII  RRRRRR   CCCCC
                      I    R     R C
                      I    RRRRRR  C
                      I    R  R    C
                   IIIII  R   R    CCCCC
- 
+   
 :- Welcome to ft_42, the cutting-edge IRC server!
 :- We are thrilled to have you join our community. Here are a few guidelines and 
    important points to keep in mind while using the server:
-
+   
 1. Be Respectful:
    - Treat all users with respect and courtesy.
    - Harassment, abuse, and discrimination will not be tolerated.
-
+   
 2. Follow Channel Rules:
    - Each channel may have its own set of rules. Please read and follow them.
    - Respect the topic and purpose of each channel.
-
+   
 3. No Spamming:
    - Avoid sending repetitive messages or unwanted advertisements.
    - Keep the conversations meaningful and relevant.
-
+   
 4. Privacy:
    - Do not share personal information without consent.
    - Respect the privacy of other users.
-
+   
 5. Help and Support:
    - If you need assistance, feel free to ask in #help or contact an admin.
    - We are here to ensure you have a smooth and enjoyable experience.
-
+   
 6. Have Fun:
    - Enjoy your time here and engage in interesting discussions.
    - Connect with others and make new friends.
-
+   
+:- Bot Information
+   - We have a new bot available that can be invited to channels to play games.
+   - The bot can be invited to a channel by sending an invite command.
+   
+:- Tic Tac Toe Game
+   - The bot supports a Tic Tac Toe game that you can play directly in your channel.
+   - To start a game, invite the bot to your channel.
+   - The bot will guide you through with further instructions.
+   
+:- Example Command to Invite the Bot:
+   - `/invite bot #your_channel`
+   
 :- Thank you for being a part of ft_42!
 :- Let’s make this a great place for everyone. Happy chatting!
 :- End of Message of the Day -

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:15:45 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 00:46:38 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -943,7 +943,6 @@ int Executor::whois(const Message& message, User& user)
 		Response::add_param("whois_mask", mask);
 		if (server_->contains_nickname(mask))
 		{
-			Response::set_user(&user);
 			Response::num_reply(RPL_WHOISUSER);
 			Response::num_reply(RPL_WHOISHOST);
 			Response::num_reply(RPL_WHOISSERVER);

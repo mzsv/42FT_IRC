@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 22:45:16 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 00:43:45 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void Server::delete_broken_connection()
 		Logger::Log(INFO, users_[i]->get_prefix() + " disconnected.");
 		delete users_[i];
 		users_.erase(users_.begin() + i);
-		users_fds_.erase(users_fds_.begin() + i);
+		users_fds_.erase(users_fds_.begin() + i - 1);
 		--i;
 	}
 }
@@ -192,6 +192,7 @@ void Server::check_connection()
 			{
 				Response::add_param("server", name_);
 				Response::add_param("ping_token", name_);
+				Response::set_user(users_[i]);
 				Response::cmd_reply(CMD_PING, NULL, *users_[i]);
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
@@ -240,9 +241,6 @@ int Server::check_connection(User& user)
 
 void Server::get_connection()
 {
-	// doesn't poll check if there an incoming connection on the listening sock? is is more efficient?
-	// yes! poll must be used prior to accept ! (check evaluation sheet)
-	// ISSUE
 	size_t addr_len = sizeof(sockaddr);
 	int connection = accept(socket_fd_, (struct sockaddr*)&sockaddr_, (socklen_t*)&addr_len);
 	if (connection < 0)
