@@ -1,37 +1,10 @@
 # EVALUATION
 
-	/* Command Handlers */
-	functions_["CAP"] = &Executor::ignore;
-	functions_["PASS"] = &Executor::pass;
-	functions_["NICK"] = &Executor::nick;
-	functions_["USER"] = &Executor::user;
-	functions_["PING"] = &Executor::ping;
-	functions_["PONG"] = &Executor::pong;
-	functions_["JOIN"] = &Executor::join;
-	functions_["PART"] = &Executor::part;
-	functions_["NAMES"] = &Executor::names;
-	functions_["KICK"] = &Executor::kick;
-	functions_["INVITE"] = &Executor::invite;
-	functions_["TOPIC"] = &Executor::topic;
-	functions_["MODE"] = &Executor::mode;
-	functions_["PRIVMSG"] = &Executor::privmsg;
-	functions_["NOTICE"] = &Executor::notice;
-	functions_["MOTD"] = &Executor::motd;
-	functions_["LUSERS"] = &Executor::lusers;
-	functions_["WHO"] = &Executor::who;
-	functions_["WHOIS"] = &Executor::whois;
-	functions_["QUIT"] = &Executor::quit;
 
-	/* Mode Handlers */
-	mode_functions_['i'] = &Executor::invite_only;
-	mode_functions_['t'] = &Executor::topic_mode;
-	mode_functions_['k'] = &Executor::channel_key;
-	mode_functions_['o'] = &Executor::channel_operator;
-	mode_functions_['l'] = &Executor::user_limit;
 
 # ISSUES
 
-
+- JOIN 0: PAR message sent but action not taken
 - review Makefile
 - review lowercase
 - review responses relying on trailing param
@@ -46,6 +19,7 @@
 # SUGGESTIONS
 
 
+- separate util functions from the classes methods .cpp
 - send_message: add final \r\n, instead of doing when building the message?
 - 2 ways to add user: channel->add_user and server->join_channel : choose one, Channel!
 - add NULL check for every user/channel pointer access

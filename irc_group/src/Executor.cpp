@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 18:14:36 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 18:35:22 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -733,7 +733,7 @@ int Executor::channel_operator(std::string channel, User& user, std::queue<std::
 		q_values.pop();
 		if (!channel_ptr->contains_nickname(target_nick))
 		{
-			Response::add_param("nickname", target_nick);
+			Response::add_param("target_nickname", target_nick);
 			Response::num_reply(ERR_NOSUCHNICK);
 		}
 		else if (activate)
@@ -816,11 +816,11 @@ int Executor::privmsg(const Message& message, User& user)
 		}
 		else
 		{
-			Response::add_param("nickname", target);
 			if (!server_->contains_nickname(target))
 			{
 				if (command != "NOTICE")
 				{
+					Response::add_param("target_nickname", target);
 					Response::num_reply(ERR_NOSUCHNICK);
 				}
 			}
@@ -947,9 +947,9 @@ int Executor::whois(const Message& message, User& user)
 		{
 			mask = message.get_arguments()[1];
 		}
-		Response::add_param("whois_mask", mask);
 		if (server_->contains_nickname(mask))
 		{
+			Response::add_param("whois_mask", mask);
 			Response::num_reply(RPL_WHOISUSER);
 			Response::num_reply(RPL_WHOISHOST);
 			Response::num_reply(RPL_WHOISSERVER);
@@ -959,6 +959,7 @@ int Executor::whois(const Message& message, User& user)
 		}
 		else
 		{
+			Response::add_param("target_nickname", mask);
 			Response::num_reply(ERR_NOSUCHNICK);
 		}
 	}
