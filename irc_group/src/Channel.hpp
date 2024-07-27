@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 18:36:38 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:20:18 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ class Channel
 	std::string topic_;
 	unsigned short user_limit_;
 	unsigned char flags_;
-
 	std::vector<const User*> operators_;
 	std::vector<const User*> users_;
 	std::set<const User*> invites_;

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 00:43:45 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:23:01 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void Server::create_socket()
 	socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd_ == -1)
 	{
-		Logger::Log(FATAL, "Server::Failed to create socket");
+		Logger::Log(FATAL, "Failed to create socket");
 		stop();
 	}
 }
@@ -92,7 +92,7 @@ void Server::bind_socket()
 	int idk = 1;
 	if (setsockopt(socket_fd_, SOL_SOCKET, SO_REUSEADDR, &idk, sizeof(int)) < 0)
 	{
-		Logger::Log(FATAL, "Server::Setsocketopt failed");
+		Logger::Log(FATAL, "Setsocketopt failed");
 		return stop();
 	}
 	sockaddr_.sin_family = AF_INET;
@@ -100,7 +100,7 @@ void Server::bind_socket()
 	sockaddr_.sin_port = htons(port_);
 	if (bind(socket_fd_, (struct sockaddr*)&sockaddr_, sizeof(sockaddr_)) < 0)
 	{
-		Logger::Log(FATAL, "Server::Failure to bind to port");
+		Logger::Log(FATAL, "Failure to bind to port");
 		stop();
 	}
 }
@@ -109,7 +109,7 @@ void Server::listen_socket()
 {
 	if (listen(socket_fd_, 128) < 0)
 	{
-		Logger::Log(FATAL, "Server::Failed to listen on socket");
+		Logger::Log(FATAL, "Failed to listen on socket");
 		return stop();
 	}
 	fcntl(socket_fd_, F_SETFL, O_NONBLOCK);
@@ -132,6 +132,7 @@ void Server::delete_broken_connection()
 {
 	for (size_t i = 0; i < users_.size(); ++i)
 	{
+		Response::set_user(users_[i]);
 		if (!(users_[i]->get_flags() & BREAK))
 		{
 			continue;
@@ -156,10 +157,10 @@ void Server::delete_broken_connection()
 			}
 		}
 		close(users_[i]->get_socket_fd());
-		Logger::Log(INFO, users_[i]->get_prefix() + " disconnected.");
+		Logger::Log(INFO, users_[i]->get_prefix() + " disconnected");
 		delete users_[i];
 		users_.erase(users_.begin() + i);
-		users_fds_.erase(users_fds_.begin() + i - 1);
+		users_fds_.erase(users_fds_.begin() + i + 1);
 		--i;
 	}
 }
@@ -190,9 +191,9 @@ void Server::check_connection()
 		{
 			if (difftime(time(0), users_[i]->get_time_of_last_action()) > max_inactive_time_)
 			{
+				Response::set_user(users_[i]);
 				Response::add_param("server", name_);
 				Response::add_param("ping_token", name_);
-				Response::set_user(users_[i]);
 				Response::cmd_reply(CMD_PING, NULL, *users_[i]);
 				users_[i]->set_time_after_pinging();
 				users_[i]->set_time_of_last_action();
@@ -228,7 +229,7 @@ int Server::check_connection(User& user)
 			Executor executor(this);
 			executor.execute(Message("LUSERS\n"), user);
 			executor.execute(Message("MOTD\n"), user);
-			Logger::Log(INFO, "New client registered: " + user.get_prefix());
+			Logger::Log(INFO, "New client " + user.get_prefix() + " registered");
 		}
 	}
 	else
@@ -297,6 +298,7 @@ int Server::handle_message(User& user)
 	{
 		Message message(user.get_message().front());
 		user.pop_message();
+		Logger::Log(INFO, "(" + user.get_prefix() + ") " + message.get_message().substr(0, message.get_message().size() - 1));
 		if (!(user.get_flags() & REGISTERED) && message.get_command() != "QUIT" && message.get_command() != "PASS" \
 			&& message.get_command() != "USER" && message.get_command() != "NICK" \
 			&& message.get_command() != "CAP")

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 19:23:25 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:24:06 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,9 @@ void Bot::send_message(const std::string& message) const
     {
         if (send(socket_fd_, message.c_str(), message.size(), 0) < 0)
         {
-            Logger::Log(ERROR, "Bot::Failed to send message: " + message);
+            Logger::Log(ERROR, "Failed to send message: " + message);
         }
+        Logger::Log(INFO, "(Sent) " + message);
     }
 }
 
@@ -148,7 +149,7 @@ void Bot::reply(const Message& message)
         {
             if (!game_)
             {
-                Logger::Log(INFO, "Bot::Starting new game");
+                Logger::Log(INFO, "Starting new game");
                 game_ = new TicTacToe(this, target);
             }
             else
@@ -188,10 +189,10 @@ void Bot::run()
         {
             Message message(messages_.front());
             messages_.pop();
-            Logger::Log(DEBUG, "Bot::Handling message: " + message.get_message());
-            Logger::Log(DEBUG, "Bot::Command: " + message.get_command());
-            Logger::Log(DEBUG, "Bot::Prefix: " + message.get_prefix());
-            Logger::Log(DEBUG, "Bot::Trailing: " + message.get_trailing());
+            Logger::Log(DEBUG, "Handling message: " + message.get_message());
+            Logger::Log(DEBUG, "Command: " + message.get_command());
+            Logger::Log(DEBUG, "Prefix: " + message.get_prefix());
+            Logger::Log(DEBUG, "Trailing: " + message.get_trailing());
             handle_message(message);
         }
     }
@@ -201,7 +202,7 @@ void Bot::stop()
 {
     close(socket_fd_);
     socket_fd_ = -1;
-    Logger::Log(INFO, "Bot::Disconnecting from server...");
+    Logger::Log(INFO, "Disconnecting from server...");
 }
 
 void Bot::send_to(const std::string& target, const std::string& message) const
@@ -216,6 +217,6 @@ void Bot::end_game()
         send_to(game_->get_target(), "Game over! Type 'play game' to start a new one!\n");
         delete game_;
         game_ = NULL;
-        Logger::Log(INFO, "Bot::Game ended");
+        Logger::Log(INFO, "Game ended");
     }
 }

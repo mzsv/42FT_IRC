@@ -1,8 +1,47 @@
+# EVALUATION
+
+	/* Command Handlers */
+	functions_["CAP"] = &Executor::ignore;
+	functions_["PASS"] = &Executor::pass;
+	functions_["NICK"] = &Executor::nick;
+	functions_["USER"] = &Executor::user;
+	functions_["PING"] = &Executor::ping;
+	functions_["PONG"] = &Executor::pong;
+	functions_["JOIN"] = &Executor::join;
+	functions_["PART"] = &Executor::part;
+	functions_["NAMES"] = &Executor::names;
+	functions_["KICK"] = &Executor::kick;
+	functions_["INVITE"] = &Executor::invite;
+	functions_["TOPIC"] = &Executor::topic;
+	functions_["MODE"] = &Executor::mode;
+	functions_["PRIVMSG"] = &Executor::privmsg;
+	functions_["NOTICE"] = &Executor::notice;
+	functions_["MOTD"] = &Executor::motd;
+	functions_["LUSERS"] = &Executor::lusers;
+	functions_["WHO"] = &Executor::who;
+	functions_["WHOIS"] = &Executor::whois;
+	functions_["QUIT"] = &Executor::quit;
+
+	/* Mode Handlers */
+	mode_functions_['i'] = &Executor::invite_only;
+	mode_functions_['t'] = &Executor::topic_mode;
+	mode_functions_['k'] = &Executor::channel_key;
+	mode_functions_['o'] = &Executor::channel_operator;
+	mode_functions_['l'] = &Executor::user_limit;
+
 # ISSUES
 
 
 - review Makefile
 - review lowercase
+- review responses relying on trailing param
+- Messages: removing spaces from trailing. probably thats how it is supposed to be
+- setup exceptions
+- executor instances
+- map user-op status for channels
+- unused chanop flag
+- should Response be so static?
+- user.set_password() what for?
 
 # SUGGESTIONS
 
@@ -23,6 +62,10 @@
 - store pointers instead of strings > add function to check for null pointers where needed
 - PRIVMSG to several targets
 - use references instead of pointers
+- setup socket at constructor server level
+- map of users in server
+- implement LIST
+- QUIT: get trailing as reason, instead of second arg
 
 # SOLVED/TAKEAWAYS
 

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:12 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 23:05:58 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:20:58 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ class Server
 	std::vector<User*> users_;
 	std::vector<struct pollfd> users_fds_;
 	std::map<std::string, Channel*> channels_;
-	std::vector<std::string> invited_users_;
 	std::string name_;
 	std::string password_;
 	const id_t timeout_;

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 00:46:38 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:18:12 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -316,6 +316,7 @@ int Executor::names(const Message& message, User& user)
 		std::vector<const Channel*> channels = user.get_channels();
 		for (size_t i = 0; i < channels.size(); ++i)
 		{
+			Response::set_channel(channels[i]);
 			Response::num_reply(RPL_NAMREPLY);
 		}
 		Response::num_reply(RPL_ENDOFNAMES);

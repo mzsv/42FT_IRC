@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:55:20 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 14:32:41 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -519,9 +519,9 @@ void Response::num_reply(IrcCode code)
 	oss << ":" << user_->get_server_name() << " " \
 		<< std::setw(3) << std::setfill('0') << code \
 		<< " " << user_->get_nickname() << " " \
-		<< message << "\r\n";
-	user_->send_message(oss.str());
-	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + message);
+		<< message;
+	user_->send_message(oss.str() + "\r\n");
+	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + oss.str());
 }
 
 void Response::cmd_reply(IrcCode code, const User& source, const Channel& target, bool include_source)
@@ -529,7 +529,6 @@ void Response::cmd_reply(IrcCode code, const User& source, const Channel& target
 	std::string prefix = source.get_prefix();
 	std::string message = ":" + prefix + " " \
 		+ Response::generate_message(code);
-
 	target.send_message(message + "\r\n", source, include_source);
 	Logger::Log(DEBUG, "(" + user_->get_prefix() + ") " + message);
 }

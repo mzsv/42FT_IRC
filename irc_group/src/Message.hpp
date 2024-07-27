@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 20:47:27 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 19:08:56 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 13:54:53 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@
 #include "Logger.hpp"
 
 std::queue<std::string> split2queue(const std::string& str, char sep, bool incl);
-
-std::string& tolower_str(std::string& str);
 
 class Message
 {
