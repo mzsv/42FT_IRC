@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 15:18:12 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 16:40:42 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,11 +188,14 @@ int Executor::pong(const Message& message, User& user)
 	{
 		Response::num_reply(ERR_NOORIGIN);
 	}
-	else
+	else if (user.get_flags() & PINGING)
 	{
-		user.set_time_after_pinging();
-		user.set_time_of_last_action();
-		user.reset_flag(PINGING);
+		if (message.get_arguments()[0] == user.get_server_name())
+		{
+			user.set_time_after_pinging();
+			user.set_time_of_last_action();
+			user.reset_flag(PINGING);
+		}
 	}
 	return 0;
 }
@@ -232,9 +235,10 @@ int Executor::join(const Message& message, User& user)
 			Response::add_param("channel", it->first);
 			Response::add_param("reason", "");
 			Response::cmd_reply(CMD_PART, user, *it->second);
+			server_->leave_channel(it->first, user);
 		}
 	}
-	else 
+	else
 	{
 		channel_names = split_arguments(message.get_arguments()[0]);
 		size_t max_len = ston<size_t>(server_->get_isupport_param("CHANNELLEN"));
@@ -299,7 +303,7 @@ int Executor::part(const Message& message, User& user)
 				}
 				Response::add_param("reason", reason);
 				Response::cmd_reply(CMD_PART, user, *server_->get_channels().at(channel_names[i]));
-				server_->leave_channel(channel_names[i], user); // ! did not remove channel from User (rethink if its necessary to keep that)
+				server_->leave_channel(channel_names[i], user);
 			}
 		}
 	}

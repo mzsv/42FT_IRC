@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 23:14:21 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/27 15:24:06 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 15:50:20 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void Bot::handle_message(const Message& message)
     {
         reply(message);
     }
-    else if (command == "PART" || command == "QUIT")
+    else if (command == "PART")
     {
         send_to(message.get_arguments()[0], "One human less... This is getting cute!\n");
     }
