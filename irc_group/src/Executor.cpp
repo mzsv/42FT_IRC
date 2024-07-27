@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 17:58:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 18:14:36 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -942,12 +942,8 @@ int Executor::whois(const Message& message, User& user)
 	}
 	else
 	{
-		std::string mask;
+		std::string mask = message.get_arguments()[0];
 		if (message.get_arguments().size() > 1)
-		{
-			mask = message.get_arguments()[0];
-		}
-		else
 		{
 			mask = message.get_arguments()[1];
 		}

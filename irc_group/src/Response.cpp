@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 17:49:43 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 18:11:23 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_WHOISMODES] = "{whois_mask} :is using modes +{activated_umodes}";
 
 	/* Numeric Replies - Error Responses */
-	messages[ERR_NOSUCHNICK] = "{nickname} :No such nick/channel";
+	messages[ERR_NOSUCHNICK] = "{whois_mask} :No such nick/channel";
 	messages[ERR_NOSUCHCHANNEL] = "{channel} :No such channel";
 	messages[ERR_CANNOTSENDTOCHAN] = "{channel} :Cannot send to channel";
 	messages[ERR_NOORIGIN] = ":No origin specified";
