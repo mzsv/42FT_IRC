@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 11:47:01 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 15:20:18 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 17:50:26 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ class Channel
 	std::set<const User*> invites_;
 	time_t topic_time_;
 	time_t start_time_;
+	User* topic_who_;
 
 	/**
      * Forbidden APIs
@@ -61,6 +62,7 @@ class Channel
 	const std::vector<const User*>& get_operators() const;
 	const User* get_user(const std::string& nickname) const;
 	const time_t& get_start_time() const;
+	const User* get_topic_who() const;
 
 	/**
 	 * Setters
@@ -71,7 +73,8 @@ class Channel
 	void set_topic_time();
 	void set_flag(unsigned char flag);
 	void set_user_limit(unsigned short limit);
-	
+	void set_topic_who(User& user);
+
 	/**
 	 * Funcs
 	*/

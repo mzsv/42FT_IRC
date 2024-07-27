@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 14:55:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 14:32:41 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 17:49:43 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ std::map<IrcCode, std::string> Response::initialize_irc_messages()
 	messages[RPL_CREATIONTIME] = "{channel} {ch_timestamp}";
 	messages[RPL_NOTOPIC] = "{channel} :No topic is set";
 	messages[RPL_TOPIC] = "{channel} :{topic}";
-	messages[RPL_TOPICWHOTIME] = "{channel} {nickname} {t_timestamp} :{topic}";
+	messages[RPL_TOPICWHOTIME] = "{channel} {topic_who} {t_timestamp} :{topic}";
 	messages[RPL_INVITING] = "{target_nickname} {channel} :Inviting {target_nickname} to {channel}";
 	messages[RPL_WHOREPLY] = "{channel} {target_username} {target_hostname} {server_name} {target_nickname} {who_flags} :{hopcount} {target_realname}";
 	messages[RPL_NAMREPLY] = "= {channel} :{nicknames}";
@@ -403,6 +403,7 @@ std::string Response::rpl_topicwhotime(IrcCode code)
 {
 	Response::add_param("t_timestamp", to_string_(channel_->get_topic_time()));
 	Response::add_param("topic", channel_->get_topic());
+	Response::add_param("topic_who", channel_->get_topic_who()->get_nickname());
 	return Response::generate_message(code);
 }
 

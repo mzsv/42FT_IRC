@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 12:32:20 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 15:17:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 17:50:43 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Channel::Channel(const std::string& name, const std::string& password, const User& creator) :
 	name_(name), password_(password), user_limit_(0),
-	flags_(NOMSGOUT | TOPICMODE), topic_time_(0)
+	flags_(NOMSGOUT | TOPICMODE), topic_time_(0), topic_who_(0)
 {
 	users_.push_back(&creator);
 	operators_.push_back(&creator);
@@ -73,6 +73,11 @@ const User* Channel::get_user(const std::string& nickname) const
 const time_t& Channel::get_start_time() const
 {
 	return start_time_;
+}
+
+const User* Channel::get_topic_who() const
+{
+	return topic_who_;
 }
 
 /**
@@ -224,6 +229,11 @@ void Channel::reset_flag(unsigned char flag)
 void Channel::set_user_limit(unsigned short limit)
 {
 	user_limit_ = limit;
+}
+
+void Channel::set_topic_who(User& user)
+{
+	topic_who_ = &user;
 }
 
 void Channel::add_operator(std::string nickname)

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 15:23:07 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 16:40:42 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 17:58:42 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,6 +292,7 @@ int Executor::part(const Message& message, User& user)
 			}
 			else if (!server_->user_on_channel(channel_names[i], user))
 			{
+				Response::add_param("nickname", user.get_nickname());
 				Response::num_reply(ERR_NOTONCHANNEL);
 			}
 			else
@@ -496,6 +497,7 @@ int Executor::topic(const Message& message, User& user)
 			{
 				channel_ptr->set_topic(user, topic);
 				channel_ptr->set_topic_time();
+				channel_ptr->set_topic_who(user);
 			}
 			Response::cmd_reply(CMD_TOPIC, user, *channel_ptr);
 		}
@@ -543,6 +545,10 @@ int Executor::mode(const Message& message, User& user)
 			Response::set_channel(server_->get_channels().at(channel));
 			Response::num_reply(RPL_CHANNELMODEIS);
 			Response::num_reply(RPL_CREATIONTIME);
+		}
+		else if (!server_->is_operator(channel, user))
+		{
+			Response::num_reply(ERR_CHANOPRIVSNEEDED);
 		}
 		else
 		{
@@ -593,7 +599,7 @@ int Executor::invite_only(std::string channel, User& user, std::queue<std::strin
 	if (flag != (channel_ptr->get_flags() & INVITEONLY))
 	{
 		channel_ptr->clear_invites();
-		Response::add_param("mode", mode_str);
+		Response::add_param("mode_str", mode_str);
 		Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 	}
 	return 0;
@@ -617,7 +623,7 @@ int Executor::topic_mode(std::string channel, User& user, std::queue<std::string
 	}
 	if (flag != (channel_ptr->get_flags() & TOPICMODE))
 	{
-		Response::add_param("mode", mode_str);
+		Response::add_param("mode_str", mode_str);
 		Response::cmd_reply(CMD_MODE, user, *channel_ptr);
 	}
 	return 0;
@@ -693,7 +699,7 @@ int Executor::user_limit(std::string channel, User& user, std::queue<std::string
 		if (iss.fail() || value == 0)
 		{
 			Response::num_reply(ERR_INVALIDMODEPARAM);
-			return -1; // ?
+			return -1;
 		}
 		channel_ptr->set_flag(USERLIMIT);
 		channel_ptr->set_user_limit(value);
