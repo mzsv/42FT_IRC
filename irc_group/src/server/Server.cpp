@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/04 17:28:47 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/27 15:23:01 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 20:04:33 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ void Server::listen_socket()
 	}
 	fcntl(socket_fd_, F_SETFL, O_NONBLOCK);
 	name_ = inet_ntoa(sockaddr_.sin_addr);
-
 	Logger::Log(INFO, "Server running on " + std::string(inet_ntoa(sockaddr_.sin_addr)) + 
 		":" + to_string_(ntohs(sockaddr_.sin_port)));
 }

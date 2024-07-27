@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:17:11 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/26 23:05:03 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 20:26:53 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ int main(int argc, char **argv)
     server.listen_socket();
     server.add_listener();
     Response::set_server(&server);
-
     while (server.is_running())
     {
         server.process_message();

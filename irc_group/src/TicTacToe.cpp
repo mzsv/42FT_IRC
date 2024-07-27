@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 22:41:31 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/26 19:25:30 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/27 20:24:37 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ TicTacToe::TicTacToe(Bot* bot, std::string target) :
     bot_(bot), target_(target),
     board_(3, std::string(3, ' ')), currentPlayer_('X')
 {
-    output("Game On! Player X starts. Make a move! Type 'play <row> <col>'\n");
+    output("Game On! Player X starts. Make a move! Type 'play <row> <col>' (or 'stop game')\n");
     display_board();
 }
 

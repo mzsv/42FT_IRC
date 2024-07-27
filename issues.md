@@ -4,22 +4,20 @@
 
 # ISSUES
 
-- JOIN 0: PAR message sent but action not taken
 - review Makefile
-- review lowercase
-- review responses relying on trailing param
-- Messages: removing spaces from trailing. probably thats how it is supposed to be
-- setup exceptions
-- executor instances
-- map user-op status for channels
-- unused chanop flag
-- should Response be so static?
-- user.set_password() what for?
 
 # SUGGESTIONS
 
 
+- review lowercase
+- review responses relying on trailing param
+- user.set_password() what for?
+- should Response be so static?
+- unused chanop flag
+- executor instances
+- map user-op status for channels
 - separate util functions from the classes methods .cpp
+- setup exceptions
 - send_message: add final \r\n, instead of doing when building the message?
 - 2 ways to add user: channel->add_user and server->join_channel : choose one, Channel!
 - add NULL check for every user/channel pointer access
