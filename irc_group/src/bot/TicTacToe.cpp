@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/25 22:41:31 by amenses-          #+#    #+#             */
-/*   Updated: 2024/07/27 20:24:37 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:23:21 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,10 @@ int TicTacToe::play_round(std::string arg)
     int row = 0;
     int col = 0;
 
+    if (arg.size() < 5)
+    {
+        return 0;
+    }
     std::string play = arg.substr(5);
     std::istringstream iss(play);
     iss >> row >> col;

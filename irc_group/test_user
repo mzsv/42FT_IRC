@@ -1,7 +1,0 @@
-PASS 111
-NICK nick_1
-USER user_1 0 * :real_1
-JOIN #1
-JOIN #2
-JOIN #3
-

@@ -6,7 +6,7 @@
 /*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/23 19:06:54 by amitcul           #+#    #+#             */
-/*   Updated: 2024/07/21 17:53:14 by amenses-         ###   ########.fr       */
+/*   Updated: 2024/07/29 00:40:49 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,19 @@
 
 static bool is_special(char c)
 {
-    return (c >= 0x5B && c <= 0x60) || (c >= 0x7B && c <= 0x7D); // "[", "]", "\", "`", "_", "^", "{", "|", "}"
+    return (c >= 0x5B && c <= 0x60) || (c >= 0x7B && c <= 0x7D);
 }
 
 bool is_valid_nickname(const std::string &nickname)
 {
-    // Check the length constraints
     if (nickname.empty() || nickname.length() > 9)
     {
         return false;
     }
-    // Check the first character
     if (!isalpha(nickname[0]) && !is_special(nickname[0]))
     {
         return false;
     }
-    // Check the remaining characters
     for (size_t i = 1; i < nickname.length(); ++i)
     {
         char c = nickname[i];
@@ -66,7 +63,7 @@ bool is_valid_channel(const std::string& channel)
         {
             if (colonFound)
             {
-                return false; // Only one colon is allowed
+                return false;
             }
             colonFound = true;
         } else if (!is_valid_chanstringchar(c))
@@ -83,7 +80,7 @@ static bool is_valid_key_char(char c)
            (c >= 0x07 && c <= 0x08) || \
            (c == 0x0C) || \
            (c >= 0x0E && c <= 0x1F) || \
-           (c >= 0x21 && c <= 0x7F);
+           (c >= 0x21);
 }
 
 bool is_valid_key(const std::string& key) // add exceptions explaining reason !

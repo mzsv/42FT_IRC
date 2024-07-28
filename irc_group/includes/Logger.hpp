@@ -1,17 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   log_types.hpp                                      :+:      :+:    :+:   */
+/*   Logger.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amitcul <amitcul@student.42porto.com>      +#+  +:+       +#+        */
+/*   By: amenses- <amenses-@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/08 17:57:59 by amitcul           #+#    #+#             */
-/*   Updated: 2024/01/08 18:01:28 by amitcul          ###   ########.fr       */
+/*   Created: 2024/01/08 17:53:51 by amitcul           #+#    #+#             */
+/*   Updated: 2024/07/29 00:42:14 by amenses-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LOG_TYPES_HPP
-#define LOG_TYPES_HPP
+#ifndef LOGGER_HPP
+#define LOGGER_HPP
+
+#include <string>
 
 enum LogType
 {
@@ -22,4 +24,15 @@ enum LogType
 	DEBUG
 };
 
-#endif // LOG_TYPES_HPP
+class Logger
+{
+private:
+	Logger();
+	Logger(const Logger& logger);
+	Logger& operator=(const Logger& logger);
+
+public:
+	static void Log(const LogType type, const std::string& msg);
+};
+
+#endif // LOGGER_HPP

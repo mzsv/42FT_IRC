@@ -3,7 +3,7 @@ NAME	=	ircserv
 BOT_NAME = bot
 
 CXX		=	c++
-CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98 -g #-fsanitize=address
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98
 RM		=	rm -rf
 
 INCLUDES = ./includes
