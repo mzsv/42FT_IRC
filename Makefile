@@ -1,37 +1,70 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: amenses- <amenses-@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/11/18 16:22:59 by amenses-          #+#    #+#              #
-#    Updated: 2023/12/01 23:47:48 by amenses-         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
 
-CC				=	c++
-RM				=	rm -f
-CFLAGS			=	-Wall -Wextra -Werror -std=c++98
+NAME	=	ircserv
+BOT_NAME = bot
 
-SRCS			=	main.cpp \
+CXX		=	c++
+CXXFLAGS	=	-Wall -Wextra -Werror --std=c++98
+RM		=	rm -rf
 
-OBJS			=	$(SRCS:.cpp=.o)
-				
-NAME			=	ircserv
+INCLUDES = ./includes
+SERVER = ./src/server/
+LOGGER = ./src/logger/
+USER = ./src/
+BOT = ./src/bot/
 
-all:				$(NAME)
+SRC = ./src
 
-$(NAME):			$(OBJS)
-					$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+vpath %.cpp src/
+vpath %.cpp src/server/
+vpath %.cpp src/utils/
+vpath %.cpp src/logger/
+vpath %.cpp src/bot/
 
-$(OBJS):			$(SRCS)
-					$(CC) $(CFLAGS) -c $(SRCS)
+SRCS = main.cpp check_argv.cpp split2queue.cpp Server.cpp Logger.cpp User.cpp Channel.cpp Message.cpp \
+	Executor.cpp Response.cpp is_valid_nickname.cpp SignalHandler.cpp tolower_str.cpp
 
-clean:
-					$(RM) $(OBJS)
+BOT_SRCS = split2queue.cpp tolower_str.cpp Logger.cpp Message.cpp TicTacToe.cpp Bot.cpp bot_main.cpp
 
-fclean:				clean
-					$(RM) $(NAME)
+OBJ_DIR = ./obj/
+BOT_OBJ_DIR = ./obj_bot/
 
-re:					fclean all
+OBJS = $(patsubst %.cpp, $(OBJ_DIR)%.o, $(SRCS))
+BOT_OBJS = $(patsubst %.cpp, $(BOT_OBJ_DIR)%.o, $(BOT_SRCS))
+
+all: $(NAME) $(BOT_NAME)
+
+$(OBJS): $(OBJ_DIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -I$(BOT) -o $@ -fPIE
+
+$(BOT_OBJS): $(BOT_OBJ_DIR)%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -I$(BOT) -o $@ -fPIE
+
+$(NAME): $(OBJ_DIR) $(OBJS)
+	@echo $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -I$(BOT) -o $(NAME) -fPIE
+
+$(BOT_NAME): $(BOT_OBJ_DIR) $(BOT_OBJS)
+	@echo $(BOT_OBJS)
+	$(CXX) $(CXXFLAGS) $(BOT_OBJS) -I$(INCLUDES) -I$(SERVER) -I$(USER) -I$(LOGGER) -I$(BOT) -o $(BOT_NAME) -fPIE
+
+$(OBJ_DIR):
+	mkdir $@
+
+$(BOT_OBJ_DIR):
+	mkdir $@
+
+fclean : clean
+	$(RM) $(NAME)
+	$(RM) $(BOT_NAME)
+	$(RM) -R $(OBJ_DIR)
+	$(RM) -R $(BOT_OBJ_DIR)
+	$(RM) *.a
+
+clean :
+	$(RM) $(OBJ_DIR) $(OBJ_DIR)*.o
+	$(RM) $(BOT_OBJ_DIR) $(BOT_OBJ_DIR)*.o
+
+re : fclean
+	$(MAKE)
+
+.PHONY: all clean fclean re
