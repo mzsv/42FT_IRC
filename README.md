@@ -53,11 +53,7 @@ This project involves the development of an IRC server in C++98 with the followi
    ```sh
    make
 
-3. Run the server with port number and password, for example:
-   ```sh
-   ./ircserv <port> <password>
-
-   Example:
+3. Run the server with port number (for example: 6667) and password (for example: 111):
    ```sh
    ./ircserv 6667 111
 
@@ -110,7 +106,7 @@ This project involves the development of an IRC server in C++98 with the followi
 - [Internet Relay Chat: Server Protocol](https://datatracker.ietf.org/doc/html/rfc2813)
 - [Internet Relay Chat: Architecture](https://datatracker.ietf.org/doc/html/rfc2810)
 
-## Contributers
+## Contributors
 
 - 42 intra: [Andre Silva](https://github.com/mzsv/)
 - 42 intra: [Alexandru Mitcul](https://github.com/AlexMitcul)
