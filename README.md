@@ -108,8 +108,8 @@ This project involves the development of an IRC server in C++98 with the followi
 
 ## Contributors
 
-- 42 intra: [Andre Silva](https://github.com/mzsv/)
-- 42 intra: [Alexandru Mitcul](https://github.com/AlexMitcul)
+- [Andre Silva](https://github.com/mzsv/)
+- [Alexandru Mitcul](https://github.com/AlexMitcul)
 
 ## Acknowledgements
 
