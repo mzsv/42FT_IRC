@@ -11,7 +11,7 @@
 5. [Acknowledgments](#acknowledgments)
 
 ## Overview
-ft_42 IRC Server is a custom-built Internet Relay Chat server designed to provide a robust and feature-rich communication platform. It adheres to the IRC protocol, allowing clients to connect, join channels, send messages, and interact in real-time. 
+ft_42 IRC Server is a custom-built Internet Relay Chat server designed to provide a robust and feature-rich communication platform. It adheres to the IRC protocol, allowing clients to connect, join channels, send messages, and interact in real-time. Moreover, it requires knowledge of how UNIX sockets work and networking.
 
 This project involves the development of an IRC server in C++98 with the following requirements:
 - The server must handle multiple clients simultaneously without hanging.
